@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enrolled Players</title>
+</head>
+<body>
+    <h2>Enrolled Players</h2>
+    <ul>
+        <% players.forEach(player => { %>
+            <li><%= player.name %> - Rating: <%= player.rating %></li>
+        <% }); %>
+    </ul>
+    <a href="/tournament/pairings">Go to Pairings</a>
+</body>
+</html>
