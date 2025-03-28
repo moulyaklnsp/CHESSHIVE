@@ -11,7 +11,7 @@
 </head>
 <body>
     <div class="container">
-        <h2 class="black-h2">Ongoing & Upcoming Tournaments</h2>
+        <h2 class="black-h2">Tournament Oversight</h2>
 
         <!-- Success/Error Messages -->
         <% if (successMessage) { %>
@@ -22,7 +22,7 @@
         <% } %>
 
         <div class="table-div">
-            <h4>Monitoring view of all approved tournaments</h4>
+            <h4>Monitoring view of all tournaments</h4>
             <div id="adminTournamentTable">
                 <% if (typeof tournaments !== 'undefined' && Array.isArray(tournaments) && tournaments.length > 0) { %>
                     <table border="1">

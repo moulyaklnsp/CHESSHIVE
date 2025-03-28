@@ -18,14 +18,14 @@
                 <tr>
                     <th>Player Name</th>
                     <th>Subscription Level</th>
-                    <th>Payment Status</th>
+                    <th>Date of Subscription</th>
                 </tr>
                 <% if (typeof players !== "undefined" && players.length > 0) { %>
                 <% players.forEach(player => { %>
                     <tr>
                         <td><%= player.name %></td>
                         <td>Level <%= player.plan %></td>
-                        <td><%= player.paymentStatus %></td>
+                        <td><%= player.start_date %></td>
                     </tr>
                 <% }); %>
                 <% } else { %>
