@@ -24,7 +24,7 @@
         </div>
 
         <div class="table-div">
-            <h3>Upcoming Meetings</h3>
+            <h3>Organized Meetings</h3>
             <table>
                 <tr>
                     <th>Title</th>
@@ -45,10 +45,34 @@
                     <p>No meetings available.</p>
                 <% } %>
             </table>
+        </div>
 
-            <div class="back-container">
-                <a href="/organizer/organizer_dashboard" class="back">Back to Dashboard</a>
-            </div>
+        <div class="table-div">
+            <h3>Upcoming Meetings</h3>
+            <table>
+                <tr>
+                    <th>Title</th>
+                    <th>Date</th>
+                    <th>Time</th>
+                    <th>Link</th>
+                </tr>
+                <% if (typeof upcomingMeetings !== "undefined" && upcomingMeetings.length > 0) { %>
+                    <% upcomingMeetings.forEach(meeting => { %>
+                        <tr>
+                            <td><%= meeting.title %></td>
+                            <td><%= meeting.date %></td>
+                            <td><%= meeting.time %></td>
+                            <td><a href="<%= meeting.link %>" target="_blank">Join</a></td>
+                        </tr>
+                    <% }); %>
+                <% } else { %>
+                    <p>No Upcoming meetings.</p>
+                <% } %>
+            </table>
+        </div>
+
+        <div class="back-container">
+            <a href="/organizer/organizer_dashboard" class="back">Back to Dashboard</a>
         </div>
     </div>
 </body>

@@ -97,7 +97,9 @@ db.serialize(() => {
         title TEXT NOT NULL,
         date TEXT NOT NULL,
         time TEXT NOT NULL,
-        link TEXT NOT NULL
+        link TEXT NOT NULL,
+        role TEXT CHECK(role IN ('admin','player', 'coordinator', 'organizer')) NOT NULL,
+        name TEXT NOT NULL
     )`, (err) => {
         if (err) {
             console.error("❌ Error creating meetings table:", err);

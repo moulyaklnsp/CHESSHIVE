@@ -558,8 +558,8 @@ router.post("/buy", (req, res) => {
 router.post('/coordinator/coordinator_meetings/schedule', (req, res) => {
     const { title, date, time, link } = req.body;
 
-    const query = `INSERT INTO meetingsdb (title, date, time, link) VALUES (?, ?, ?, ?)`;
-    db.run(query, [title, date, time, link], function (err) {
+    const query = `INSERT INTO meetingsdb (title, date, time, link, role, name) VALUES (?, ?, ?, ?, ?, ?)`;
+    db.run(query, [title, date, time, link, req.session.userRole, req.session.username], function (err) {
         if (err) {
             console.error('Error scheduling meeting:', err);
             return res.status(500).send('Database error');
@@ -579,14 +579,14 @@ router.post('/coordinator/coordinator_meetings/schedule', (req, res) => {
 router.post('/meetings/schedule', (req, res) => {
     const { title, date, time, link } = req.body;
 
-    const query = `INSERT INTO organizermeetings (title, date, time, link) VALUES (?, ?, ?, ?)`;
-    db.run(query, [title, date, time, link], function (err) {
+    const query = `INSERT INTO meetingsdb (title, date, time, link, role, name) VALUES (?, ?, ?, ?, ?, ?)`;
+    db.run(query, [title, date, time, link, req.session.userRole, req.session.username], function (err) {
         if (err) {
             console.error('Error scheduling meeting:', err);
             return res.status(500).send('Database error');
         }
          // Fetch all entries from meetingsdb after inserting a new one
-        db.all("SELECT * FROM organizermeetings", [], (err, rows) => {
+        db.all("SELECT * FROM meetingsdb", [], (err, rows) => {
             if (err) {
                 console.error('Error retrieving meetings:', err);
             } else {
@@ -602,14 +602,14 @@ router.post('/meetings/schedule', (req, res) => {
 router.post('/admin_meetings/schedule', (req, res) => {
     const { title, date, time, link } = req.body;
 
-    const query = `INSERT INTO adminmeetings (title, date, time, link) VALUES (?, ?, ?, ?)`;
-    db.run(query, [title, date, time, link], function (err) {
+    const query = `INSERT INTO meetingsdb (title, date, time, link, role, name) VALUES (?, ?, ?, ?, ?, ?)`;
+    db.run(query, [title, date, time, link, req.session.userRole, req.session.username], function (err) {
         if (err) {
             console.error('Error scheduling meeting:', err);
             return res.status(500).send('Database error');
         }
          // Fetch all entries from meetingsdb after inserting a new one
-        db.all("SELECT * FROM adminmeetings", [], (err, rows) => {
+        db.all("SELECT * FROM meetingsdb", [], (err, rows) => {
             if (err) {
                 console.error('Error retrieving meetings:', err);
             } else {

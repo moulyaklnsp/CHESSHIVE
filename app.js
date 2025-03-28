@@ -292,11 +292,16 @@ app.get('/:role/:subpage', (req, res) => {
     }
     if (subpage === 'admin_tournament_management' && role === 'admin') {
         return db.all(
-            `SELECT t.*, COUNT(tp.id) AS player_count 
+            `SELECT t.id, t.name, t.date, t.location, t.entry_fee, 
+                    COUNT(tp.id) AS player_count, 
+                    CASE 
+                        WHEN date(t.date) < date('now') THEN 'Completed'
+                        WHEN date(t.date) = date('now') THEN 'Running'
+                        ELSE 'Yet to Start'
+                    END AS status
              FROM tournaments t 
              LEFT JOIN tournament_players tp ON t.id = tp.tournament_id 
-             WHERE LOWER(t.status) = 'approved' 
-             GROUP BY t.id, t.name, t.date, t.location, t.entry_fee, t.status`,
+             GROUP BY t.id, t.name, t.date, t.location, t.entry_fee`,
             [],
             (err, tournaments) => {
                 if (err) {
@@ -311,6 +316,7 @@ app.get('/:role/:subpage', (req, res) => {
             }
         );
     }
+    
     if (subpage === "player_tournament" && role === "player") {
         const username = req.session.username;
         return db.get("SELECT id FROM users WHERE name = ? AND role = 'player' AND isDeleted = 0", [username], (err, user) => {
@@ -400,8 +406,8 @@ app.get('/:role/:subpage', (req, res) => {
                                 discountPercentage = 20; // 20% discount for Premium plan
                             }
                         }
-                        const query = "SELECT * FROM products WHERE college = ? "
-                        db.all(query, [req.session.userCollege], (err, products) => {
+                        const query = "SELECT * FROM products"
+                        db.all(query, [], (err, products) => {
                             if (err) {
                                 console.error("Database Error:", err);
                                 return res.status(500).send("Error fetching products");
@@ -440,26 +446,43 @@ app.get('/:role/:subpage', (req, res) => {
         });
     }
     if (subpage === "coordinator_meetings") {
-        return db.all("SELECT * FROM meetingsdb ORDER BY date, time", [], (err, results) => {
+        return db.all("SELECT * FROM meetingsdb WHERE role=? ORDER BY date, time", ['coordinator'], (err, yetToHost) => {
             if (err) {
                 console.error('Error fetching meetings:', err);
                 return res.status(500).send('Database error');
             }
-            res.render('coordinator/coordinator_meetings', { meetings: results });
+    
+            db.all("SELECT * FROM meetingsdb WHERE name!=? ORDER BY date, time", [req.session.username], (err, upcoming) => {
+                if (err) {
+                    console.error('Error fetching meetings:', err);
+                    return res.status(500).send('Database error');
+                }
+    
+                // Render only after both queries complete
+                res.render('coordinator/coordinator_meetings', { meetings: yetToHost, upcomingMeetings: upcoming });
+            });
         });
     }
+    
     if (subpage === 'meetings') {
-        return db.all("SELECT * FROM organizermeetings ORDER BY date, time", [], (err, results) => {
+        return db.all("SELECT * FROM meetingsdb WHERE role =? ORDER BY date, time", ['organizer'], (err, yetToHost) => {
             if (err) {
                 console.error('Error fetching meetings:', err);
                 return res.status(500).send('Database error');
             }
-            res.render('organizer/meetings', { organizermeetings: results });
+
+            db.all("SELECT * FROM meetingsdb WHERE name!= ? ORDER BY date, time", [req.session.username], (err, upcoming) => {
+                if (err) {
+                    console.error('Error fetching meetings:', err);
+                    return res.status(500).send('Database error');
+                }
+            res.render('organizer/meetings', { organizermeetings: yetToHost, upcomingMeetings:upcoming });
+            });
         });
     }
     //added admin meetings route
     if (subpage === 'admin_meetings' && role === 'admin') {
-        return db.all("SELECT * FROM adminmeetings ORDER BY date, time", [], (err, results) => {
+        return db.all("SELECT * FROM meetingsdb WHERE role=? ORDER BY date, time", ['admin'], (err, results) => {
             if (err) {
                 console.error('Error fetching meetings:', err);
                 return res.status(500).send('Database error');
@@ -517,10 +540,7 @@ app.get('/:role/:subpage', (req, res) => {
         const sql = `
         SELECT u.name AS name, 
                s.plan,
-               CASE 
-                   WHEN s.price > 0 THEN 'Paid' 
-                   ELSE 'Unpaid' 
-               END AS paymentStatus 
+              s.start_date
         FROM subscriptionstable s
         INNER JOIN users u ON s.username = u.email
         WHERE u.isDeleted = 0;
