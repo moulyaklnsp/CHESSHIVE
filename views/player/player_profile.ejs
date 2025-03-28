@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Player Profile</title>
+    <link rel="stylesheet" href="/css/primary_styles.css">
+    <script src="/js/wallet.js"></script>
+</head>
+<body>
+    <header class="header-player-profile">
+        <h1>Player Profile</h1>
+    </header>
+    <div class="container-player-profile">
+        <!-- Display Success/Error Messages -->
+        <% if (successMessage) { %>
+            <p class="success"><%= successMessage %></p>
+        <% } %>
+        <% if (errorMessage) { %>
+            <p class="error"><%= errorMessage %></p>
+        <% } %>
+
+        <h2 class="black-h2">Personal Details</h2>
+        <div class="form-container">
+            <section class="profile-info">
+                <% if (typeof player !== "undefined") { %>
+                    <p><strong>Name:</strong> <span id="player-name"><%= player.name %></span></p>
+                    <p><strong>Email:</strong> <span id="player-email"><%= player.email %></span></p>
+                    <p><strong>Phone:</strong> <span id="player-phone"><%= player.phone %></span></p>
+                    <p><strong>FIDE ID:</strong> <span id="fide-id"><%= player.FIDE_ID || 'N/A' %></span></p>
+                    <p><strong>AICF ID:</strong> <span id="aicf-id"><%= player.AICF_ID || 'N/A' %></span></p>
+                    <p><strong>Subscription Plan:</strong> <%= player.subscription.plan %></p>
+                    <p><strong>Price:</strong> <%= player.subscription.price %></p>
+                    <p><strong>Start Date:</strong> <%= player.subscription.start_date %></p>
+                    <p><strong>Status:</strong> <%= player.isDeleted ? 'Deleted' : 'Active' %></p>
+                <% } else { %>
+                    <p>No players available.</p>
+                <% } %>
+            </section>
+            <section>
+                <% if (typeof player !== "undefined") { %>
+                    <h2>Player Stats</h2>
+                    <p><strong>Games Played:</strong> <span id="games-played"><%= player.gamesPlayed %></span></p>
+                    <p><strong>Wins:</strong> <span id="wins"><%= player.wins %></span></p>
+                    <p><strong>Losses:</strong> <span id="losses"><%= player.losses %></span></p>
+                    <p><strong>Draws:</strong> <span id="draws"><%= player.draws %></span></p>
+                    <p><strong>Win Rate:</strong> <span id="winrate"><%= player.winRate %>%</span></p>
+                    <p><strong>Rating:</strong> <span id="rating"><%= player.rating %></span></p>
+                <% } else { %>
+                    <p>No stats available.</p>
+                <% } %>
+            </section>
+            <section class="wallet">
+                <% if (typeof player !== "undefined") { %>
+                    <h2>Wallet</h2>
+                    <p><strong>Balance:</strong> &#8377;<span id="wallet-balance"><%= player.walletBalance %></span></p>
+                <% } else { %>
+                    <p>No wallet balance available.</p>
+                <% } %>
+            </section>
+            <section class="purchases">
+                <h2>Items Purchased</h2>
+                <% if (typeof player !== "undefined" && player.sales && player.sales.length > 0) { %>
+                    <ul id="items-list">
+                        <% player.sales.forEach(item => { %>
+                            <li><%= item %></li>
+                        <% }); %>
+                    </ul>
+                <% } else { %>
+                    <p>No items purchased yet.</p>
+                <% } %>
+            </section>
+        </div>
+
+        <!-- Actions Section with Delete Account Button -->
+        <div class="form-container actions">
+            <a href="/player/player_dashboard" class="back">Back to Dashboard</a>
+            <% if (typeof player !== "undefined" && !player.isDeleted) { %>
+                <form action="/player/delete" method="POST" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete your account? This action can be undone.');">
+                    <button type="submit" class="delete-btn">Delete Account</button>
+                </form>
+            <% } %>
+        </div>
+    </div>
+</body>
+</html>

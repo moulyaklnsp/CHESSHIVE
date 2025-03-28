@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Global Chat</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="/css/primary_styles.css">
+</head>
+<body>
+    <div class="container2">
+        <h2 class="black-h2">Global Chat</h2>
+        <div class="form-container">
+            <div class="chat-box">
+                <% messages.forEach(message => { %>
+                    <p><strong><%= message.sender %>:</strong> <%= message.text %></p>
+                <% }); %>
+            </div>
+            <form action="/admin/global_chat" method="POST">
+                <input type="text" name="message" placeholder="Type a message..." class="chat-input">
+                <button type="submit" class="send">Send</button>
+            </form>
+            <div class="back-container">
+                <a href="/admin/admin_dashboard" class="back">Back to Dashboard</a>
+            </div>
+        </div>  
+    </div>
+</body>
+</html>

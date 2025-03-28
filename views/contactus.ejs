@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Us - Chess Hive</title>
+    <link rel="stylesheet" href="/css/primary_styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <!-- Header Section -->
+    <header>
+        <h1>Chess Hive</h1>
+        <nav>
+            <ul class="nav-links">
+                <li><a href="/">Home</a></li>
+                <li><a href="/about">About</a></li>
+                <li><a href="/login">Join Community</a></li>
+                <li><a href="/contactus">Contact Us</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <div class="secondary-header">Contact Us</div>
+    <main>
+        <!-- ✅ Contact Form Container -->
+        <div class="form-container">
+            <div class="form-box loginForm">
+                <h2>Get in Touch</h2>
+                <p>If you have any questions, suggestions, or want to collaborate, feel free to reach out to us.</p>
+
+                <h2>Contact Form</h2>
+                <!-- ✅ Contact Form -->
+                <form id="contactForm" action="/contactus" method="POST">
+                    <label for="name">Name:</label>
+                    <input type="text" id="name" name="name" value="<%= typeof name !== 'undefined' ? name : '' %>" required>
+                    <span class="error"><%= (typeof errors !== 'undefined' && errors.name) ? errors.name : '' %></span>
+
+                    <label for="email">Email:</label>
+                    <input type="email" id="email" name="email" value="<%= typeof email !== 'undefined' ? email : '' %>" required>
+                    <span class="error"><%= (typeof errors !== 'undefined' && errors.email) ? errors.email : '' %></span>
+
+                    <label for="message">Message:</label>
+                    <textarea id="message" name="message" rows="4" required><%= typeof message !== 'undefined' ? message : '' %></textarea>
+                    <span class="error"><%= (typeof errors !== 'undefined' && errors.message) ? errors.message : '' %></span>
+
+                    <button type="submit">Send Message</button>
+                </form>
+
+                <!-- ✅ Success Message -->
+                <% if (successMessage) { %>
+                    <p class="success-message"><%= successMessage %></p>
+                <% } %>
+            </div>
+        </div>
+    </main>
+
+    <!-- ✅ Footer Section -->
+    <footer>
+        <p>&copy; <%= new Date().getFullYear() %> Chess Hive</p>
+    </footer>
+
+    <script>
+        document.getElementById("contactForm").addEventListener("submit", function(event) {
+            let isValid = true;
+            let email = document.getElementById('email');
+            let name = document.getElementById('name');
+            let emailError = document.getElementById('emailError');
+            let message = document.getElementById('message');
+
+            document.getElementById('nameError').innerText = "";
+            document.getElementById('emailError').innerText = "";
+
+            if (!/^[A-Za-z]+(?: [A-Za-z]+)*$/.test(name.value)) {
+                document.getElementById('nameError').innerText = "Name should only contain letters.";
+                isValid = false;
+            }
+
+            let emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+            if (!emailPattern.test(email.value)) {
+                emailError.textContent = "Please enter a valid email address.";
+                isValid = false;
+            }
+
+            if (message.value.trim() === '') {
+                alert('Message cannot be empty.');
+                isValid = false;
+            }
+
+            if (!isValid) {
+                event.preventDefault();
+            }
+
+            if (window.location.href.includes('?success-message=')) {
+                document.getElementById('contactForm').reset();
+                setTimeout(() => {
+                    history.replaceState(null, '', window.location.pathname);
+                    let successMessage = document.querySelector('.success-message');
+                    if (successMessage) successMessage.style.display = 'none';
+                }, 3000);
+            }
+        });
+    </script>
+
+</body>
+</html>

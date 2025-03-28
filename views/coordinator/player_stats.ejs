@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Player Statistics - Tournament Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="/css/primary_styles.css">  
+</head>
+<body>
+    <div class="container">
+        <h2 class="black-h2">Player Statistics</h2>
+        <div class="table-div">
+            <table id="playerStatsTable">
+                <thead>
+                    <tr>
+                        <th>Player Name</th>
+                        <th>Games Played</th>
+                        <th>Wins</th>
+                        <th>Losses</th>
+                        <th>Draws</th>
+                        <th>Rating</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% if (typeof players !== "undefined" && players.length > 0) { %>
+                        <% players.forEach(player => { %>
+                            <tr>
+                                <td><%= player.name %></td>
+                                <td><%= player.gamesPlayed %></td>
+                                <td><%= player.wins %></td>
+                                <td><%= player.losses %></td>
+                                <td><%= player.draws %></td>
+                                <td><%= player.rating %></td>
+                            </tr>
+                        <% }); %>
+                    <% } else { %>
+                        <tr>
+                            <td colspan="6">No player statistics available.</td>
+                        </tr>
+                    <% } %>
+                </tbody>
+            </table>
+            <div class="back-container">
+                <a href="/coordinator/coordinator_dashboard" class="back">Back to Dashboard</a>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

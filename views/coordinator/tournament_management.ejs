@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coordinator Dashboard - ChessHive</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/primary_styles.css">
+    <style>
+        .tournament-details {
+            display: none;
+            margin-top: 10px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            background-color: #f9f9f9;
+        }
+        .tournament-name {
+            cursor: pointer;
+            color: #007BFF;
+            text-decoration: underline;
+        }
+        .status-completed { color: green; }
+        .status-ongoing { color: orange; }
+        .status-yet-to-start { color: blue; }
+        .status-pending { color: gray; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { padding: 8px; text-align: left; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2 class="black-h2">Coordinator Dashboard - Tournament Management</h2>
+
+        <!-- Success/Error Messages -->
+        <% if (successMessage) { %>
+            <p style="color: green;"><%= successMessage %></p>
+        <% } %>
+        <% if (errorMessage) { %>
+            <p style="color: red;"><%= errorMessage %></p>
+        <% } %>
+
+        <!-- Add Tournament Form -->
+        <div class="table-div" id="tournamentFormSection">
+            <h3 id="formTitle">Add New Tournament</h3>
+            <form class="form-container" id="tournamentForm" action="/tournament_management" method="POST">
+                <input type="hidden" id="tournamentId" name="tournamentId">
+                
+                <label for="tournamentName">Tournament Name:</label>
+                <input type="text" id="tournamentName" name="tournamentName" value="<%= typeof tournamentName !== 'undefined' ? tournamentName : '' %>" required>
+
+                <label for="tournamentDate">Date:</label>
+                <input type="date" id="tournamentDate" name="tournamentDate" value="<%= typeof tournamentDate !== 'undefined' ? tournamentDate : '' %>" required>
+
+                <label for="tournamentLocation">Location:</label>
+                <input type="text" id="tournamentLocation" name="tournamentLocation" value="<%= typeof tournamentLocation !== 'undefined' ? tournamentLocation : '' %>" required>
+
+                <label for="entryFee">Entry Fee (₹):</label>
+                <input type="number" id="entryFee" name="entryFee" min="0" step="0.01" value="<%= typeof entryFee !== 'undefined' ? entryFee : '' %>" required>
+
+                <button type="submit" id="submitButton">Add Tournament</button>
+            </form>
+        </div>
+
+        <!-- Tournament List -->
+        <div class="table-div" id="tournamentListSection">
+            <h3>Your Tournaments</h3>
+            <h4>Tournaments you've submitted will appear here with their approval status</h4>
+            <div id="Coordinator_tournamentTable">
+                <% if (Array.isArray(tournaments) && tournaments.length > 0) { %>
+                    <table border="1">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Date</th>
+                                <th>Location</th>
+                                <th>Entry Fee</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% tournaments.forEach(tournament => { %>
+                                <% 
+                                    const today = new Date('2025-03-27'); // Fixed date as per context
+                                    const tournamentDate = new Date(tournament.date);
+                                    let status = tournament.status || 'Pending';
+                                    let statusClass = 'status-pending';
+                                    if (status === 'Approved') {
+                                        if (tournamentDate < today) {
+                                            status = 'Completed';
+                                            statusClass = 'status-completed';
+                                        } else if (tournamentDate.toDateString() === today.toDateString()) {
+                                            status = 'Ongoing';
+                                            statusClass = 'status-ongoing';
+                                        } else {
+                                            status = 'Yet to Start';
+                                            statusClass = 'status-yet-to-start';
+                                        }
+                                    }
+                                %>
+                                <tr>
+                                    <td>
+                                        <span class="tournament-name" onclick="toggleDetails('details-<%= tournament.id %>')">
+                                            <%= tournament.name %>
+                                        </span>
+                                        <% if (tournament.status === 'Approved') { %>
+                                            <div id="details-<%= tournament.id %>" class="tournament-details">
+                                                <!-- Initial Rank List -->
+                                                <h4>Initial Rank List</h4>
+                                                <% if (tournament.initialRankList && tournament.initialRankList.length > 0) { %>
+                                                    <table border="1">
+                                                        <thead>
+                                                            <tr>
+                                                                <th>Rank</th>
+                                                                <th>Player Name</th>
+                                                                <th>Rating</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            <% tournament.initialRankList.forEach((player, index) => { %>
+                                                                <tr>
+                                                                    <td><%= index + 1 %></td>
+                                                                    <td><%= player.name %></td>
+                                                                    <td><%= player.rating || 'N/A' %></td>
+                                                                </tr>
+                                                            <% }); %>
+                                                        </tbody>
+                                                    </table>
+                                                <% } else { %>
+                                                    <p>No players enrolled yet.</p>
+                                                <% } %>
+
+                                                <!-- Pairings -->
+                                                <h4>Pairings</h4>
+                                                <% if (tournament.pairings && tournament.pairings.length > 0) { %>
+                                                    <% tournament.pairings.forEach((round, roundIndex) => { %>
+                                                        <h5>Round <%= roundIndex + 1 %></h5>
+                                                        <table border="1">
+                                                            <thead>
+                                                                <tr>
+                                                                    <th>Board</th>
+                                                                    <th>White</th>
+                                                                    <th>Black</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                                <% round.forEach((pairing, boardIndex) => { %>
+                                                                    <tr>
+                                                                        <td><%= boardIndex + 1 %></td>
+                                                                        <td><%= pairing.white %></td>
+                                                                        <td><%= pairing.black %></td>
+                                                                    </tr>
+                                                                <% }); %>
+                                                            </tbody>
+                                                        </table>
+                                                    <% }); %>
+                                                <% } else { %>
+                                                    <p>No pairings available yet.</p>
+                                                <% } %>
+
+                                                <!-- Results -->
+                                                <h4>Results</h4>
+                                                <% if (tournament.results && tournament.results.length > 0) { %>
+                                                    <% tournament.results.forEach((round, roundIndex) => { %>
+                                                        <h5>Round <%= roundIndex + 1 %></h5>
+                                                        <table border="1">
+                                                            <thead>
+                                                                <tr>
+                                                                    <th>Board</th>
+                                                                    <th>White</th>
+                                                                    <th>Black</th>
+                                                                    <th>Result</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                                <% round.forEach((result, boardIndex) => { %>
+                                                                    <tr>
+                                                                        <td><%= boardIndex + 1 %></td>
+                                                                        <td><%= result.white %></td>
+                                                                        <td><%= result.black %></td>
+                                                                        <td><%= result.result || 'Pending' %></td>
+                                                                    </tr>
+                                                                <% }); %>
+                                                            </tbody>
+                                                        </table>
+                                                    <% }); %>
+                                                <% } else { %>
+                                                    <p>No results available yet.</p>
+                                                <% } %>
+
+                                                <!-- Final Rank List -->
+                                                <h4>Final Rank List</h4>
+                                                <% if (tournament.finalRankList && tournament.finalRankList.length > 0) { %>
+                                                    <table border="1">
+                                                        <thead>
+                                                            <tr>
+                                                                <th>Rank</th>
+                                                                <th>Player Name</th>
+                                                                <th>Points</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            <% tournament.finalRankList.forEach((player, index) => { %>
+                                                                <tr>
+                                                                    <td><%= index + 1 %></td>
+                                                                    <td><%= player.name %></td>
+                                                                    <td><%= player.points || 'N/A' %></td>
+                                                                </tr>
+                                                            <% }); %>
+                                                        </tbody>
+                                                    </table>
+                                                <% } else { %>
+                                                    <p>No final rankings available yet.</p>
+                                                <% } %>
+                                            </div>
+                                        <% } %>
+                                    </td>
+                                    <td><%= tournament.date %></td>
+                                    <td><%= tournament.location %></td>
+                                    <td>₹<%= tournament.entry_fee %></td>
+                                    <td class="<%= statusClass %>"><%= status %></td>
+                                </tr>
+                            <% }); %>
+                        </tbody>
+                    </table>
+                <% } else { %>
+                    <p>No tournaments available.</p>
+                <% } %>
+            </div>
+            <div class="back-container">
+                <a href="/coordinator/coordinator_dashboard" class="back">Back to Dashboard</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleDetails(detailId) {
+            const details = document.getElementById(detailId);
+            if (details.style.display === 'block') {
+                details.style.display = 'none';
+            } else {
+                details.style.display = 'block';
+            }
+        }
+    </script>
+</body>
+</html>

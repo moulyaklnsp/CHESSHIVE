@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Player Dashboard - ChessHive</title>
+    <link rel="stylesheet" href="/css/primary_styles.css">
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            display: flex;
+        }
+        .sidebar {
+            height: 100vh;
+            width: 250px;
+            position: fixed;
+            left: -250px;
+            top: 0;
+            background: #333;
+            color: white;
+            transition: 0.3s;
+            padding-top: 20px;
+        }
+        .sidebar a {
+            display: block;
+            color: white;
+            padding: 15px;
+            text-decoration: none;
+            transition: 0.3s;
+        }
+        .sidebar a:hover {
+            background: #575757;
+        }
+        .menu-btn {
+            font-size: 20px;
+            cursor: pointer;
+            position: absolute;
+            left: 10px;
+            top: 10px;
+            color: white;
+            background: #333;
+            border: none;
+            padding: 10px;
+        }
+        .logout-box {
+            position: absolute;
+            bottom: 20px;
+            width: 100%;
+            text-align: center;
+        }
+        .logout-box button {
+            background: red;
+            color: white;
+            border: none;
+            padding: 10px;
+            width: 80%;
+            cursor: pointer;
+        }
+        .logout-box button:hover {
+            background: darkred;
+        }
+        .content {
+            margin-left: 30px;
+            padding: 20px;
+            flex-grow: 1;
+        }
+        .updates-section {
+            margin-top: 20px;
+        }
+        .updates-section h3 {
+            background: #333;
+            color: white;
+            padding: 10px;
+            text-align: center;
+        }
+        .updates-section ul {
+            list-style: none;
+            padding: 0;
+        }
+        .updates-section li {
+            background: #f4f4f4;
+            margin: 5px 0;
+            padding: 10px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <button class="menu-btn" onclick="toggleSidebar()">☰</button>
+    
+    <div class="sidebar" id="sidebar">
+        <% if (typeof playerName !== "undefined") { %>
+        <h2 class="secondary-header" style="text-align: center;">Welcome, <%= playerName %>!</h2>
+        
+        <a href="/player/player_profile">Profile</a>
+        <a href="/player/growth">Growth Tracking</a>
+        <a href="/player/player_tournament">Tournaments</a>
+        <a href="/player/one_on_one">One-on-One Matches</a>
+        <a href="/player/subscription">Manage Subscription</a>
+        <a href="/player/store">E-Commerce Store</a>
+        <a href="/player/player_chat">Chat</a>
+        <% } else { %>
+            <p>No products available.</p>
+        <% } %>
+
+        <div class="logout-box">
+            <button onclick="redirectToLogin()">Log Out</button>
+        </div>
+    </div>
+    
+    <div class="content">
+        <% if (typeof playerName !== "undefined") { %>
+        <h1>Welcome to ChessHive, <%= playerName %>!</h1>
+        <% } else { %>
+            <p>No products available.</p>
+        <% } %>
+        <p>Select an option from the sidebar to navigate.</p>
+
+        <div class="updates-section">
+            <h3>Latest Tournaments to Join</h3>
+            <ul>
+                <% if (typeof latestTournaments !== "undefined") { %>
+                <% latestTournaments.forEach(tournament => { %>
+                    <li>
+                        <strong><%= tournament.name %></strong> - Date: <%= tournament.date %> 
+                    </li>
+                <% }); %>
+                <% } else { %>
+                    <p>No tournaments available.</p>
+                <% } %>
+
+            </ul>
+        </div>
+
+        <div class="updates-section">
+            <h3>Latest Store Items</h3>
+            <ul>
+                <% if (typeof latestItems !== "undefined") { %>
+                <% latestItems.forEach(item => { %>
+                    <li>
+                        <strong><%= item.name %></strong> - Price: $<%= item.price %> 
+                    </li>
+                <% }); %>
+                <% } else { %>
+                    <p>No products available.</p>
+                <% } %>
+            </ul>
+        </div>
+    </div>
+    
+    <script>
+        function toggleSidebar() {
+            var sidebar = document.getElementById("sidebar");
+            sidebar.style.left = (sidebar.style.left === "0px") ? "-250px" : "0px";
+        }
+        function redirectToLogin() {
+            window.location.href = "/login";
+        }
+    </script>
+</body>
+</html>

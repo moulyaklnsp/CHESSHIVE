@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up - ChessHive</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/primary_styles.css">
+</head>
+<body>
+    <%- include('partials/signup/header') %>
+
+    <main>
+        <div class="form-container">
+            <div class="form-box signupForm">
+                <h2>Create Your Account</h2>
+                
+                <% if (typeof errors !== 'undefined' && errors.server) { %>
+                    <div class="server-error">
+                        <%= errors.server %>
+                    </div>
+                <% } %>
+
+                <form id="signupForm" action="/signup" method="POST">
+                    <label for="name">Full Name:</label>
+                    <input type="text" id="name" name="name" 
+                        value="<%= typeof name !== 'undefined' ? name : '' %>" required>
+                    <span id="nameError" class="error">
+                        <%= typeof errors !== 'undefined' && errors.name ? errors.name : '' %>
+                    </span>
+
+                    <label for="dob">Date of Birth:</label>
+                    <input type="date" id="dob" name="dob" 
+                        value="<%= typeof dob !== 'undefined' ? dob : '' %>" required>
+                    <span id="dobError" class="error">
+                        <%= typeof errors !== 'undefined' && errors.dob ? errors.dob : '' %>
+                    </span>
+
+                    <label for="gender">Gender:</label>
+                    <select id="gender" name="gender" required>
+                        <option value="" disabled selected>Select Gender</option>
+                        <option value="male" <%= (typeof gender !== 'undefined' && gender === 'male') ? 'selected' : '' %>>Male</option>
+                        <option value="female" <%= (typeof gender !== 'undefined' && gender === 'female') ? 'selected' : '' %>>Female</option>
+                        <option value="other" <%= (typeof gender !== 'undefined' && gender === 'other') ? 'selected' : '' %>>Other</option>
+                    </select>
+                    <span id="genderError" class="error">
+                        <%= typeof errors !== 'undefined' && errors.gender ? errors.gender : '' %>
+                    </span>
+
+                    <label for="college">College Name:</label>
+                    <input type="text" id="college" name="college" 
+                        value="<%= typeof college !== 'undefined' ? college : '' %>" required>
+                    <span id="collegeError" class="error">
+                        <%= typeof errors !== 'undefined' && errors.college ? errors.college : '' %>
+                    </span>
+
+                    <label for="email">Email ID:</label>
+                    <input type="email" id="email" name="email" 
+                        value="<%= typeof email !== 'undefined' ? email : '' %>" required>
+                    <span id="emailError" class="error">
+                        <%= typeof errors !== 'undefined' && errors.email ? errors.email : '' %>
+                    </span>
+
+                    <label for="phone">Phone Number:</label>
+                    <input type="text" id="phone" name="phone" 
+                        value="<%= typeof phone !== 'undefined' ? phone : '' %>" required>
+                    <span id="phoneError" class="error">
+                        <%= typeof errors !== 'undefined' && errors.phone ? errors.phone : '' %>
+                    </span>
+
+                    <label for="password">Password:</label>
+                    <div class="password-container">
+                        <input type="password" id="password" name="password" required>
+                        <span id="passwordError" class="error">
+                            <%= typeof errors !== 'undefined' && errors.password ? errors.password : '' %>
+                        </span>
+                    </div>
+
+                    <label for="aicf_id">AICF ID (Optional):</label>
+                    <input type="text" id="aicf_id" name="aicf_id" 
+                        value="<%= typeof aicf_id !== 'undefined' ? aicf_id : '' %>">
+                    <span id="aicfIdError" class="error">
+                        <%= typeof errors !== 'undefined' && errors.aicf_id ? errors.aicf_id : '' %>
+                    </span>
+
+                    <label for="fide_id">FIDE ID (Optional):</label>
+                    <input type="text" id="fide_id" name="fide_id" 
+                        value="<%= typeof fide_id !== 'undefined' ? fide_id : '' %>">
+                    <span id="fideIdError" class="error">
+                        <%= typeof errors !== 'undefined' && errors.fide_id ? errors.fide_id : '' %>
+                    </span>
+
+                    <label for="role">Select Role:</label>
+                    <select id="role" name="role" required>
+                        <option value="" disabled <%= (typeof role === 'undefined' || role === '') ? 'selected' : '' %>>Select Role</option>
+                        <option value="admin" <%= (typeof role !== 'undefined' && role === 'admin') ? 'selected' : '' %>>Admin</option>
+                        <option value="organizer" <%= (typeof role !== 'undefined' && role === 'organizer') ? 'selected' : '' %>>Organizer</option>
+                        <option value="coordinator" <%= (typeof role !== 'undefined' && role === 'coordinator') ? 'selected' : '' %>>Coordinator</option>
+                        <option value="player" <%= (typeof role !== 'undefined' && role === 'player') ? 'selected' : '' %>>Player</option>
+                    </select>
+                    <span id="roleError" class="error">
+                        <%= typeof errors !== 'undefined' && errors.role ? errors.role : '' %>
+                    </span>
+
+                    <button type="submit">Sign Up</button>
+                </form>
+            </div>
+
+            <div class="login-box">
+                <p>Already have an account?</p>
+                <button onclick="redirectToLogin()">Login</button>
+            </div>
+        </div>
+    </main>
+
+    <%- include('partials/signup/footer') %>
+
+    <script>
+        function redirectToLogin() {
+            window.location.href = "/login";
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coordinator Dashboard - ChessHive</title>
+    <link rel="stylesheet" href="/css/primary_styles.css">
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        /* Sidebar Dropdown Container */
+        .sidebar-container {
+            width: 100%;
+            background-color: #2c3e50;
+            color: white;
+            padding: 10px 15px;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 1000;
+        }
+
+        /* Menu Button */
+        .menu-btn {
+            background: none;
+            color: white;
+            font-size: 1.2em;
+            border: none;
+            cursor: pointer;
+            padding: 10px;
+            display: block;
+            width: 100%;
+            text-align: left;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 250px;
+            background-color: #2c3e50;
+            color: white;
+            padding: 0;
+            display: none; /* Hidden initially */
+            position: absolute;
+            top: 50px;
+            left: 0;
+            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+            border-radius: 5px;
+        }
+
+        /* Sidebar Links */
+        .sidebar a {
+            display: block;
+            color: white;
+            text-decoration: none;
+            padding: 12px 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            transition: background-color 0.3s;
+        }
+
+        .sidebar a:hover {
+            background-color: #1f2d3d;
+        }
+
+        /* Content */
+        .content {
+            margin-top: 70px; /* Space for fixed menu */
+            padding: 20px;
+            background-color: #ecf0f1;
+        }
+
+        /* Greeting */
+        .greeting {
+            font-size: 1.8em;
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+
+        /* Logout */
+        .logout-box {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+        }
+
+        .logout-box button {
+            padding: 10px 20px;
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .logout-box button:hover {
+            background-color: #c0392b;
+        }
+    </style>
+</head>
+<body>
+    
+    <!-- Dropdown Sidebar -->
+    <div class="sidebar-container">
+        <button class="menu-btn" onclick="toggleSidebar()">☰ Menu</button>
+        <nav class="sidebar" id="sidebar">
+            <a href="/coordinator/coordinator_profile">Profile</a>
+            <a href="/coordinator/tournament_management">Tournaments</a>
+            <a href="/coordinator/player_stats">Player Stats</a>
+            <a href="/coordinator/store_management">Store</a>
+            <a href="/coordinator/coordinator_meetings">Meetings</a>
+            <a href="/coordinator/coordinator_chat">Chat</a>
+        </nav>
+    </div>
+
+    <!-- Main Content -->
+    <div class="content">
+        <% if (typeof coordinatorName !== "undefined" && coordinatorName) { %>
+            <div class="greeting">Welcome, <%= coordinatorName %>!</div>
+        <% } else { %>
+            <div class="greeting">Welcome, Coordinator!</div>
+        <% } %>
+        <div class="logout-box">
+            <button onclick="redirectToLogin()">Log Out</button>
+        </div>
+    </div>
+
+    <script>
+        // Toggle Sidebar Visibility
+        function toggleSidebar() {
+            var sidebar = document.getElementById("sidebar");
+            if (sidebar.style.display === "block") {
+                sidebar.style.display = "none";
+            } else {
+                sidebar.style.display = "block";
+            }
+        }
+
+        // Redirect to Login Page
+        function redirectToLogin() {
+            window.location.href = "/login";
+        }
+    </script>
+
+</body>
+</html>

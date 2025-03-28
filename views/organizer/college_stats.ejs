@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>College Chess Statistics</title>
+
+    <link rel="stylesheet" href="/css/primary_styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>College Chess Statistics</h1>
+
+        <section id="overall-performance">
+            <h2 class="black-h2">Overall Performance</h2>
+            <div class="table-div">
+                <table id="performance-table">
+                    <thead>
+                        <tr>
+                            <th>College</th>
+                            <th>Total Tournaments</th>
+                            <th>Wins</th>
+                            <th>Runner-Ups</th>
+                            <th>Top-5 Finishes</th>
+                            <th>Win Rate</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% collegePerformance.forEach(record => { %>
+                            <tr>
+                                <td><%= record.college %></td>
+                                <td><%= record.tournaments %></td>
+                                <td><%= record.wins %></td>
+                                <td><%= record.losses %></td>
+                                <td><%= record.draws %></td>
+                                <td><%= ((record.wins / record.tournaments) * 100).toFixed(1) %>%</td>
+                            </tr>
+                        <% }); %>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section id="tournament-records">
+            <h2 class="black-h2">Tournament Records</h2>
+            <div class="filter-box">
+                <label for="format-filter">Filter by Format:</label>
+                <select id="format-filter">
+                    <option value="all">All</option>
+                    <option value="classical">Classical</option>
+                    <option value="rapid">Rapid</option>
+                    <option value="blitz">Blitz</option>
+                </select>
+            </div>
+
+            <div class="table-div">
+                <table id="records-table">
+                    <thead>
+                        <tr>
+                            <th>Tournament Name</th>
+                            <th>College</th>
+                            <th>Format</th>
+                            <th>Position</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% tournamentRecords.forEach(record => { %>
+                            <tr>
+                                <td><%= record.name %></td>
+                                <td><%= record.college %></td>
+                                <td><%= record.format %></td>
+                                <td><%= record.position %></td>
+                                <td><%= new Date(record.date).toLocaleDateString() %></td>
+                            </tr>
+                        <% }); %>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section id="top-colleges">
+            <h2 class="black-h2">Top 10 Colleges by Format</h2>
+            
+            <% ['classical', 'rapid', 'blitz'].forEach(format => { %>
+                <div class="format-section" id="<%= format %>">
+                    <h2><%= format.charAt(0).toUpperCase() + format.slice(1) %></h2>
+                    <ol id="<%= format %>-list">
+                        <% topCollegesByFormat[format].forEach((college, index) => { %>
+                            <li class="<%= index < 3 ? 'top-three' : '' %>"><%= college %></li>
+                        <% }); %>
+                    </ol>
+                </div>
+            <% }); %>
+        </section>
+
+        <div class="table-div">
+            <div class="back-container">
+                <a href="/organizer/organizer_dashboard" class="back">Back to Dashboard</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const formatFilter = document.getElementById('format-filter');
+
+            if (formatFilter) {
+                formatFilter.addEventListener('change', function () {
+                    const selectedFormat = this.value.toLowerCase();
+                    const rows = document.querySelectorAll('#records-table tbody tr');
+
+                    rows.forEach(row => {
+                        const format = row.children[2].textContent.toLowerCase();
+                        row.style.display = (selectedFormat === 'all' || format === selectedFormat) ? '' : 'none';
+                    });
+                });
+            }
+        });
+    </script>
+</body>
+</html>

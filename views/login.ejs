@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - ChessHive</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&display=swap" rel="stylesheet">
+
+    <!-- Linking External CSS -->
+    <link rel="stylesheet" href="/css/primary_styles.css">
+</head>
+<body>
+
+    <!-- Include Header Partial -->
+    <%- include('./partials/dashboards/login/header') %>
+
+    <main>
+        <!-- Login Form Container -->
+        <div class="form-container-login">
+            <div class="form-box loginForm">
+                <h2>Login to ChessHive</h2>
+                <% if (errorMessage) { %>
+                    <p class="error"><%= errorMessage %></p>
+                <% } %>
+                <% if (successMessage) { %>
+                    <p class="success"><%= successMessage %></p>
+                <% } %>
+                <% if (errorMessage && errorMessage.includes('Account has been deleted') && deletedUserId) { %>
+                    <p class="error">
+                        Your account has been deleted.
+                        <form action="/player/restore/<%= deletedUserId %>" method="POST" style="display:inline;">
+                            <button type="submit">Restore Account</button>
+                        </form>
+                    </p>
+                <% } %>
+                <form action="/login" method="POST">
+                    <!-- Email -->
+                    <label for="email">Email ID:</label>
+                    <input type="email" id="email" name="email" required>
+
+                    <!-- Password -->
+                    <label for="password">Password:</label>
+                    <input type="password" id="password" name="password" required>
+                    <!-- Submit Button -->
+                    <button type="submit">Login</button>
+                </form>
+            </div>
+
+            <!-- Sign Up Redirect -->
+            <div class="signup-box">
+                <p>Don't have an account?</p>
+                <a href="/signup"><button>Sign Up</button></a>
+            </div>
+        </div>
+    </main>
+
+    <!-- Include Footer Partial -->
+    <%- include('./partials/dashboards/login/footer') %>
+</body>
+</html>

@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Coordinators</title> 
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/primary_styles.css">
+</head>
+<body>
+    <div class="container">
+        <h2 class="black-h2">Coordinator Management</h2>
+        <div class="table-div">
+            <table>
+                <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Assigned College</th>
+                    <th>Actions</th>
+                </tr>
+                <% coordinators.forEach(coordinator => { %>
+                <tr>
+                    <td><%= coordinator.name %></td>
+                    <td><%= coordinator.email %></td>
+                    <td><%= coordinator.college %></td>
+                    <td>
+                        <button onclick="removeCoordinator('<%= coordinator.email %>', this)">Remove</button>
+                    </td>
+                </tr>
+                <% }); %>
+            </table>
+            <div class="back-container">
+                <a href="/admin_dashboard" class="back">Back to Dashboard</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Link to coordinator_management.js -->
+    <script src="/js/coordinator_management.js"></script>
+
+</body>
+</html>

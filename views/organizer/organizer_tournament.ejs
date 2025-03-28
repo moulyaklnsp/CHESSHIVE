@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Organizer Dashboard - Tournament Monitoring</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/primary_styles.css">
+    <style>
+        .approved-by {
+            font-style: italic;
+            color: #555;
+        }
+        .approve-btn, .reject-btn {
+            padding: 5px 10px;
+            margin: 0 5px;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+        .approve-btn {
+            background-color: #28a745;
+            color: white;
+        }
+        .reject-btn {
+            background-color: #dc3545;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2 class="black-h2">Tournament Management</h2>
+
+        <!-- Success/Error Messages -->
+        <% if (successMessage) { %>
+            <p style="color: green;"><%= successMessage %></p>
+        <% } %>
+        <% if (errorMessage) { %>
+            <p style="color: red;"><%= errorMessage %></p>
+        <% } %>
+
+        <!-- Tournament List -->
+        <div class="table-div" id="tournamentListSection">
+            <h3>Tournament Approval & Management</h3>
+            <h4>Review pending tournaments and manage existing ones</h4>
+            <div id="Organiser_tournamentTable">
+                <% if (Array.isArray(tournaments) && tournaments.length > 0) { %>
+                    <table border="1">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Date</th>
+                                <th>Location</th>
+                                <th>Entry Fee</th>
+                                <th>Added By</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% tournaments.forEach(tournament => { %>
+                                <tr>
+                                    <td><%= tournament.name %></td>
+                                    <td><%= tournament.date %></td>
+                                    <td><%= tournament.location %></td>
+                                    <td>₹<%= tournament.entry_fee %></td>
+                                    <td><%= tournament.added_by %></td>
+                                    <td>
+                                        <% if (tournament.status === 'Approved') { %>
+                                            Approved <span class="approved-by">by <%= tournament.approved_by %></span>
+                                        <% } else { %>
+                                            <%= tournament.status || 'Pending' %>
+                                        <% } %>
+                                    </td>
+                                    <td>
+                                        <% if (!tournament.status || tournament.status === 'Pending') { %>
+                                            <form action="/organizer/approve-tournament" method="POST" style="display:inline;">
+                                                <input type="hidden" name="tournamentId" value="<%= tournament.id %>">
+                                                <button type="submit" class="approve-btn">Approve</button>
+                                            </form>
+                                            <form action="/organizer/reject-tournament" method="POST" style="display:inline;">
+                                                <input type="hidden" name="tournamentId" value="<%= tournament.id %>">
+                                                <button type="submit" class="reject-btn">Reject</button>
+                                            </form>
+                                        <% } else { %>
+                                            <span><%= tournament.status %></span>
+                                        <% } %>
+                                    </td>
+                                </tr>
+                            <% }); %>
+                        </tbody>
+                    </table>
+                <% } else { %>
+                    <p>No tournaments available for review.</p>
+                <% } %>
+            </div>
+            <div class="back-container">
+                <a href="/organizer/organizer_dashboard" class="back">Back to Dashboard</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

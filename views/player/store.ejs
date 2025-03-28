@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChessHive Store</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/primary_styles.css">
+    <style>
+        .subscription-message {
+            color: red;
+            margin-bottom: 10px;
+        }
+        .subscription-message a {
+            color: blue;
+            text-decoration: underline;
+        }
+        .buy-button:disabled {
+            background-color: #888;
+            cursor: not-allowed;
+        }
+        .price-details {
+            margin: 5px 0;
+        }
+        .original-price {
+            text-decoration: line-through;
+            color: white;
+        }
+        .discount {
+            color: rgba(125, 211, 125, 0.729);
+        }
+        .final-price {
+            font-weight: bold;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container2">
+        <h2 class="black-h2">ChessHive Store</h2>
+        <!-- Success/Error Messages -->
+        <% if (successMessage) { %>
+            <p style="color: green;"><%= successMessage %></p>
+        <% } %>
+        <% if (errorMessage) { %>
+            <p style="color: red;"><%= errorMessage %></p>
+        <% } %>
+
+        <!-- Subscription Status -->
+        <% if (!subscription) { %>
+            <div class="subscription-message">
+                Subscribe for Discounts
+                <a href="/player/subscription">Subscribe Now</a>
+            </div>
+        <% } else { %>
+            <p>
+                Subscription Plan: <%= subscription.plan %> 
+                (Discount: <%= discountPercentage %>%)
+            </p>
+        <% } %>
+
+        <!-- Wallet Section -->
+        <div class="wallet-section">
+            <h3 class="black-h2">Wallet Balance: ₹<span id="walletBalance"><%= walletBalance %></span></h3>
+            <form action="/player/add-funds" method="POST">
+                <input type="number" name="amount" placeholder="Enter amount" min="1" required>
+                <input type="hidden" name="redirectTo" value="/player/store">
+                <button type="submit">Add Funds</button>
+            </form>
+        </div>
+        
+        <!-- Store Products Section -->
+        <div class="store-items">
+            <% if (typeof products !== "undefined" && products.length > 0) { %>
+                <% products.forEach(product => { %>
+                    <% if (product.availability > 0) { %> <!-- Fixed variable name -->
+                        <div class="product-card">
+                            <div class="product-image">
+                                <img src="<%= product.image_url %>" alt="<%= product.name %>">
+                            </div>
+                            <h3><%= product.name %></h3>
+                            <h3>Available products: <%= product.availability %></h3>
+                            <div class="price-details">
+                                <% if (discountPercentage > 0) { %>
+                                    <p class="original-price">Original Price: ₹<%= product.price %></p>
+                                    <p class="discount">Discount (<%= discountPercentage %>%): ₹<%= (product.price * discountPercentage / 100).toFixed(2) %></p>
+                                    <p class="final-price">Final Price: ₹<%= (product.price - (product.price * discountPercentage / 100)).toFixed(2) %></p>
+                                <% } else { %>
+                                    <h4 class="final-price">Price: ₹<%= product.price %></h4>
+                                <% } %>
+                            </div>
+                            <form action="/buy" method="POST">
+                                <input type="hidden" name="productId" value="<%= product.id %>">
+                                <input type="hidden" name="price" value="<%= product.price %>">
+                                <input type="hidden" name="buyer" value="<%= playerName %>"> 
+                                <input type="hidden" name="college" value="<%= playerCollege %>">
+                                <button type="submit" class="buy-button"> Buy </button>
+                            </form>
+                        </div>
+                    <% } %> <!-- Closing if statement inside forEach -->
+                <% }); %> <!-- Closing forEach loop -->
+            <% } else { %>
+                <p>No products available.</p>
+            <% } %> <!-- Closing if statement for product availability -->
+        </div>
+        
+        <div class="form-container back-container">
+            <a href="/player/player_dashboard" class="back">Back to Dashboard</a>
+        </div>
+    </div> 
+</body>
+</html>

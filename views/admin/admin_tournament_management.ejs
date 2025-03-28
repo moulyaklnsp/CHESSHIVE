@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Tournament Management</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/primary_styles.css">
+</head>
+<body>
+    <div class="container">
+        <h2 class="black-h2">Ongoing & Upcoming Tournaments</h2>
+
+        <!-- Success/Error Messages -->
+        <% if (successMessage) { %>
+            <p style="color: green;"><%= successMessage %></p>
+        <% } %>
+        <% if (errorMessage) { %>
+            <p style="color: red;"><%= errorMessage %></p>
+        <% } %>
+
+        <div class="table-div">
+            <h4>Monitoring view of all approved tournaments</h4>
+            <div id="adminTournamentTable">
+                <% if (typeof tournaments !== 'undefined' && Array.isArray(tournaments) && tournaments.length > 0) { %>
+                    <table border="1">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Date</th>
+                                <th>Location</th>
+                                <th>Entry Fee</th>
+                                <th>Status</th>
+                                <th>Players Registered</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% tournaments.forEach(tournament => { %>
+                                <tr>
+                                    <td><%= tournament.name %></td>
+                                    <td><%= tournament.date %></td>
+                                    <td><%= tournament.location %></td>
+                                    <td>&#8377;<%= tournament.entry_fee %></td>
+                                    <td><%= tournament.status %></td>
+                                    <td><%= tournament.player_count %></td>
+                                </tr>
+                            <% }); %>
+                        </tbody>
+                    </table>
+                <% } else { %>
+                    <p>No approved tournaments available.</p>
+                <% } %>
+            </div>
+            <div class="back-container">
+                <a href="/admin/admin_dashboard" class="back">Back to Dashboard</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
