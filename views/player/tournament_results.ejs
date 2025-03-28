@@ -1,1 +1,39 @@
-<!-- File removed -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Results - <%= tournament.name %></title>
+    <link rel="stylesheet" href="/css/primary_styles.css">
+</head>
+<body>
+    <div class="container2">
+        <h1>Results for <%= tournament.name %></h1>
+        <% if (results.length > 0) { %>
+            <table border="1">
+                <thead>
+                    <tr>
+                        <th>Rank</th>
+                        <th>Player</th>
+                        <th>Points</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% results.forEach(result => { %>
+                        <tr>
+                            <td><%= result.rank %></td>
+                            <td><%= result.player %></td>
+                            <td><%= result.points %></td>
+                        </tr>
+                    <% }); %>
+                </tbody>
+            </table>
+        <% } else { %>
+            <p>No results available yet.</p>
+        <% } %>
+        <div class="back-container">
+            <a href="/player/player_tournament" class="back">Back to Tournaments</a>
+        </div>
+    </div>
+</body>
+</html>
