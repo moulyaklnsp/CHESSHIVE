@@ -85,16 +85,17 @@
                             <th>Location</th>
                             <th>Entry Fee</th>
                             <th>Status</th>
-                            <th>Action</th>
+                            <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         <% individualTournaments.forEach(tournament => { %>
                             <% 
-                                const today = new Date('2025-03-27'); // Fixed date as per context
+                                const today = new Date();
                                 const tournamentDate = new Date(tournament.date);
                                 let status = '';
                                 let statusClass = '';
+
                                 if (tournamentDate < today) {
                                     status = 'Completed';
                                     statusClass = 'status-completed';
@@ -128,23 +129,24 @@
                                 <td>₹<%= tournament.entry_fee %></td>
                                 <td class="<%= statusClass %>"><%= status %></td>
                                 <td>
-                                    <% 
-                                        const alreadyEnrolled = enrolledTournaments.some(enrolled => enrolled.id === tournament.id);
-                                        if (!alreadyEnrolled) { 
-                                    %>
+                                    <% const alreadyEnrolled = enrolledTournaments.some(enrolled => enrolled.id === tournament.id); %>
+                                    <% if (!alreadyEnrolled) { %>
                                         <form action="/player/join-tournament" method="POST">
                                             <input type="hidden" name="tournamentId" value="<%= tournament.id %>">
-                                            <button 
-                                                type="submit" 
-                                                class="join-btn" 
-                                                <%= !currentSubscription ? 'disabled' : '' %>
-                                            >
+                                            <button type="submit" class="join-btn" <%= !currentSubscription ? 'disabled' : '' %>>
                                                 Join <%= !currentSubscription ? '(SUBSCRIPTION REQUIRED)' : '' %>
                                             </button>
                                         </form>
                                     <% } else { %>
                                         <span class="enrolled-text">Already Enrolled</span>
                                     <% } %>
+                                    <br>
+                                    <a href="/player/tournament-pairings/<%= tournament.id %>">
+                                        <button>View Pairings</button>
+                                    </a>
+                                    <a href="/player/tournament-results/<%= tournament.id %>">
+                                        <button>View Results</button>
+                                    </a>
                                 </td>
                             </tr>
                         <% }); %>
@@ -168,16 +170,17 @@
                             <th>Location</th>
                             <th>Entry Fee</th>
                             <th>Status</th>
-                            <th>Action</th>
+                            <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         <% teamTournaments.forEach(tournament => { %>
                             <% 
-                                const today = new Date('2025-03-27');
+                                const today = new Date();
                                 const tournamentDate = new Date(tournament.date);
                                 let status = '';
                                 let statusClass = '';
+
                                 if (tournamentDate < today) {
                                     status = 'Completed';
                                     statusClass = 'status-completed';
@@ -211,23 +214,24 @@
                                 <td>₹<%= tournament.entry_fee %></td>
                                 <td class="<%= statusClass %>"><%= status %></td>
                                 <td>
-                                    <% 
-                                        const alreadyEnrolled = enrolledTournaments.some(enrolled => enrolled.id === tournament.id);
-                                        if (!alreadyEnrolled) { 
-                                    %>
+                                    <% const alreadyEnrolled = enrolledTournaments.some(enrolled => enrolled.id === tournament.id); %>
+                                    <% if (!alreadyEnrolled) { %>
                                         <form action="/player/join-tournament" method="POST">
                                             <input type="hidden" name="tournamentId" value="<%= tournament.id %>">
-                                            <button 
-                                                type="submit" 
-                                                class="join-btn" 
-                                                <%= !currentSubscription ? 'disabled' : '' %>
-                                            >
+                                            <button type="submit" class="join-btn" <%= !currentSubscription ? 'disabled' : '' %>>
                                                 Join <%= !currentSubscription ? '(SUBSCRIPTION REQUIRED)' : '' %>
                                             </button>
                                         </form>
                                     <% } else { %>
                                         <span class="enrolled-text">Already Enrolled</span>
                                     <% } %>
+                                    <br>
+                                    <a href="/player/tournament-pairings/<%= tournament.id %>">
+                                        <button>View Pairings</button>
+                                    </a>
+                                    <a href="/player/tournament-results/<%= tournament.id %>">
+                                        <button>View Results</button>
+                                    </a>
                                 </td>
                             </tr>
                         <% }); %>
@@ -238,132 +242,6 @@
             <% } %>
         </div>
 
-        <!-- Enrolled Individual Tournaments -->
-        <h2 class="black-h2">Enrolled Individual Tournaments</h2>
-        <div class="form-container">
-            <% const enrolledIndividualTournaments = enrolledTournaments.filter(t => t.type === 'Individual'); %>
-            <% if (enrolledIndividualTournaments.length > 0) { %>
-                <table border="1">
-                    <thead>
-                        <tr>
-                            <th>Name</th>
-                            <th>Date</th>
-                            <th>Location</th>
-                            <th>Entry Fee</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <% enrolledIndividualTournaments.forEach(tournament => { %>
-                            <% 
-                                const today = new Date('2025-03-27');
-                                const tournamentDate = new Date(tournament.date);
-                                let status = '';
-                                let statusClass = '';
-                                if (tournamentDate < today) {
-                                    status = 'Completed';
-                                    statusClass = 'status-completed';
-                                } else if (tournamentDate.toDateString() === today.toDateString()) {
-                                    status = 'Ongoing';
-                                    statusClass = 'status-ongoing';
-                                } else {
-                                    status = 'Yet to Start';
-                                    statusClass = 'status-yet-to-start';
-                                }
-                            %>
-                            <tr>
-                                <td>
-                                    <span class="tournament-name" onclick="toggleDetails('enrolled-details-<%= tournament.id %>')">
-                                        <%= tournament.name %>
-                                    </span>
-                                    <div id="enrolled-details-<%= tournament.id %>" class="tournament-details">
-                                        <p><strong>Date:</strong> <%= tournament.date %></p>
-                                        <p><strong>Time:</strong> <%= tournament.time || 'N/A' %></p>
-                                        <p><strong>Venue:</strong> <%= tournament.location %></p>
-                                        <p><strong>Time Control:</strong> <%= tournament.time_control || 'N/A' %></p>
-                                        <p><strong>No. of Rounds:</strong> <%= tournament.rounds || 'N/A' %></p>
-                                        <% if (tournament.poster_url) { %>
-                                            <p><strong>Poster:</strong></p>
-                                            <img src="<%= tournament.poster_url %>" alt="Tournament Poster">
-                                        <% } %>
-                                    </div>
-                                </td>
-                                <td><%= tournament.date %></td>
-                                <td><%= tournament.location %></td>
-                                <td>₹<%= tournament.entry_fee %></td>
-                                <td class="<%= statusClass %>"><%= status %></td>
-                            </tr>
-                        <% }); %>
-                    </tbody>
-                </table>
-            <% } else { %>
-                <p>You have not enrolled in any individual tournaments.</p>
-            <% } %>
-        </div>
-
-        <!-- Enrolled Team Tournaments -->
-        <h2 class="black-h2">Enrolled Team Tournaments</h2>
-        <div class="form-container">
-            <% const enrolledTeamTournaments = enrolledTournaments.filter(t => t.type === 'Team'); %>
-            <% if (enrolledTeamTournaments.length > 0) { %>
-                <table border="1">
-                    <thead>
-                        <tr>
-                            <th>Name</th>
-                            <th>Date</th>
-                            <th>Location</th>
-                            <th>Entry Fee</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <% enrolledTeamTournaments.forEach(tournament => { %>
-                            <% 
-                                const today = new Date('2025-03-27');
-                                const tournamentDate = new Date(tournament.date);
-                                let status = '';
-                                let statusClass = '';
-                                if (tournamentDate < today) {
-                                    status = 'Completed';
-                                    statusClass = 'status-completed';
-                                } else if (tournamentDate.toDateString() === today.toDateString()) {
-                                    status = 'Ongoing';
-                                    statusClass = 'status-ongoing';
-                                } else {
-                                    status = 'Yet to Start';
-                                    statusClass = 'status-yet-to-start';
-                                }
-                            %>
-                            <tr>
-                                <td>
-                                    <span class="tournament-name" onclick="toggleDetails('enrolled-details-<%= tournament.id %>')">
-                                        <%= tournament.name %>
-                                    </span>
-                                    <div id="enrolled-details-<%= tournament.id %>" class="tournament-details">
-                                        <p><strong>Date:</strong> <%= tournament.date %></p>
-                                        <p><strong>Time:</strong> <%= tournament.time || 'N/A' %></p>
-                                        <p><strong>Venue:</strong> <%= tournament.location %></p>
-                                        <p><strong>Time Control:</strong> <%= tournament.time_control || 'N/A' %></p>
-                                        <p><strong>No. of Rounds:</strong> <%= tournament.rounds || 'N/A' %></p>
-                                        <% if (tournament.poster_url) { %>
-                                            <p><strong>Poster:</strong></p>
-                                            <img src="<%= tournament.poster_url %>" alt="Tournament Poster">
-                                        <% } %>
-                                    </div>
-                                </td>
-                                <td><%= tournament.date %></td>
-                                <td><%= tournament.location %></td>
-                                <td>₹<%= tournament.entry_fee %></td>
-                                <td class="<%= statusClass %>"><%= status %></td>
-                            </tr>
-                        <% }); %>
-                    </tbody>
-                </table>
-            <% } else { %>
-                <p>You have not enrolled in any team tournaments.</p>
-            <% } %>
-        </div>
-        
         <div class="back-container">
             <a href="/player/player_dashboard" class="back">Back to Dashboard</a>
         </div>
@@ -372,11 +250,7 @@
     <script>
         function toggleDetails(detailId) {
             const details = document.getElementById(detailId);
-            if (details.style.display === 'block') {
-                details.style.display = 'none';
-            } else {
-                details.style.display = 'block';
-            }
+            details.style.display = details.style.display === 'block' ? 'none' : 'block';
         }
     </script>
 </body>

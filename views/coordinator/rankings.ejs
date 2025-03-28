@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Final Rankings</title>
+</head>
+<body>
+    <h2>Final Rankings</h2>
+    <table border="1">
+        <tr>
+            <th>Rank</th>
+            <th>Player Name</th>
+            <th>Score</th>
+        </tr>
+        <% rankings.forEach((player, index) => { %>
+            <tr>
+                <td><%= index + 1 %></td>
+                <td><%= player.name %></td>
+                <td><%= player.score %></td>
+            </tr>
+        <% }); %>
+    </table>
+    <a href="/tournament/enrolled-players">Back to Players</a>
+</body>
+</html>

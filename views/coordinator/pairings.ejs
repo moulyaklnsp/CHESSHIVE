@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pairings & Results</title>
+</head>
+<body>
+    <h2>Pairings - Round <%= roundNumber %></h2>
+    <table border="1">
+        <tr>
+            <th>Player 1</th>
+            <th>Player 2</th>
+            <th>Result</th>
+        </tr>
+        <% pairings.forEach(pair => { %>
+            <tr>
+                <td><%= pair.player1.name %> (Score: <%= pair.player1.score %>)</td>
+                <td><%= pair.player2 ? pair.player2.name : 'BYE' %></td>
+                <td>
+                    <% if (!pair.result) { %>
+                        <form action="/tournament/update-result" method="POST">
+                            <input type="hidden" name="round" value="<%= roundNumber %>">
+                            <input type="hidden" name="player1" value="<%= pair.player1.id %>">
+                            <% if (pair.player2) { %>
+                                <input type="hidden" name="player2" value="<%= pair.player2.id %>">
+                                <select name="winner">
+                                    <option value="<%= pair.player1.id %>"><%= pair.player1.name %> Wins</option>
+                                    <option value="<%= pair.player2.id %>"><%= pair.player2.name %> Wins</option>
+                                    <option value="draw">Draw</option>
+                                </select>
+                            <% } else { %>
+                                <input type="hidden" name="winner" value="<%= pair.player1.id %>">
+                            <% } %>
+                            <button type="submit">Submit</button>
+                        </form>
+                    <% } else { %>
+                        <%= pair.result %>
+                    <% } %>
+                </td>
+            </tr>
+        <% }); %>
+    </table>
+    <a href="/tournament/rankings">View Final Rankings</a>
+</body>
+</html>
