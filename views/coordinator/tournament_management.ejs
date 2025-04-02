@@ -40,7 +40,27 @@
         <% if (errorMessage) { %>
             <p style="color: red;"><%= errorMessage %></p>
         <% } %>
+        <!-- Add Tournament Form -->
+        <div class="table-div" id="tournamentFormSection">
+            <h3 id="formTitle">Add New Tournament</h3>
+            <form class="form-container" id="tournamentForm" action="/tournament_management" method="POST">
+                <input type="hidden" id="tournamentId" name="tournamentId">
+                
+                <label for="tournamentName">Tournament Name:</label>
+                <input type="text" id="tournamentName" name="tournamentName" value="<%= typeof tournamentName !== 'undefined' ? tournamentName : '' %>" required>
 
+                <label for="tournamentDate">Date:</label>
+                <input type="date" id="tournamentDate" name="tournamentDate" value="<%= typeof tournamentDate !== 'undefined' ? tournamentDate : '' %>" required>
+
+                <label for="tournamentLocation">Location:</label>
+                <input type="text" id="tournamentLocation" name="tournamentLocation" value="<%= typeof tournamentLocation !== 'undefined' ? tournamentLocation : '' %>" required>
+
+                <label for="entryFee">Entry Fee (₹):</label>
+                <input type="number" id="entryFee" name="entryFee" min="0" step="0.01" value="<%= typeof entryFee !== 'undefined' ? entryFee : '' %>" required>
+
+                <button type="submit" id="submitButton">Add Tournament</button>
+            </form>
+        </div>
         <!-- Tournament List -->
         <div class="table-div" id="tournamentListSection">
             <h3>Your Tournaments</h3>
@@ -86,9 +106,10 @@
                                     <td class="<%= statusClass %>"><%= status %></td>
                                     <td>
                                         <% if (tournament.status === 'Approved') { %>
-                                            <a href="/tournament/<%= tournament.id %>/players" class="btn">View Enrolled Players</a>
-                                            <a href="/tournament/<%= tournament.id %>/pairings" class="btn">View Pairings & Results</a>
-                                            <a href="/tournament/<%= tournament.id %>/rankings" class="btn">View Final Rankings</a>
+                                            <a href="/coordinator/enrolled_players?tournament_id=<%= tournament.id %>" class="btn">View Enrolled Players</a>
+                                            
+                                            <a href="/coordinator/pairings" class="btn">View Pairings & Results</a>
+                                            <a href="/coordinator/rankings" class="btn">View Final Rankings</a>
                                         <% } %>
                                     </td>
                                 </tr>

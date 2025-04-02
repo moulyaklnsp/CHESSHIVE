@@ -3,15 +3,49 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Enrolled Players</title>
+    <% if (typeof tournamentName !== 'undefined') { %>
+    <title>Enrolled Players - <%= tournamentName %></title>
+    <% } else { %>
+        <title>Enrolled Players</title>
+    <% } %>
+    <link rel="stylesheet" href="/css/primary_styles.css">
+    <style>
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { padding: 8px; text-align: left; border: 1px solid #ccc; }
+    </style>
 </head>
 <body>
-    <h2>Enrolled Players</h2>
-    <ul>
-        <% players.forEach(player => { %>
-            <li><%= player.name %> - Rating: <%= player.rating %></li>
-        <% }); %>
-    </ul>
-    <a href="/tournament/pairings">Go to Pairings</a>
+    <div class="container">
+        <% if (typeof tournamentName !== 'undefined') { %>
+        <h2>Enrolled Players for <%= tournamentName %></h2>
+        <% } else { %>
+            <p>No players available.</p>
+        <% } %>
+        <% if (typeof players !== 'undefined' && players.length > 0) { %>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Username</th>
+                        <th>College</th>
+                        <th>Gender</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% players.forEach(player => { %>
+                        <tr>
+                            <td><%= player.username %></td>
+                            <td><%= player.college %></td>
+                            <td><%= player.gender %></td>
+                        </tr>
+                    <% }); %>
+                </tbody>
+            </table>
+        <% } else { %>
+            <p>No players enrolled in this tournament yet.</p>
+        <% } %>
+        <div class="back-container">
+            <a href="/coordinator/tournament_management" class="back">Back to Tournament Management</a>
+        </div>
+    </div>
 </body>
 </html>

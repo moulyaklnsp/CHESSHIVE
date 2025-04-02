@@ -13,6 +13,7 @@
             <th>Player 2</th>
             <th>Result</th>
         </tr>
+        <% if (typeof pairings !== "undefined" && pairings.length > 0) { %>
         <% pairings.forEach(pair => { %>
             <tr>
                 <td><%= pair.player1.name %> (Score: <%= pair.player1.score %>)</td>
@@ -40,6 +41,9 @@
                 </td>
             </tr>
         <% }); %>
+        <% } else { %>
+            <p>No pairings available.</p>
+        <% } %> 
     </table>
     <a href="/tournament/rankings">View Final Rankings</a>
 </body>

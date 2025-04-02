@@ -123,12 +123,15 @@
         <% } else { %>
             <div class="greeting">Welcome, Coordinator!</div>
         <% } %>
+
         <div class="logout-box">
             <button onclick="redirectToLogin()">Log Out</button>
         </div>
 
         <div class="container2">
             <h1>Coordinator Dashboard</h1>
+
+            <% if (typeof meetings !== "undefined" && Array.isArray(meetings)) { %>
 
             <!-- Latest Meetings Section -->
             <h2>Latest Meetings</h2>
@@ -158,6 +161,9 @@
                     <p>No meetings scheduled.</p>
                 <% } %>
             </div>
+            <% } %>
+
+            <% if (typeof tournaments !== "undefined" && Array.isArray(tournaments)) { %>
 
             <!-- Tournaments to Conduct Section -->
             <h2>Tournaments to Conduct</h2>
@@ -187,6 +193,8 @@
                     <p>No tournaments to conduct.</p>
                 <% } %>
             </div>
+            <% } %>
+
         </div>
     </div>
 
@@ -194,11 +202,7 @@
         // Toggle Sidebar Visibility
         function toggleSidebar() {
             var sidebar = document.getElementById("sidebar");
-            if (sidebar.style.display === "block") {
-                sidebar.style.display = "none";
-            } else {
-                sidebar.style.display = "block";
-            }
+            sidebar.style.display = (sidebar.style.display === "block") ? "none" : "block";
         }
 
         // Redirect to Login Page

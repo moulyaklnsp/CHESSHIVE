@@ -133,9 +133,11 @@
                                     <% if (!alreadyEnrolled) { %>
                                         <form action="/player/join-tournament" method="POST">
                                             <input type="hidden" name="tournamentId" value="<%= tournament.id %>">
+
                                             <button type="submit" class="join-btn" <%= !currentSubscription ? 'disabled' : '' %>>
                                                 Join <%= !currentSubscription ? '(SUBSCRIPTION REQUIRED)' : '' %>
                                             </button>
+                                            
                                         </form>
                                     <% } else { %>
                                         <span class="enrolled-text">Already Enrolled</span>

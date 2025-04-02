@@ -611,6 +611,37 @@ app.get('/:role/:subpage', (req, res) => {
         });
         return;
     }
+    if(subpage === "enrolled_players" && role === "coordinator"){
+            const tournamentId = req.query.tournament_id;
+        
+            if (!tournamentId) {
+                return res.redirect('/coordinator_dashboard?error-message=No tournament specified');
+            }
+        
+            db.get("SELECT name FROM tournaments WHERE id = ?", [tournamentId], (err, tournament) => {
+                if (err) {
+                    console.error("Database Error:", err);
+                    return res.redirect('/coordinator_dashboard?error-message=Database Error');
+                }
+                if (!tournament) {
+
+                    return res.redirect('/coordinator_dashboard?error-message=Tournament not found');
+                }
+        
+                db.all("SELECT username, college, gender FROM tournament_players WHERE tournament_id = ?", [tournamentId], (err, players) => {
+                    if (err) {
+                        console.error("Database Error:", err);
+                        return res.redirect('/coordinator_dashboard?error-message=Database Error');
+                    }
+        
+                    res.render('coordinator/enrolled_players', { 
+                        tournamentName: tournament.name,
+                        players: players || []
+                    });
+                });
+            });
+            return;
+    }
 
     // Synchronous subpages with sample data
     let data = {};
@@ -645,7 +676,7 @@ app.get('/:role/:subpage', (req, res) => {
             rapid: ['IIIT Kurnool', 'IIIT Hyderabad', 'IIIT Kancheepuram'],
             blitz: ['IIIT Gwalior', 'IIIT Kottayam', 'IIIT Hyderabad']
         };
-    }
+    } 
 
     // Final render for unhandled synchronous subpages
     try {
