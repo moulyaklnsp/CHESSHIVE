@@ -51,7 +51,6 @@ app.get('/organizer_dashboard', (req, res) => renderDashboard('organizer/organiz
 app.get('/coordinator_dashboard', (req, res) => renderDashboard('coordinator/coordinator_dashboard', req, res));
 app.get('/player_dashboard', (req, res) => {
     const playerName = req.session.playerName || 'Guest'; // Fallback to 'Guest' if undefined
-    
     // Fetch latest approved tournaments from the database
     db.all(
         "SELECT id, name, date FROM tournaments WHERE status = 'Approved' ORDER BY date DESC LIMIT 5",
@@ -113,7 +112,7 @@ const renderUserProfile = (role, query, req, res, dbQuery, view) => {
 // Dynamic Routing for role-specific subpages
 app.get('/:role/:subpage', (req, res) => {
     const { role, subpage } = req.params;
-
+    console.log(role);
     // Validate roles
     if (!['admin', 'organizer', 'coordinator', 'player'].includes(role)) {
         return res.redirect('/?error-message=Invalid Role');
