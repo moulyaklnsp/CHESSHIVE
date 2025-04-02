@@ -41,7 +41,8 @@ db.serialize(() => {
             entry_fee REAL NOT NULL,
             status TEXT DEFAULT 'Pending',
             added_by TEXT NOT NULL DEFAULT 'None',
-            approved_by TEXT NOT NULL DEFAULT 'None'
+            approved_by TEXT NOT NULL DEFAULT 'None',
+            type TEXT NOT NULL DEFAULT 'Individual'
         )
     `, (err) => {
         if (err) console.error("❌ Error creating tournaments table:", err.message);
