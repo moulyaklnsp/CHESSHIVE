@@ -52,11 +52,24 @@
                 <label for="tournamentDate">Date:</label>
                 <input type="date" id="tournamentDate" name="tournamentDate" value="<%= typeof tournamentDate !== 'undefined' ? tournamentDate : '' %>" required>
 
+                <label for="tournamentTime">Time:</label>
+                <input type="time" name="tournamentTime" required>
+
                 <label for="tournamentLocation">Location:</label>
                 <input type="text" id="tournamentLocation" name="tournamentLocation" value="<%= typeof tournamentLocation !== 'undefined' ? tournamentLocation : '' %>" required>
 
                 <label for="entryFee">Entry Fee (₹):</label>
                 <input type="number" id="entryFee" name="entryFee" min="0" step="0.01" value="<%= typeof entryFee !== 'undefined' ? entryFee : '' %>" required>
+
+                <label for="type">Type:</label>
+                <select id="type" name="type" required>
+                    <option value="" disabled selected>Select Type</option>
+                    <option value="Individual" <%= (typeof type !== 'undefined' && type === 'Individual') ? 'selected' : '' %>>Individual</option>
+                    <option value="Team" <%= (typeof type !== 'undefined' && type === 'Team') ? 'selected' : '' %>>Team</option>
+                </select>
+
+                <label for="noOfRounds">No of Rounds:</label>
+                <input type="number" id="noOfRounds" name="noOfRounds" value="<%= typeof no_of_rounds !== 'undefined' ? no_of_rounds : '' %>" required>
 
                 <button type="submit" id="submitButton">Add Tournament</button>
             </form>
@@ -72,8 +85,11 @@
                             <tr>
                                 <th>Name</th>
                                 <th>Date</th>
+                                <th>Time</th>
                                 <th>Location</th>
                                 <th>Entry Fee</th>
+                                <th>Type</th>
+                                <th>No Of Rounds</th>
                                 <th>Status</th>
                                 <th>Actions</th>
                             </tr>
@@ -101,8 +117,11 @@
                                 <tr>
                                     <td><%= tournament.name %></td>
                                     <td><%= tournament.date %></td>
+                                    <td><%= tournament.time %></td>
                                     <td><%= tournament.location %></td>
                                     <td>₹<%= tournament.entry_fee %></td>
+                                    <td><%= tournament.type %></td>
+                                    <td><%= tournament.no_of_rounds %></td>
                                     <td class="<%= statusClass %>"><%= status %></td>
                                     <td>
                                         <% if (tournament.status === 'Approved') { %>

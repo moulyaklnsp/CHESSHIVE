@@ -238,7 +238,7 @@ router.post('/tournament_management', (req, res) => {
     const name=req.session.username;
     console.log(name);
     console.log("Received request to add tournament:", req.body);
-    const { tournamentName, tournamentDate, tournamentLocation, entryFee } = req.body;
+    const { tournamentName, tournamentDate, tournamentLocation, entryFee, type, noOfRounds, tournamentTime} = req.body;
     let errors = {};
     if (!tournamentName.trim()) errors.name = "Tournament Name is required.";
     if (!tournamentDate.trim()) errors.date = "Tournament Date is required.";
@@ -257,7 +257,10 @@ router.post('/tournament_management', (req, res) => {
                 tournamentName, 
                 tournamentDate, 
                 tournamentLocation, 
+                tournamentTime,
                 entryFee,
+                type,
+                noOfRounds,
                 tournaments,
                 successMessage: '',
                 errorMessage: 'Please correct the errors below'
@@ -266,8 +269,8 @@ router.post('/tournament_management', (req, res) => {
         return;
     }
     db.run(
-        "INSERT INTO tournaments (name, date, location, entry_fee, status,added_by) VALUES (?, ?, ?, ?, ?, ?)",
-        [tournamentName, tournamentDate, tournamentLocation, entryFee, 'Pending',name],
+        "INSERT INTO tournaments (name, date, location, entry_fee, status, added_by, type, no_of_rounds, time) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+        [tournamentName, tournamentDate, tournamentLocation, entryFee, 'Pending',name, type, noOfRounds, tournamentTime],
         function (err) {
             if (err) {
                 console.error("Error inserting tournament:", err.message);

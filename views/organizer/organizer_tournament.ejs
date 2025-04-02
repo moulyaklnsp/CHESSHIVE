@@ -55,6 +55,7 @@
                                 <th>Date</th>
                                 <th>Location</th>
                                 <th>Entry Fee</th>
+                                <th>Type</th>
                                 <th>Added By</th>
                                 <th>Status</th>
                                 <th>Actions</th>
@@ -67,6 +68,7 @@
                                     <td><%= tournament.date %></td>
                                     <td><%= tournament.location %></td>
                                     <td>₹<%= tournament.entry_fee %></td>
+                                    <td><%= tournament.type %></td>
                                     <td><%= tournament.added_by %></td>
                                     <td>
                                         <% if (tournament.status === 'Approved') { %>
