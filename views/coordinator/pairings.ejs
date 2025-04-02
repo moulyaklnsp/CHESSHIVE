@@ -6,45 +6,32 @@
     <title>Pairings & Results</title>
 </head>
 <body>
-    <h2>Pairings - Round <%= roundNumber %></h2>
-    <table border="1">
-        <tr>
-            <th>Player 1</th>
-            <th>Player 2</th>
-            <th>Result</th>
-        </tr>
-        <% if (typeof pairings !== "undefined" && pairings.length > 0) { %>
-        <% pairings.forEach(pair => { %>
-            <tr>
-                <td><%= pair.player1.name %> (Score: <%= pair.player1.score %>)</td>
-                <td><%= pair.player2 ? pair.player2.name : 'BYE' %></td>
-                <td>
-                    <% if (!pair.result) { %>
-                        <form action="/tournament/update-result" method="POST">
-                            <input type="hidden" name="round" value="<%= roundNumber %>">
-                            <input type="hidden" name="player1" value="<%= pair.player1.id %>">
-                            <% if (pair.player2) { %>
-                                <input type="hidden" name="player2" value="<%= pair.player2.id %>">
-                                <select name="winner">
-                                    <option value="<%= pair.player1.id %>"><%= pair.player1.name %> Wins</option>
-                                    <option value="<%= pair.player2.id %>"><%= pair.player2.name %> Wins</option>
-                                    <option value="draw">Draw</option>
-                                </select>
-                            <% } else { %>
-                                <input type="hidden" name="winner" value="<%= pair.player1.id %>">
-                            <% } %>
-                            <button type="submit">Submit</button>
-                        </form>
-                    <% } else { %>
-                        <%= pair.result %>
-                    <% } %>
-                </td>
-            </tr>
+    <h1>Pairings & Results</h1>
+    
+    <% if (allRounds.length === 0) { %>
+        <p>No pairings available.</p>
+    <% } else { %>
+        <% allRounds.forEach(roundData => { %>
+            <h2>Round <%= roundData.round %></h2>
+            <table border="1">
+                <tr>
+                    <th>Player 1</th>
+                    <th>Player 2</th>
+                    <th>Result</th>
+                </tr>
+                <% roundData.pairings.forEach(pair => { %>
+                    <tr>
+                        <td><%= pair.player1.username %> (Score: <%= pair.player1.score %>)</td>
+                        <td><%= pair.player2 ? pair.player2.username : 'BYE' %></td>
+                        <td><%= pair.result %></td>
+                    </tr>
+                <% }); %>
+            </table>
+            
+            <% if (roundData.byePlayer) { %>
+                <p><strong>BYE:</strong> <%= roundData.byePlayer.username %> (Score: <%= roundData.byePlayer.score %>)</p>
+            <% } %>
         <% }); %>
-        <% } else { %>
-            <p>No pairings available.</p>
-        <% } %> 
-    </table>
-    <a href="/tournament/rankings">View Final Rankings</a>
+    <% } %>
 </body>
 </html>
