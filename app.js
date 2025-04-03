@@ -1049,15 +1049,15 @@ app.get("/:role/:subpage", (req, res) => {
 
   //TODO: idk just someone fix it
 
-  // try {
-  //   res.render(`${role}/${subpage}`, {
-  //     ...getMessages(req),
-  //     ...data,
-  //   });
-  // } catch (err) {
-  //   console.error(`Error rendering ${role}/${subpage}:`, err);
-  //   res.redirect(`/${role}_dashboard?error-message=Page not found: ${subpage}`);
-  // }
+  try {
+    res.render(`${role}/${subpage}`, {
+      ...getMessages(req),
+      ...data,
+    });
+  } catch (err) {
+    console.error(`Error rendering ${role}/${subpage}:`, err);
+    res.redirect(`/${role}_dashboard?error-message=Page not found: ${subpage}`);
+  }
 });
 
 // Login Handling
@@ -1224,42 +1224,42 @@ app.delete("/organizers/remove/:email", isAdmin, (req, res) => {
 });
 
 // General Static Pages (after specific routes)
-// app.get("/:page", (req, res) => {
-//   const { page } = req.params;
-//   console.log(`Rendering page: ${page}`);
-//   if (
-//     [
-//       "admin_dashboard",
-//       "organizer_dashboard",
-//       "coordinator_dashboard",
-//       "player_dashboard",
-//     ].includes(page)
-//   ) {
-//     return res.redirect(`/${page}`);
-//   }
-//   try {
-//     const messages = getMessages(req);
-//     res.render(page, {
-//       ...messages,
-//       deletedUserId: req.query.deletedUserId || null,
-//     });
-//   } catch (err) {
-//     console.error(`❌ Error rendering template '${page}': ${err.message}`);
-//     res.status(404).send(`Page not found: ${page}`);
-//   }
-// });
+app.get("/:page", (req, res) => {
+  const { page } = req.params;
+  console.log(`Rendering page: ${page}`);
+  if (
+    [
+      "admin_dashboard",
+      "organizer_dashboard",
+      "coordinator_dashboard",
+      "player_dashboard",
+    ].includes(page)
+  ) {
+    return res.redirect(`/${page}`);
+  }
+  try {
+    const messages = getMessages(req);
+    res.render(page, {
+      ...messages,
+      deletedUserId: req.query.deletedUserId || null,
+    });
+  } catch (err) {
+    console.error(`❌ Error rendering template '${page}': ${err.message}`);
+    res.status(404).send(`Page not found: ${page}`);
+  }
+});
 
 // 404 Handler
-// app.use((req, res) => {
-//   console.log(`404: ${req.url}`);
-//   res.status(404).redirect("/?error-message=Page not found");
-// });
+app.use((req, res) => {
+  console.log(`404: ${req.url}`);
+  res.status(404).redirect("/?error-message=Page not found");
+});
 
 // Global Error Handler
-// app.use((err, req, res, next) => {
-//     console.error('Server error:', err.stack);
-//     res.status(500).redirect('/?error-message=Server error occurred');
-// });
+app.use((err, req, res, next) => {
+  console.error("Server error:", err.stack);
+  res.status(500).redirect("/?error-message=Server error occurred");
+});
 
 // Start Server
 app.listen(PORT, () =>
