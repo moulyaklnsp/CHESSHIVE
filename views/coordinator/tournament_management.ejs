@@ -127,8 +127,9 @@
                                         <% if (tournament.status === 'Approved') { %>
                                             <a href="/coordinator/enrolled_players?tournament_id=<%= tournament.id %>" class="btn">View Enrolled Players</a>
                                             
-                                            <a href="/coordinator/pairings" class="btn">View Pairings & Results</a>
-                                            <a href="/coordinator/rankings" class="btn">View Final Rankings</a>
+                                            <a href="/coordinator/pairings?tournament_id=1&rounds=5" class="btn">View Pairings & Results</a>
+
+                                            <a href="/coordinator/rankings?tournament_id=<%= tournament.id %>" class="btn">View Final Rankings</a>
                                         <% } %>
                                     </td>
                                 </tr>
