@@ -187,7 +187,7 @@ app.get("/coordinator/pairings", (req, res) => {
       if (rows.length === 0) {
         return res.render("coordinator/pairings", {
           roundNumber: 1,
-          pairings: [],
+          pairings: []
         });
       }
       let players = rows.map(
@@ -196,7 +196,7 @@ app.get("/coordinator/pairings", (req, res) => {
       let allRounds = swissPairing(players, totalRounds);
       res.render("coordinator/pairings", {
         roundNumber: totalRounds,
-        allRounds,
+        allRounds
       });
     }
   );
