@@ -66,6 +66,30 @@ db.serialize(() => {
     });
 
     db.run(`
+        CREATE TABLE IF NOT EXISTS enrolledtournaments_team (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            tournament_id INTEGER NOT NULL,
+            captain_id INTEGER NOT NULL,
+            player1_name TEXT NOT NULL,
+            player2_name TEXT NOT NULL,
+            player3_name TEXT NOT NULL,
+            enrollment_date TEXT DEFAULT CURRENT_TIMESTAMP,
+            player1_approved INTEGER DEFAULT 0,
+            player2_approved INTEGER DEFAULT 0,
+            player3_approved INTEGER DEFAULT 0,
+            approved INTEGER DEFAULT 0,
+            FOREIGN KEY (tournament_id) REFERENCES tournaments(id),
+            FOREIGN KEY (captain_id) REFERENCES users(id)
+        )
+    `, (err) => {
+        if (err) {
+            console.error("❌ Error creating enrolledtournaments_team table:", err.message);
+        } else {
+            console.log("✅ Enrolled Tournaments Team table is ready.");
+        }
+    });
+
+    db.run(`
         CREATE TABLE IF NOT EXISTS products (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT NOT NULL,

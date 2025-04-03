@@ -42,6 +42,38 @@
         .status-completed { color: green; }
         .status-ongoing { color: orange; }
         .status-yet-to-start { color: blue; }
+        .status-pending { color: purple; }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 500px;
+        }
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+        }
     </style>
 </head>
 <body>
@@ -58,7 +90,7 @@
         <% if (!currentSubscription) { %>
             <div class="subscription-message">
                 YOU MUST BE SUBSCRIBED TO JOIN TOURNAMENTS. 
-                <a href="/subscribe">Subscribe Now</a>
+                <a href="/player/subscription">Subscribe Now</a>
             </div>
         <% } %>
 
@@ -122,25 +154,20 @@
                                 <td>₹<%= tournament.entry_fee %></td>
                                 <td class="<%= statusClass %>"><%= status %></td>
                                 <td>
-                                    <% const alreadyEnrolled = enrolledTournaments.some(enrolled => enrolled.id === tournament.id); %>
+                                    <% const alreadyEnrolled = enrolledIndividualTournaments.some(enrolled => enrolled.id === tournament.id); %>
                                     <% if (!alreadyEnrolled) { %>
                                         <form action="/player/join-tournament" method="POST">
                                             <input type="hidden" name="tournamentId" value="<%= tournament.id %>">
-
                                             <button type="submit" class="join-btn" <%= !currentSubscription ? 'disabled' : '' %>>
                                                 Join <%= !currentSubscription ? '(SUBSCRIPTION REQUIRED)' : '' %>
                                             </button>
-                                            
                                         </form>
                                     <% } else { %>
                                         <span class="enrolled-text">Already Enrolled</span>
                                     <% } %>
                                     <br>
                                     <a href="/coordinator/pairings?tournament_id=1&rounds=5" class="btn">View Pairings & Results</a>
-                                        
-                                    </a>
                                     <a href="/coordinator/rankings?tournament_id=<%= tournament.id %>" class="btn">View Final Rankings</a>
-                                    </a>
                                 </td>
                             </tr>
                         <% }); %>
@@ -174,7 +201,7 @@
                                 const tournamentDate = new Date(tournament.date);
                                 let status = '';
                                 let statusClass = '';
-
+        
                                 if (tournamentDate < today) {
                                     status = 'Completed';
                                     statusClass = 'status-completed';
@@ -192,33 +219,35 @@
                                         <%= tournament.name %>
                                     </span>
                                     <div id="details-<%= tournament.id %>" class="tournament-details">
-                                        <p><strong>Date:</strong> <%= tournament.date %></p>
                                         <p><strong>Time:</strong> <%= tournament.time || 'N/A' %></p>
-                                        <p><strong>Venue:</strong> <%= tournament.location %></p>
-                                        <p><strong>Time Control:</strong> <%= tournament.time_control || 'N/A' %></p>
                                         <p><strong>No. of Rounds:</strong> <%= tournament.rounds || 'N/A' %></p>
-                                        <% if (tournament.poster_url) { %>
-                                            <p><strong>Poster:</strong></p>
-                                            <img src="<%= tournament.poster_url %>" alt="Tournament Poster">
-                                        <% } %>
                                     </div>
                                 </td>
                                 <td><%= tournament.date %></td>
                                 <td><%= tournament.location %></td>
                                 <td>₹<%= tournament.entry_fee %></td>
                                 <td class="<%= statusClass %>"><%= status %></td>
-                                <td>
-                                    <% const alreadyEnrolled = enrolledTournaments.some(enrolled => enrolled.id === tournament.id); %>
-                                    <% if (!alreadyEnrolled) { %>
-                                        <form action="/player/join-tournament" method="POST">
-                                            <input type="hidden" name="tournamentId" value="<%= tournament.id %>">
-                                            <button type="submit" class="join-btn" <%= !currentSubscription ? 'disabled' : '' %>>
-                                                Join <%= !currentSubscription ? '(SUBSCRIPTION REQUIRED)' : '' %>
-                                            </button>
-                                        </form>
-                                    <% } else { %>
-                                        <span class="enrolled-text">Already Enrolled</span>
-                                    <% } %>
+                                <td><% 
+                                    const enrolledTeam = enrolledTeamTournaments.find(enrolled => enrolled.tournament_id === tournament.id);
+                                    let isPending = false;
+                                    let isFullyEnrolled = false;
+                                
+                                    if (enrolledTeam) { 
+                                        isPending = !(parseInt(enrolledTeam.approved) === 1);
+                                        isFullyEnrolled = parseInt(enrolledTeam.approved) === 1;
+                                %>
+                                <% } %>
+                                
+                                <% if (!enrolledTeam) { %>
+                                    <button type="button" class="join-btn" onclick="openJoinModal('<%= tournament.id %>')" <%= !currentSubscription ? 'disabled' : '' %>>
+                                        Join <%= !currentSubscription ? '(SUBSCRIPTION REQUIRED)' : '' %>
+                                    </button>
+                                <% } else if (isPending) { %>
+                                    <span class="status-pending">Pending Approval</span>
+                                <% } else if (isFullyEnrolled) { %>
+                                    <span class="enrolled-text">Already Enrolled</span>
+                                <% } %>
+                                
                                     <br>
                                     <a href="/tournament_pairings/<%= tournament.id %>">
                                         <button>View Pairings</button>
@@ -235,6 +264,24 @@
                 <p>No approved team tournaments available.</p>
             <% } %>
         </div>
+        
+        <!-- Join Tournament Modal -->
+        <div id="joinModal" class="modal">
+            <div class="modal-content">
+                <span class="close" onclick="closeJoinModal()">×</span>
+                <h3>Enter Team Members</h3>
+                <form id="joinTeamForm" action="/player/join-tournament" method="POST">
+                    <input type="hidden" name="tournamentId" id="tournamentId">
+                    <label for="player1">Player 1:</label>
+                    <input type="text" name="player1" id="player1" required>
+                    <label for="player2">Player 2:</label>
+                    <input type="text" name="player2" id="player2" required>
+                    <label for="player3">Player 3:</label>
+                    <input type="text" name="player3" id="player3" required>
+                    <button type="submit" class="join-btn">Submit Team</button>
+                </form>
+            </div>
+        </div>
 
         <div class="back-container">
             <a href="/player_dashboard" class="back">Back to Dashboard</a>
@@ -245,6 +292,22 @@
         function toggleDetails(detailId) {
             const details = document.getElementById(detailId);
             details.style.display = details.style.display === 'block' ? 'none' : 'block';
+        }
+
+        function openJoinModal(tournamentId) {
+            document.getElementById('tournamentId').value = tournamentId;
+            document.getElementById('joinModal').style.display = 'block';
+        }
+
+        function closeJoinModal() {
+            document.getElementById('joinModal').style.display = 'none';
+        }
+
+        window.onclick = function(event) {
+            const modal = document.getElementById('joinModal');
+            if (event.target === modal) {
+                modal.style.display = 'none';
+            }
         }
     </script>
 </body>

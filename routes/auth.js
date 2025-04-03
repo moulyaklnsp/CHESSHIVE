@@ -325,100 +325,252 @@ router.post('/organizer/reject-tournament', (req, res) => {
 });
 
 router.post("/player/join-tournament", (req, res) => {
-    const { tournamentId } = req.body;
+    const { tournamentId, player1, player2, player3 } = req.body;
 
     // Check if user is logged in
-    if (!req.session.username) {
-        console.log("User not logged in.");
-        return res.json({ success: false, message: "Please log in." });
+    if (!req.session.userEmail) {
+        return res.redirect("/player/player_tournament?error-message=Please log in");
     }
 
-    // Step 1: Check if the player is subscribed
-    db.get(
-        "SELECT * FROM subscriptionstable WHERE username = ?",
-        [req.session.userEmail],
-        (err, subscription) => {
-            if (err) {
-                console.error("Error fetching subscription:", err.message);
-                return res.status(500).send("Error retrieving Subscription.");
-            }
-            if (!subscription) {
-                console.log(`Player ${req.session.username} is not subscribed.`);
-                return res.redirect("/player/player_tournament?error-message=Player or tournament not found");
-            }
+    // Step 1: Validate form data for team tournaments
+    if (player1 && player2 && player3) {
+        // Team tournament enrollment
+        let errors = {};
+        if (!player1.trim()) errors.player1 = "Player 1 name is required";
+        if (!player2.trim()) errors.player2 = "Player 2 name is required";
+        if (!player3.trim()) errors.player3 = "Player 3 name is required";
+        if (Object.keys(errors).length > 0) {
+            return res.redirect("/player/player_tournament?error-message=All player names are required");
+        }
 
-            // Step 2: Fetch user details, wallet balance, and tournament details
-            db.get(
-                `SELECT u.id AS userId, u.college, u.gender, ub.wallet_balance, t.entry_fee 
-                 FROM users u 
-                 LEFT JOIN user_balances ub ON u.id = ub.user_id 
-                 JOIN tournaments t ON t.id = ? 
-                 WHERE u.name = ? AND u.role = 'player' AND u.isDeleted = 0 AND t.status = 'Approved'`,
-                [tournamentId, req.session.username],
-                (err, row) => {
-                    if (err) {
-                        console.error("Error fetching data:", err.message);
-                        return res.status(500).send("Error retrieving data.");
-                    }
-                    if (!row) {
-                        console.log("No player or valid tournament found:", { username: req.session.username, tournamentId });
-                        return res.redirect("/player/player_tournament?error-message=Player or tournament not found");
-                    }
+        // Step 2: Check subscription
+        db.get(
+            "SELECT * FROM subscriptionstable WHERE username = ?",
+            [req.session.userEmail],
+            (err, subscription) => {
+                if (err) {
+                    console.error("Error fetching subscription:", err.message);
+                    return res.status(500).send("Error retrieving subscription");
+                }
+                if (!subscription) {
+                    return res.redirect("/player/player_tournament?error-message=Subscription required");
+                }
 
-                    const userId = row.userId;
-                    const college = row.college;
-                    const gender = row.gender;
-                    const currentBalance = parseFloat(row.wallet_balance || 0);
-                    const entryFee = parseFloat(row.entry_fee);
+                // Step 3: Fetch user and tournament details
+                db.get(
+                    `SELECT u.id AS userId, ub.wallet_balance, t.entry_fee, t.type 
+                     FROM users u 
+                     LEFT JOIN user_balances ub ON u.id = ub.user_id 
+                     JOIN tournaments t ON t.id = ? 
+                     WHERE u.email = ? AND u.role = 'player' AND u.isDeleted = 0 AND t.status = 'Approved'`,
+                    [tournamentId, req.session.userEmail],
+                    (err, row) => {
+                        if (err) {
+                            console.error("Error fetching data:", err.message);
+                            return res.status(500).send("Error retrieving data");
+                        }
+                        if (!row || row.type !== 'Team') {
+                            return res.redirect("/player/player_tournament?error-message=Invalid team tournament");
+                        }
 
-                    console.log("Fetched data:", { userId, college, gender, currentBalance, entryFee });
+                        const userId = row.userId;
+                        const currentBalance = parseFloat(row.wallet_balance || 0);
+                        const entryFee = parseFloat(row.entry_fee);
 
-                    // Step 3: Check if the player has sufficient balance
-                    if (currentBalance < entryFee) {
-                        console.log(`Insufficient balance: ${currentBalance} < ${entryFee}`);
-                        return res.redirect("/player/player_tournament?error-message=Insufficient wallet balance");
-                    }
+                        // Step 4: Check sufficient balance
+                        if (currentBalance < entryFee) {
+                            return res.redirect("/player/player_tournament?error-message=Insufficient wallet balance");
+                        }
 
-                    // Step 4: Calculate new balance
-                    const newBalance = currentBalance - entryFee;
-                    console.log(`New balance calculated: ${newBalance}`);
-
-                    // Step 5: Update the wallet balance
-                    db.run(
-                        "UPDATE user_balances SET wallet_balance = ? WHERE user_id = ?",
-                        [newBalance, userId],
-                        function (err) {
-                            if (err) {
-                                console.error("Error updating wallet balance:", err.message);
-                                return res.status(500).send("Error updating wallet balance.");
-                            }
-
-                            console.log(`Wallet balance updated: ${currentBalance} -> ${newBalance} for userId: ${userId}`);
-
-                            // Step 6: Insert the player into the tournament_players table
-                            db.run(
-                                "INSERT INTO tournament_players (tournament_id, username, college, gender) VALUES (?, ?, ?, ?)",
-                                [tournamentId, req.session.username, college, gender],
-                                function (err) {
-                                    if (err) {
-                                        console.error("Error joining tournament:", err.message);
-                                        // Rollback wallet balance update
-                                        db.run(
-                                            "UPDATE user_balances SET wallet_balance = ? WHERE user_id = ?",
-                                            [currentBalance, userId],
-                                            (rollbackErr) => {
-                                                if (rollbackErr) {
-                                                    console.error("Error rolling back balance:", rollbackErr.message);
-                                                }
-                                            }
-                                        );
-                                        return res.status(500).send("Error: Could not join tournament.");
-                                    }
-
-                                    console.log(`Player ${req.session.username} joined tournament ID: ${tournamentId}`);
-                                    res.redirect("/player/player_tournament");
+                        // Step 5: Update wallet balance
+                        const newBalance = currentBalance - entryFee;
+                        db.run(
+                            "UPDATE user_balances SET wallet_balance = ? WHERE user_id = ?",
+                            [newBalance, userId],
+                            (err) => {
+                                if (err) {
+                                    console.error("Error updating wallet balance:", err.message);
+                                    return res.status(500).send("Error updating wallet balance");
                                 }
-                            );
+
+                                // Step 6: Insert team enrollment
+                                db.run(
+                                    "INSERT INTO enrolledtournaments_team (tournament_id, captain_id, player1_name, player2_name, player3_name) VALUES (?, ?, ?, ?, ?)",
+                                    [tournamentId, userId, player1, player2, player3],
+                                    (err) => {
+                                        if (err) {
+                                            console.error("Error enrolling team:", err.message);
+                                            // Rollback wallet balance
+                                            db.run(
+                                                "UPDATE user_balances SET wallet_balance = ? WHERE user_id = ?",
+                                                [currentBalance, userId],
+                                                (rollbackErr) => {
+                                                    if (rollbackErr) {
+                                                        console.error("Error rolling back balance:", rollbackErr.message);
+                                                    }
+                                                }
+                                            );
+                                            return res.status(500).send("Error enrolling team");
+                                        }
+                                        console.log(`Team enrolled for tournament ${tournamentId} by captain ${userId}`);
+                                        res.redirect("/player/player_tournament?success-message=Team enrolled successfully");
+                                    }
+                                );
+                            }
+                        );
+                    }
+                );
+            }
+        );
+    } else {
+        // Individual tournament enrollment (existing logic)
+        db.get(
+            "SELECT * FROM subscriptionstable WHERE username = ?",
+            [req.session.userEmail],
+            (err, subscription) => {
+                if (err) {
+                    console.error("Error fetching subscription:", err.message);
+                    return res.status(500).send("Error retrieving Subscription");
+                }
+                if (!subscription) {
+                    return res.redirect("/player/player_tournament?error-message=Player or tournament not found");
+                }
+                db.get(
+                    `SELECT u.id AS userId, u.college, u.gender, ub.wallet_balance, t.entry_fee 
+                     FROM users u 
+                     LEFT JOIN user_balances ub ON u.id = ub.user_id 
+                     JOIN tournaments t ON t.id = ? 
+                     WHERE u.email = ? AND u.role = 'player' AND u.isDeleted = 0 AND t.status = 'Approved'`,
+                    [tournamentId, req.session.userEmail],
+                    (err, row) => {
+                        if (err) {
+                            console.error("Error fetching data:", err.message);
+                            return res.status(500).send("Error retrieving data");
+                        }
+                        if (!row) {
+                            return res.redirect("/player/player_tournament?error-message=Player or tournament not found");
+                        }
+                        const userId = row.userId;
+                        const college = row.college;
+                        const gender = row.gender;
+                        const currentBalance = parseFloat(row.wallet_balance || 0);
+                        const entryFee = parseFloat(row.entry_fee);
+                        if (currentBalance < entryFee) {
+                            return res.redirect("/player/player_tournament?error-message=Insufficient wallet balance");
+                        }
+                        const newBalance = currentBalance - entryFee;
+                        db.run(
+                            "UPDATE user_balances SET wallet_balance = ? WHERE user_id = ?",
+                            [newBalance, userId],
+                            function (err) {
+                                if (err) {
+                                    console.error("Error updating wallet balance:", err.message);
+                                    return res.status(500).send("Error updating wallet balance");
+                                }
+                                db.run(
+                                    "INSERT INTO tournament_players (tournament_id, username, college, gender) VALUES (?, ?, ?, ?)",
+                                    [tournamentId, req.session.username, college, gender],
+                                    function (err) {
+                                        if (err) {
+                                            console.error("Error joining tournament:", err.message);
+                                            db.run(
+                                                "UPDATE user_balances SET wallet_balance = ? WHERE user_id = ?",
+                                                [currentBalance, userId],
+                                                (rollbackErr) => {
+                                                    if (rollbackErr) {
+                                                        console.error("Error rolling back balance:", rollbackErr.message);
+                                                    }
+                                                }
+                                            );
+                                            return res.status(500).send("Error: Could not join tournament");
+                                        }
+                                        res.redirect("/player/player_tournament");
+                                    }
+                                );
+                            }
+                        );
+                    }
+                );
+            }
+        );
+    }
+});
+
+router.post('/player/approve-team-request', (req, res) => {
+    if (!req.session.userEmail) {
+        return res.redirect('/player_dashboard?error-message=Please log in');
+    }
+
+    const { requestId } = req.body;
+    const username = req.session.username;
+
+    // Verify the user is part of the team and request is still pending
+    db.get(
+        `SELECT player1_name, player2_name, player3_name, player1_approved, player2_approved, player3_approved 
+         FROM enrolledtournaments_team 
+         WHERE id = ? AND approved = 0`,
+        [requestId],
+        (err, request) => {
+            if (err) {
+                console.error("Error fetching team request:", err.message);
+                return res.redirect('/player_dashboard?error-message=Database error');
+            }
+            if (!request) {
+                return res.redirect('/player_dashboard?error-message=Request not found or already approved');
+            }
+
+            // Determine which player is approving and check if they've already approved
+            let updateField;
+            if (request.player1_name === username && request.player1_approved === 0) {
+                updateField = 'player1_approved';
+            } else if (request.player2_name === username && request.player2_approved === 0) {
+                updateField = 'player2_approved';
+            } else if (request.player3_name === username && request.player3_approved === 0) {
+                updateField = 'player3_approved';
+            } else {
+                return res.redirect('/player_dashboard?error-message=You are not part of this team or already approved');
+            }
+
+            // Update the individual player's approval status
+            db.run(
+                `UPDATE enrolledtournaments_team SET ${updateField} = 1 WHERE id = ?`,
+                [requestId],
+                (err) => {
+                    if (err) {
+                        console.error("Error updating player approval:", err.message);
+                        return res.redirect('/player_dashboard?error-message=Failed to approve request');
+                    }
+
+                    // Check if all players have approved
+                    db.get(
+                        `SELECT player1_approved, player2_approved, player3_approved 
+                         FROM enrolledtournaments_team WHERE id = ?`,
+                        [requestId],
+                        (err, updatedRequest) => {
+                            if (err) {
+                                console.error("Error checking approvals:", err.message);
+                                return res.redirect('/player_dashboard?error-message=Database error');
+                            }
+                            if (updatedRequest.player1_approved === 1 && 
+                                updatedRequest.player2_approved === 1 && 
+                                updatedRequest.player3_approved === 1) {
+                                // All players have approved, set approved = 1
+                                db.run(
+                                    "UPDATE enrolledtournaments_team SET approved = 1 WHERE id = ?",
+                                    [requestId],
+                                    (err) => {
+                                        if (err) {
+                                            console.error("Error setting final approval:", err.message);
+                                            return res.redirect('/player_dashboard?error-message=Failed to finalize approval');
+                                        }
+                                        console.log(`Team request ${requestId} fully approved by all players`);
+                                        res.redirect('/player_dashboard?success-message=Team request fully approved');
+                                    }
+                                );
+                            } else {
+                                console.log(`Team request ${requestId} partially approved by ${username}`);
+                                res.redirect('/player_dashboard?success-message=Your approval recorded, awaiting others');
+                            }
                         }
                     );
                 }

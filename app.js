@@ -74,40 +74,63 @@ app.get('/admin_dashboard', (req, res) => {
 app.get('/organizer_dashboard', (req, res) => renderDashboard('organizer/organizer_dashboard', req, res));
 app.get('/coordinator_dashboard', (req, res) => renderDashboard('coordinator/coordinator_dashboard', req, res));
 app.get('/player_dashboard', (req, res) => {
-    const playerName = req.session.playerName || 'Guest'; // Fallback to 'Guest' if undefined
-    // Fetch latest approved tournaments from the database
-    db.all(
-        "SELECT id, name, date FROM tournaments WHERE status = 'Approved' ORDER BY date DESC LIMIT 5",
-        [],
-        (err, tournaments) => {
-            if (err) {
-                console.error("Database Error fetching tournaments:", err);
-                return res.redirect('/player_dashboard?error-message=Error fetching tournaments');
-            }
-            const latestTournaments = tournaments || []; // Fallback to empty array if no tournaments
+  const playerName = req.session.playerName || 'Guest'; // Fallback to 'Guest' if undefined
+  const username = req.session.username; // Assuming username is stored in session
 
-      // Fetch latest store items from the database (assuming a 'products' table)
-      db.all(
-        "SELECT name, price FROM products ORDER BY id DESC LIMIT 5",
-        [],
-        (err, items) => {
+  // Fetch latest approved tournaments from the database
+  db.all(
+      "SELECT id, name, date FROM tournaments WHERE status = 'Approved' ORDER BY date DESC LIMIT 5",
+      [],
+      (err, tournaments) => {
           if (err) {
-            console.error("Database Error fetching store items:", err);
-            return res.redirect(
-              "/player_dashboard?error-message=Error fetching store items"
-            );
+              console.error("Database Error fetching tournaments:", err);
+              return res.redirect('/player_dashboard?error-message=Error fetching tournaments');
           }
-          const latestItems = items || []; // Fallback to empty array if no items
+          const latestTournaments = tournaments || []; // Fallback to empty array if no tournaments
 
-          // Render the dashboard with both tournaments and items
-          renderDashboard("player/player_dashboard", req, res, {
-            playerName,
-            latestTournaments,
-            latestItems,
-          });
-        }
-      );
-    }
+          // Fetch latest store items from the database
+          db.all(
+              "SELECT name, price FROM products ORDER BY id DESC LIMIT 5",
+              [],
+              (err, items) => {
+                  if (err) {
+                      console.error("Database Error fetching store items:", err);
+                      return res.redirect(
+                          "/player_dashboard?error-message=Error fetching store items"
+                      );
+                  }
+                  const latestItems = items || []; // Fallback to empty array if no items
+
+                  // Fetch pending team requests where the player is a team member
+                  db.all(
+                      `SELECT et.*, t.name AS tournamentName, u.name AS captainName, 
+                       FROM enrolledtournaments_team et
+                       JOIN tournaments t ON et.tournament_id = t.id
+                       JOIN users u ON et.captain_id = u.id
+                       WHERE (et.player1_name = ? OR et.player2_name = ? OR et.player3_name = ?) 
+                       AND et.approved = 0`,
+                      [username, username, username],
+                      (err, teamRequests) => {
+                          if (err) {
+                              console.error("Database Error fetching team requests:", err);
+                              return res.redirect(
+                                  "/player_dashboard?error-message=Error fetching team requests"
+                              );
+                          }
+                          const teamRequestsData = teamRequests || []; // Fallback to empty array if no requests
+
+                          // Render the dashboard with tournaments, items, and team requests
+                          renderDashboard("player/player_dashboard", req, res, {
+                              playerName,
+                              latestTournaments,
+                              latestItems,
+                              teamRequests: teamRequestsData,
+                          });
+                      }
+                  );
+              }
+          );
+      }
   );
 });
 
@@ -288,128 +311,111 @@ app.get("/:role/:subpage", (req, res) => {
           "SELECT name, email, college FROM users WHERE email = ? AND role = 'organizer'";
         view = "organizer/organizer_profile";
         break;
-      case "player":
-        db.get(
-          "SELECT id, name, dob, gender, college, email, phone, role, isDeleted, AICF_ID, FIDE_ID FROM users WHERE email = ? AND role = 'player'",
-          [req.session.userEmail],
-          (err, row) => {
-            if (err) {
-              console.error("Database Error:", err);
-              return res.redirect(
-                "/player_dashboard?error-message=Database Error"
-              );
-            }
-            if (!row) {
-              console.log("No player found for email:", req.session.userEmail);
-              return res.redirect(
-                "/player_dashboard?error-message=Player not found"
-              );
-            }
-
-            const playerId = row.id;
-
-            // Ensure player_stats record exists
-            db.run(
-              `INSERT OR IGNORE INTO player_stats (player_id, wins, losses, draws, winRate, gamesPlayed, rating)
-                             VALUES (?, 0, 0, 0, 0, 0, 400)`,
-              [playerId],
-              (err) => {
-                if (err) {
-                  console.error("Database Error:", err);
-                  return res.redirect(
-                    "/player_dashboard?error-message=Error initializing player stats"
-                  );
-                }
-
-                // Fetch subscription details
-                db.get(
-                  `SELECT s.plan, s.price, s.start_date 
-                                     FROM subscriptionstable s 
-                                     INNER JOIN users u ON s.username = u.email 
-                                     WHERE u.id = ?`,
-                  [playerId],
-                  (err, subscription) => {
-                    if (err) {
+        case "player":
+          db.get(
+              "SELECT id, name, dob, gender, college, email, phone, role, isDeleted, AICF_ID, FIDE_ID FROM users WHERE email = ? AND role = 'player'",
+              [req.session.userEmail],
+              (err, row) => {
+                  if (err) {
                       console.error("Database Error:", err);
-                      return res.redirect(
-                        "/player_dashboard?error-message=Error fetching subscription"
-                      );
-                    }
-                    row.subscription = subscription || {
-                      plan: "None",
-                      price: 0,
-                      start_date: "N/A",
-                    };
-
-                    // Fetch wallet balance
-                    db.get(
-                      "SELECT wallet_balance FROM user_balances WHERE user_id = ?",
-                      [playerId],
-                      (err, balance) => {
-                        if (err) {
-                          console.error("Database Error:", err);
-                          return res.redirect(
-                            "/player_dashboard?error-message=Error fetching wallet balance"
-                          );
-                        }
-                        row.walletBalance = balance?.wallet_balance || 0;
-
-                        // Fetch player stats
-                        db.get(
-                          "SELECT gamesPlayed, wins, losses, draws, winRate, rating FROM player_stats WHERE player_id = ?",
-                          [playerId],
-                          (err, stats) => {
-                            if (err) {
-                              console.error("Database Error:", err);
-                              return res.redirect(
-                                "/player_dashboard?error-message=Error fetching stats"
-                              );
-                            }
-                            row.wins = stats?.wins || 0;
-                            row.losses = stats?.losses || 0;
-                            row.winRate = stats?.winRate || 0;
-                            row.draws = stats?.draws || 0;
-                            row.gamesPlayed = stats?.gamesPlayed || 0;
-                            row.rating = stats?.rating || 400;
-
-                            // Fetch purchased products
-                            db.all(
-                              `SELECT p.name FROM products p 
-                                                             INNER JOIN sales s ON p.id = s.product_id 
-                                                             WHERE s.buyer = ?`,
-                              [row.name],
-                              (err, sales) => {
-                                if (err) {
-                                  console.error("Database Error:", err);
-                                  return res.redirect(
-                                    "/player_dashboard?error-message=Error fetching purchases"
-                                  );
-                                }
-                                row.sales = sales.map((sale) => sale.name);
-
-                                console.log(
-                                  "Rendering player_profile with data:",
-                                  row
-                                );
-                                res.render("player/player_profile", {
-                                  player: row,
-                                  successMessage:
-                                    req.query["success-message"] || null,
-                                  errorMessage:
-                                    req.query["error-message"] || null,
-                                });
-                              }
-                            );
-                          }
-                        );
-                      }
-                    );
+                      return res.redirect("/player_dashboard?error-message=Database Error");
                   }
-                );
+                  if (!row) {
+                      console.log("No player found for email:", req.session.userEmail);
+                      return res.redirect("/player_dashboard?error-message=Player not found");
+                  }
+      
+                  const playerId = row.id;
+      
+                  // Generate random player stats
+                  const gamesPlayed = Math.floor(Math.random() * 11) + 20; // Random number between 20-30
+                  let wins = Math.floor(Math.random() * (gamesPlayed + 1)); 
+                  let losses = Math.floor(Math.random() * (gamesPlayed - wins + 1)); 
+                  let draws = gamesPlayed - (wins + losses); // Ensure total matches gamesPlayed
+      
+                  let rating = 400 + (wins * 10) - (losses * 10); // Rating changes
+                  let winRate = gamesPlayed > 0 ? ((wins / gamesPlayed) * 100).toFixed(2) : 0;
+      
+                  // Insert or update player stats
+                  db.run(
+                      `INSERT INTO player_stats (player_id, gamesPlayed, wins, losses, draws, winRate, rating) 
+                       VALUES (?, ?, ?, ?, ?, ?, ?) 
+                       ON CONFLICT(player_id) DO UPDATE SET 
+                       gamesPlayed = excluded.gamesPlayed, 
+                       wins = excluded.wins, 
+                       losses = excluded.losses, 
+                       draws = excluded.draws, 
+                       winRate = excluded.winRate, 
+                       rating = excluded.rating`,
+                      [playerId, gamesPlayed, wins, losses, draws, winRate, rating],
+                      (err) => {
+                          if (err) {
+                              console.error("Database Error:", err);
+                              return res.redirect("/player_dashboard?error-message=Error updating player stats");
+                          }
+      
+                          // Fetch subscription details
+                          db.get(
+                              `SELECT s.plan, s.price, s.start_date 
+                               FROM subscriptionstable s 
+                               INNER JOIN users u ON s.username = u.email 
+                               WHERE u.id = ?`,
+                              [playerId],
+                              (err, subscription) => {
+                                  if (err) {
+                                      console.error("Database Error:", err);
+                                      return res.redirect("/player_dashboard?error-message=Error fetching subscription");
+                                  }
+                                  row.subscription = subscription || { plan: "None", price: 0, start_date: "N/A" };
+      
+                                  // Fetch wallet balance
+                                  db.get(
+                                      "SELECT wallet_balance FROM user_balances WHERE user_id = ?",
+                                      [playerId],
+                                      (err, balance) => {
+                                          if (err) {
+                                              console.error("Database Error:", err);
+                                              return res.redirect("/player_dashboard?error-message=Error fetching wallet balance");
+                                          }
+                                          row.walletBalance = balance?.wallet_balance || 0;
+      
+                                          // Assign generated stats
+                                          row.gamesPlayed = gamesPlayed;
+                                          row.wins = wins;
+                                          row.losses = losses;
+                                          row.draws = draws;
+                                          row.winRate = winRate;
+                                          row.rating = rating;
+      
+                                          // Fetch purchased products
+                                          db.all(
+                                              `SELECT p.name FROM products p 
+                                               INNER JOIN sales s ON p.id = s.product_id 
+                                               WHERE s.buyer = ?`,
+                                              [row.name],
+                                              (err, sales) => {
+                                                  if (err) {
+                                                      console.error("Database Error:", err);
+                                                      return res.redirect("/player_dashboard?error-message=Error fetching purchases");
+                                                  }
+                                                  row.sales = sales.map((sale) => sale.name);
+      
+                                                  console.log("Rendering player_profile with data:", row);
+                                                  res.render("player/player_profile", {
+                                                      player: row,
+                                                      successMessage: req.query["success-message"] || null,
+                                                      errorMessage: req.query["error-message"] || null,
+                                                  });
+                                              }
+                                          );
+                                      }
+                                  );
+                              }
+                          );
+                      }
+                  );
               }
-            );
-          }
-        );
+          );
         return;
     }
     // For coordinator and organizer profiles:
@@ -587,40 +593,60 @@ app.get("/:role/:subpage", (req, res) => {
                   console.error("Error fetching tournaments:", err);
                   return res.status(500).send("Error retrieving tournaments.");
                 }
+                // Fetch individual tournament enrollments
                 db.all(
                   `SELECT t.* FROM tournament_players tp 
                          JOIN tournaments t ON tp.tournament_id = t.id 
                          WHERE tp.username = ?`,
                   [username],
-                  (err, enrolledTournaments) => {
+                  (err, enrolledIndividualTournaments) => {
                     if (err) {
                       console.error(
-                        "Error fetching enrolled tournaments:",
+                        "Error fetching enrolled individual tournaments:",
                         err
                       );
                       return res
                         .status(500)
-                        .send("Error retrieving enrolled tournaments.");
+                        .send("Error retrieving enrolled individual tournaments.");
                     }
-                    // Fetch current subscription
-                    db.get(
-                      "SELECT plan, price, start_date FROM subscriptionstable WHERE username = ?",
-                      [req.session.userEmail],
-                      (err, subscription) => {
+                    // Fetch team tournament enrollments
+                    db.all(
+                      `SELECT et.* FROM enrolledtournaments_team et 
+                       JOIN tournaments t ON et.tournament_id = t.id 
+                       WHERE et.captain_id = ?`,
+                      [user.id],
+                      (err, enrolledTeamTournaments) => {
                         if (err) {
-                          console.error("Error fetching subscription:", err);
+                          console.error(
+                            "Error fetching enrolled team tournaments:",
+                            err
+                          );
                           return res
                             .status(500)
-                            .send("Error retrieving subscription.");
+                            .send("Error retrieving enrolled team tournaments.");
                         }
-                        res.render("player/player_tournament", {
-                          tournaments: tournaments || [],
-                          enrolledTournaments: enrolledTournaments || [],
-                          username,
-                          walletBalance,
-                          currentSubscription: subscription || null, // Will be null if no subscription exists
-                          ...getMessages(req),
-                        });
+                        // Fetch current subscription
+                        db.get(
+                          "SELECT plan, price, start_date FROM subscriptionstable WHERE username = ?",
+                          [req.session.userEmail],
+                          (err, subscription) => {
+                            if (err) {
+                              console.error("Error fetching subscription:", err);
+                              return res
+                                .status(500)
+                                .send("Error retrieving subscription.");
+                            }
+                            res.render("player/player_tournament", {
+                              tournaments: tournaments || [],
+                              enrolledIndividualTournaments: enrolledIndividualTournaments || [],
+                              enrolledTeamTournaments : enrolledTeamTournaments || [],
+                              username,
+                              walletBalance,
+                              currentSubscription: subscription || null,
+                              ...getMessages(req),
+                            });
+                          }
+                        );
                       }
                     );
                   }
@@ -746,7 +772,6 @@ app.get("/:role/:subpage", (req, res) => {
       }
     );
   }
-
   if (subpage === "meetings") {
     return db.all(
       "SELECT * FROM meetingsdb WHERE role =? ORDER BY date, time",
@@ -828,10 +853,10 @@ app.get("/:role/:subpage", (req, res) => {
                 ps.rating 
             FROM player_stats ps
             INNER JOIN users u ON ps.player_id = u.id
-            WHERE u.isDeleted = 0
+            WHERE u.isDeleted = 0 AND u.college = ?
             ORDER BY ps.rating DESC;
         `;
-    db.all(sql, [], (err, players) => {
+    db.all(sql, [req.session.collegeName], (err, players) => {
       if (err) {
         console.error("Database Error:", err);
         return res.render("coordinator/player_stats", { players: [] });

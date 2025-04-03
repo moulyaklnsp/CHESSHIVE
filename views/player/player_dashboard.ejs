@@ -84,6 +84,17 @@
             padding: 10px;
             border-radius: 5px;
         }
+        .team-requests button {
+            background: #007BFF;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
+            border-radius: 3px;
+        }
+        .team-requests button:hover {
+            background: #0056b3;
+        }
     </style>
 </head>
 <body>
@@ -117,6 +128,28 @@
         <% } %>
         <p>Select an option from the sidebar to navigate.</p>
 
+        <!-- New Team Requests Section -->
+        <div class="updates-section team-requests">
+            <h3>Pending Team Tournament Requests</h3>
+            <ul>
+                <% if (typeof teamRequests !== "undefined" && teamRequests.length > 0) { %>
+                <% teamRequests.forEach(request => { %>
+                    <li>
+                        <strong><%= request.tournamentName %></strong> - 
+                        Captain: <%= request.captainName %> | 
+                        Team: <%= request.player1_name %>, <%= request.player2_name %>, <%= request.player3_name %>
+                        <form action="/player/approve-team-request" method="POST" style="display: inline;">
+                            <input type="hidden" name="requestId" value="<%= request.id %>">
+                            <button type="submit">Approve</button>
+                        </form>
+                    </li>
+                <% }); %>
+                <% } else { %>
+                    <p>No pending team requests.</p>
+                <% } %>
+            </ul>
+        </div>
+
         <div class="updates-section">
             <h3>Latest Tournaments to Join</h3>
             <ul>
@@ -129,7 +162,6 @@
                 <% } else { %>
                     <p>No tournaments available.</p>
                 <% } %>
-
             </ul>
         </div>
 
