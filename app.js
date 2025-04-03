@@ -7,43 +7,34 @@ const db = require("./routes/databasecongi");
 const app = express();
 const PORT = 3000;
 
-// Helper to extract messages
 const getMessages = (req) => ({
   successMessage: req.query["success-message"] || null,
   errorMessage: req.query["error-message"] || null,
 });
 
-// Session and Static Middleware
 app.use(
   session({
-    secret: "your_secret_key", // Replace with a secure key
+    secret: "your_secret_key",
     resave: false,
     saveUninitialized: true,
-    cookie: { secure: false }, // Set to true if using HTTPS
+    cookie: { secure: false },
   })
 );
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static("public"));
 
-// Request Logger (commented out as needed)
 app.use((req, res, next) => {
-  // console.log(`Request URL: ${req.url}`);
   next();
 });
 
-// Set view engine and views directory
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
 
-// Use authentication routes
 app.use(authrouter);
 
-// Prevent favicon errors
 app.get("/favicon.ico", (req, res) => res.status(204).end());
 
-// Dashboard Routes (specific and prioritized)
 const renderDashboard = (dashboard, req, res, extraData = {}) => {
-  console.log(`Rendering ${dashboard}`);
   res.render(dashboard, { ...getMessages(req), ...extraData });
 };
 
@@ -134,7 +125,6 @@ app.get('/player_dashboard', (req, res) => {
   );
 });
 
-// Swiss Player Model
 class Player {
   constructor(id, username, college, gender) {
     this.id = id;
@@ -146,15 +136,12 @@ class Player {
   }
 }
 
-// Fetch players from DB and run Swiss pairing
 app.get("/coordinator/pairings", (req, res) => {
-  const tournamentId = req.query.tournament_id; // Get tournament ID from query
-  const totalRounds = parseInt(req.query.rounds) || 5; // Default rounds
-
+  const tournamentId = req.query.tournament_id;
+  const totalRounds = parseInt(req.query.rounds) || 5;
   if (!tournamentId) {
     return res.status(400).send("Tournament ID is required.");
   }
-
   db.all(
     `SELECT id, username, college, gender FROM tournament_players WHERE tournament_id = ?`,
     [tournamentId],
@@ -168,16 +155,10 @@ app.get("/coordinator/pairings", (req, res) => {
           pairings: [],
         });
       }
-
-      // Convert DB rows to Player objects
       let players = rows.map(
         (row) => new Player(row.id, row.username, row.college, row.gender)
       );
-
-      // Generate Swiss pairings
       let allRounds = swissPairing(players, totalRounds);
-
-      // Render EJS template with round data
       res.render("coordinator/pairings", {
         roundNumber: totalRounds,
         allRounds,
@@ -186,28 +167,21 @@ app.get("/coordinator/pairings", (req, res) => {
   );
 });
 
-// Swiss-system pairing algorithm
 function swissPairing(players, totalRounds) {
   let allRounds = [];
-
   for (let round = 1; round <= totalRounds; round++) {
-    players.sort((a, b) => b.score - a.score); // Sort by score (descending)
-
+    players.sort((a, b) => b.score - a.score);
     let pairings = [];
     let byePlayer = null;
     let paired = new Set();
-
     if (players.length % 2 !== 0) {
       byePlayer = players.pop();
-      byePlayer.score += 1; // Bye gets 1 point
+      byePlayer.score += 1;
     }
-
     for (let i = 0; i < players.length; i++) {
       if (paired.has(players[i].id)) continue;
-
       let player1 = players[i];
       let player2 = null;
-
       for (let j = i + 1; j < players.length; j++) {
         if (
           !paired.has(players[j].id) &&
@@ -217,7 +191,6 @@ function swissPairing(players, totalRounds) {
           break;
         }
       }
-
       if (!player2) {
         for (let j = i + 1; j < players.length; j++) {
           if (!paired.has(players[j].id)) {
@@ -226,16 +199,13 @@ function swissPairing(players, totalRounds) {
           }
         }
       }
-
       if (player2) {
         paired.add(player1.id);
         paired.add(player2.id);
         player1.opponents.add(player2.id);
         player2.opponents.add(player1.id);
-
         let result = Math.random();
         let matchResult;
-
         if (result < 0.4) {
           player1.score += 1;
           matchResult = `${player1.username} Wins`;
@@ -247,37 +217,59 @@ function swissPairing(players, totalRounds) {
           player2.score += 0.5;
           matchResult = "Draw";
         }
-
         pairings.push({ player1, player2, result: matchResult });
       }
     }
-
+    if (byePlayer) players.push(byePlayer);
     allRounds.push({ round, pairings, byePlayer });
   }
-
   return allRounds;
 }
 
-// Utility function for profile rendering
+app.get("/coordinator/rankings", (req, res) => {
+  const tournamentId = req.query.tournament_id;
+  if (!tournamentId) {
+    return res.status(400).send("Tournament ID is required.");
+  }
+  db.all(
+    `SELECT id, username, college, gender FROM tournament_players WHERE tournament_id = ?`,
+    [tournamentId],
+    (err, rows) => {
+      if (err) {
+        return res.status(500).send("Database error: " + err.message);
+      }
+      let rankings = [];
+      if (rows && rows.length > 0) {
+        let players = rows.map(
+          (row) => new Player(row.id, row.username, row.college, row.gender)
+        );
+        const totalRounds = 5;
+        swissPairing(players, totalRounds);
+        rankings = players.sort((a, b) => b.score - a.score);
+      }
+      res.render("coordinator/rankings", {
+        rankings: rankings || [],
+        tournamentId: tournamentId,
+      });
+    }
+  );
+});
+
 const renderUserProfile = (role, query, req, res, dbQuery, view) => {
   if (!req.session.userEmail) {
-    console.log("No user email in session, redirecting to login");
     return res.redirect("/?error-message=Please log in");
   }
   db.get(dbQuery, [req.session.userEmail], (err, row) => {
     if (err) {
-      console.error("Database Error:", err);
       return res.redirect(`/${role}_dashboard?error-message=Database Error`);
     }
     if (!row) {
-      console.log(`No ${role} found for email:`, req.session.userEmail);
       return res.redirect(
         `/${role}_dashboard?error-message=${
           role.charAt(0).toUpperCase() + role.slice(1)
         } not found`
       );
     }
-    console.log(`Rendering ${role}_profile with data:`, row);
     res.render(view, {
       [role]: row,
       ...getMessages(req),
@@ -285,19 +277,11 @@ const renderUserProfile = (role, query, req, res, dbQuery, view) => {
   });
 };
 
-// Dynamic Routing for role-specific subpages
 app.get("/:role/:subpage", (req, res) => {
   const { role, subpage } = req.params;
-
-  // Validate roles
   if (!["admin", "organizer", "coordinator", "player"].includes(role)) {
     return res.redirect("/?error-message=Invalid Role");
   }
-  console.log(
-    `Rendering ${role}/${subpage}, Session Email: ${req.session.userEmail}`
-  );
-
-  // Role-based profile handling
   if (subpage === `${role}_profile`) {
     let query, view;
     switch (role) {
@@ -418,11 +402,8 @@ app.get("/:role/:subpage", (req, res) => {
           );
         return;
     }
-    // For coordinator and organizer profiles:
     return renderUserProfile(role, req.query, req, res, query, view);
   }
-
-  // Other async subpages
   if (
     subpage === "coordinator_management" &&
     (role === "admin" || role === "organizer")
@@ -432,7 +413,6 @@ app.get("/:role/:subpage", (req, res) => {
       [],
       (err, rows) => {
         if (err) {
-          console.error("Database Error:", err);
           return res.redirect("/admin_dashboard?error-message=Database Error");
         }
         res.render(`${role}/coordinator_management`, {
@@ -448,7 +428,6 @@ app.get("/:role/:subpage", (req, res) => {
       [],
       (err, rows) => {
         if (err) {
-          console.error("Database Error:", err);
           return res.redirect("/admin_dashboard?error-message=Database Error");
         }
         res.render(`${role}/${subpage}`, {
@@ -458,55 +437,9 @@ app.get("/:role/:subpage", (req, res) => {
       }
     );
   }
-  if (subpage === "rankings" && role === "coordinator") {
-    const tournamentId = req.query.tournament_id; // Get tournament ID from query
-
-    if (!tournamentId) {
-      return res.status(400).send("Tournament ID is required.");
-    }
-
-    db.all(
-      `SELECT id, username, college, gender FROM tournament_players WHERE tournament_id = ?`,
-      [tournamentId],
-      (err, rows) => {
-        if (err) {
-          console.error("Database error:", err);
-          return res.status(500).send("Database error: " + err.message);
-        }
-        console.log("i came here");
-
-        if (!rows || rows.length === 0) {
-          console.log("No players found for tournament.");
-        } else {
-          // Convert DB rows to Player objects
-          let players = rows.map(
-            (row) => new Player(row.id, row.username, row.college, row.gender)
-          );
-
-          // Run Swiss pairings
-          const totalRounds = 5;
-          swissPairing(players, totalRounds);
-
-          // Sort players by score for final rankings
-          let rankings = players.sort((a, b) => b.score - a.score);
-
-          console.log("Final Rankings Data Sent to EJS:", rankings);
-
-          // Ensure rankings is always passed
-          console.log(
-            "Sending Rankings to EJS:",
-            Array.isArray(rankings) ? rankings : "undefined"
-          );
-
-          return res.render("coordinator/rankings", { rankings });
-        }
-      }
-    );
-  }
   if (subpage === "tournament_management" && role === "coordinator") {
     return db.all("SELECT * FROM tournaments", [], (err, tournaments) => {
       if (err) {
-        console.error("Database Error:", err);
         return res.redirect(
           "/coordinator_dashboard?error-message=Database Error"
         );
@@ -524,7 +457,6 @@ app.get("/:role/:subpage", (req, res) => {
   if (subpage === "organizer_tournament" && role === "organizer") {
     return db.all("SELECT * FROM tournaments", [], (err, tournaments) => {
       if (err) {
-        console.error("Database Error:", err);
         return res.redirect(
           "/organizer_dashboard?error-message=Database Error"
         );
@@ -550,10 +482,8 @@ app.get("/:role/:subpage", (req, res) => {
       [],
       (err, tournaments) => {
         if (err) {
-          console.error("Database Error:", err);
           return res.redirect("/admin_dashboard?error-message=Database Error");
         }
-        console.log("Fetched tournaments for admin:", tournaments);
         res.render("admin/admin_tournament_management", {
           tournaments: tournaments || [],
           ...getMessages(req),
@@ -561,7 +491,6 @@ app.get("/:role/:subpage", (req, res) => {
       }
     );
   }
-
   if (subpage === "player_tournament" && role === "player") {
     const username = req.session.username;
     return db.get(
@@ -569,7 +498,6 @@ app.get("/:role/:subpage", (req, res) => {
       [username],
       (err, user) => {
         if (err || !user) {
-          console.error("Error fetching user:", err);
           return res.redirect(
             "/player_dashboard?error-message=Player not found"
           );
@@ -579,7 +507,6 @@ app.get("/:role/:subpage", (req, res) => {
           [user.id],
           (err, balance) => {
             if (err) {
-              console.error("Error fetching wallet balance:", err);
               return res.redirect(
                 "/player_dashboard?error-message=Error retrieving wallet balance"
               );
@@ -590,7 +517,6 @@ app.get("/:role/:subpage", (req, res) => {
               [],
               (err, tournaments) => {
                 if (err) {
-                  console.error("Error fetching tournaments:", err);
                   return res.status(500).send("Error retrieving tournaments.");
                 }
                 // Fetch individual tournament enrollments
@@ -662,7 +588,6 @@ app.get("/:role/:subpage", (req, res) => {
     const query = "SELECT * FROM products WHERE college = ? ";
     return db.all(query, [req.session.userCollege], (err, products) => {
       if (err) {
-        console.error("Error fetching products:", err.message);
         return res.status(500).send("Could not retrieve products.");
       }
       res.render("coordinator/store_management", { products });
@@ -674,44 +599,33 @@ app.get("/:role/:subpage", (req, res) => {
       [req.session.userID],
       (err, balance) => {
         if (err) {
-          console.error("Database Error:", err);
           return res.status(500).send("Error fetching wallet balance");
         }
         const walletBalance = balance?.wallet_balance || 0;
-        // Fetch subscription details
         db.get(
           "SELECT plan FROM subscriptionstable WHERE username = ?",
           [req.session.userEmail],
           (err, subscription) => {
             if (err) {
-              console.error("Error fetching subscription:", err);
               return res.status(500).send("Error fetching subscription");
             }
-            console.log(
-              "Subscription for",
-              req.session.username,
-              ":",
-              subscription
-            ); // Debug log
-            // Calculate discount based on subscription plan
             let discountPercentage = 0;
             if (subscription) {
               if (subscription.plan === "Basic") {
-                discountPercentage = 10; // 10% discount for Basic plan
+                discountPercentage = 10;
               } else if (subscription.plan === "Premium") {
-                discountPercentage = 20; // 20% discount for Premium plan
+                discountPercentage = 20;
               }
             }
             const query = "SELECT * FROM products";
             db.all(query, [], (err, products) => {
               if (err) {
-                console.error("Database Error:", err);
                 return res.status(500).send("Error fetching products");
               }
               res.render("player/store", {
                 products: products || [],
                 walletBalance,
-                playerName: req.session.username, // Use username as playerName
+                playerName: req.session.username,
                 playerCollege: req.session.userCollege,
                 subscription: subscription || null,
                 discountPercentage,
@@ -731,12 +645,10 @@ app.get("/:role/:subpage", (req, res) => {
       "FROM sales s JOIN products p ON s.product_id = p.id;";
     return db.all(productsQuery, [], (err, products) => {
       if (err) {
-        console.error("Error fetching products:", err);
         return res.status(500).send("Error fetching products.");
       }
       db.all(salesQuery, [], (err, sales) => {
         if (err) {
-          console.error("Error fetching sales:", err);
           return res.status(500).send("Error fetching sales.");
         }
         res.render("organizer/store_monitoring", { products, sales });
@@ -749,20 +661,15 @@ app.get("/:role/:subpage", (req, res) => {
       ["coordinator"],
       (err, yetToHost) => {
         if (err) {
-          console.error("Error fetching meetings:", err);
           return res.status(500).send("Database error");
         }
-
         db.all(
           "SELECT * FROM meetingsdb WHERE name!=? ORDER BY date, time",
           [req.session.username],
           (err, upcoming) => {
             if (err) {
-              console.error("Error fetching meetings:", err);
               return res.status(500).send("Database error");
             }
-
-            // Render only after both queries complete
             res.render("coordinator/coordinator_meetings", {
               meetings: yetToHost,
               upcomingMeetings: upcoming,
@@ -778,16 +685,13 @@ app.get("/:role/:subpage", (req, res) => {
       ["organizer"],
       (err, yetToHost) => {
         if (err) {
-          console.error("Error fetching meetings:", err);
           return res.status(500).send("Database error");
         }
-
         db.all(
           "SELECT * FROM meetingsdb WHERE name!= ? ORDER BY date, time",
           [req.session.username],
           (err, upcoming) => {
             if (err) {
-              console.error("Error fetching meetings:", err);
               return res.status(500).send("Database error");
             }
             res.render("organizer/meetings", {
@@ -799,14 +703,12 @@ app.get("/:role/:subpage", (req, res) => {
       }
     );
   }
-  //added admin meetings route
   if (subpage === "admin_meetings" && role === "admin") {
     return db.all(
       "SELECT * FROM meetingsdb WHERE role=? ORDER BY date, time",
       ["admin"],
       (err, results) => {
         if (err) {
-          console.error("Error fetching meetings:", err);
           return res.status(500).send("Database error");
         }
         res.render("admin/admin_meetings", { adminmeetings: results });
@@ -858,10 +760,8 @@ app.get("/:role/:subpage", (req, res) => {
         `;
     db.all(sql, [req.session.collegeName], (err, players) => {
       if (err) {
-        console.error("Database Error:", err);
         return res.render("coordinator/player_stats", { players: [] });
       }
-      console.log("Fetched Players:", players);
       res.render("coordinator/player_stats", { players });
     });
     return;
@@ -875,10 +775,8 @@ app.get("/:role/:subpage", (req, res) => {
         INNER JOIN users u ON s.username = u.email
         WHERE u.isDeleted = 0;
         `;
-
     db.all(sql, [], (err, players) => {
       if (err) {
-        console.error("Database Error:", err);
         return res.render("admin/payments", { players: [] });
       }
       res.render("admin/payments", { players });
@@ -892,9 +790,8 @@ app.get("/:role/:subpage", (req, res) => {
             FROM player_stats p 
             INNER JOIN users u ON p.player_id = u.id 
             WHERE u.email = ? AND u.isDeleted = 0`;
-    db.get(statsSql, [playerEmail], (err, player) => {
+    Db.get(statsSql, [playerEmail], (err, player) => {
       if (err) {
-        console.error("Database Error:", err);
         return res.redirect("/player_dashboard?error-message=Database Error");
       }
       if (!player) {
@@ -902,42 +799,29 @@ app.get("/:role/:subpage", (req, res) => {
           "/player_dashboard?error-message=Player stats not found"
         );
       }
-      // Log player data to debug
-      console.log("Player Data:", player);
-      // Ensure currentRating is a number, default to 400 if undefined/null
       const currentRating =
         player.rating && !isNaN(player.rating) ? player.rating : 400;
-      // Log currentRating to debug
-      console.log("Current Rating:", currentRating);
-      // Mock rating history
       const ratingHistory =
         player.gamesPlayed > 0
           ? [
-              currentRating - 200, // 6 months ago
-              currentRating - 150, // 5 months ago
-              currentRating - 100, // 4 months ago
-              currentRating - 50, // 3 months ago
-              currentRating - 25, // 2 months ago
-              currentRating, // Current
+              currentRating - 200,
+              currentRating - 150,
+              currentRating - 100,
+              currentRating - 50,
+              currentRating - 25,
+              currentRating,
             ]
           : [400, 400, 400, 400, 400, 400];
-      // Log ratingHistory to debug
-      console.log("Rating History:", ratingHistory);
-      // Generate month labels (last 6 months)
       const chartLabels = Array.from({ length: 6 }, (_, i) => {
         const date = new Date();
         date.setMonth(date.getMonth() - (5 - i));
         return date.toLocaleString("default", { month: "short" });
       });
-      // Log chartLabels to debug
-      console.log("Chart Labels:", chartLabels);
       const winRate = isNaN(
         Math.round((player.wins / player.gamesPlayed) * 100)
       )
         ? 0
         : Math.round((player.wins / player.gamesPlayed) * 100);
-      // Log winRate to debug
-      console.log("Win Rate:", winRate);
       res.render("player/growth", {
         player: {
           ...player,
@@ -951,19 +835,16 @@ app.get("/:role/:subpage", (req, res) => {
   }
   if (subpage === "enrolled_players" && role === "coordinator") {
     const tournamentId = req.query.tournament_id;
-
     if (!tournamentId) {
       return res.redirect(
         "/coordinator_dashboard?error-message=No tournament specified"
       );
     }
-
     db.get(
       "SELECT name FROM tournaments WHERE id = ?",
       [tournamentId],
       (err, tournament) => {
         if (err) {
-          console.error("Database Error:", err);
           return res.redirect(
             "/coordinator_dashboard?error-message=Database Error"
           );
@@ -973,18 +854,15 @@ app.get("/:role/:subpage", (req, res) => {
             "/coordinator_dashboard?error-message=Tournament not found"
           );
         }
-
         db.all(
           "SELECT username, college, gender FROM tournament_players WHERE tournament_id = ?",
           [tournamentId],
           (err, players) => {
             if (err) {
-              console.error("Database Error:", err);
               return res.redirect(
                 "/coordinator_dashboard?error-message=Database Error"
               );
             }
-
             res.render("coordinator/enrolled_players", {
               tournamentName: tournament.name,
               players: players || [],
@@ -995,8 +873,6 @@ app.get("/:role/:subpage", (req, res) => {
     );
     return;
   }
-
-  // Synchronous subpages with sample data
   let data = {};
   if (subpage === "global_chat") {
     data.messages = [
@@ -1082,23 +958,16 @@ app.get("/:role/:subpage", (req, res) => {
       blitz: ["IIIT Gwalior", "IIIT Kottayam", "IIIT Hyderabad"],
     };
   }
-
-  // Final render for unhandled synchronous subpages
-
-  //TODO: idk just someone fix it
-
   try {
     res.render(`${role}/${subpage}`, {
       ...getMessages(req),
       ...data,
     });
   } catch (err) {
-    console.error(`Error rendering ${role}/${subpage}:`, err);
     res.redirect(`/${role}_dashboard?error-message=Page not found: ${subpage}`);
   }
 });
 
-// Login Handling
 app.post("/login", (req, res) => {
   const { email, password } = req.body;
   db.get(
@@ -1106,7 +975,6 @@ app.post("/login", (req, res) => {
     [email, password],
     (err, user) => {
       if (err) {
-        console.error("Database Error:", err);
         return res.redirect("/?error-message=Database Error");
       }
       if (!user) {
@@ -1117,7 +985,6 @@ app.post("/login", (req, res) => {
           `/login?error-message=Account has been deleted&deletedUserId=${user.id}`
         );
       }
-      // Store session information
       req.session.userID = user.id;
       req.session.userEmail = user.email;
       req.session.userRole = user.role;
@@ -1125,8 +992,6 @@ app.post("/login", (req, res) => {
       req.session.playerName = user.name;
       req.session.userCollege = user.college;
       req.session.collegeName = user.college;
-      console.log(`User Login: ${user.email}, Role: ${user.role}`);
-      // Redirect based on role
       switch (user.role) {
         case "admin":
           return res.redirect(
@@ -1151,7 +1016,6 @@ app.post("/login", (req, res) => {
   );
 });
 
-// Authorization Middlewares
 const isAdmin = (req, res, next) => {
   req.session.userRole === "admin"
     ? next()
@@ -1170,7 +1034,6 @@ const isPlayer = (req, res, next) => {
     : res.status(403).json({ success: false, message: "Unauthorized" });
 };
 
-// Soft Delete Player Route
 app.post("/player/delete", isPlayer, (req, res) => {
   if (!req.session.userEmail) {
     return res.redirect("/?error-message=Please log in");
@@ -1180,7 +1043,6 @@ app.post("/player/delete", isPlayer, (req, res) => {
     [req.session.userEmail],
     function (err) {
       if (err) {
-        console.error("Database Error:", err);
         return res.redirect("/player_dashboard?error-message=Database Error");
       }
       if (this.changes === 0) {
@@ -1188,7 +1050,6 @@ app.post("/player/delete", isPlayer, (req, res) => {
       }
       req.session.destroy((err) => {
         if (err) {
-          console.error("Session Destroy Error:", err);
         }
         res.redirect("/login?success-message=Account deleted successfully");
       });
@@ -1196,7 +1057,6 @@ app.post("/player/delete", isPlayer, (req, res) => {
   );
 });
 
-// Restore Player Route
 app.post("/player/restore/:id", (req, res) => {
   const { id } = req.params;
   db.run(
@@ -1204,7 +1064,6 @@ app.post("/player/restore/:id", (req, res) => {
     [id],
     function (err) {
       if (err) {
-        console.error("Database Error:", err);
         return res.redirect("/login?error-message=Database Error");
       }
       if (this.changes === 0) {
@@ -1215,15 +1074,13 @@ app.post("/player/restore/:id", (req, res) => {
   );
 });
 
-// Remove Coordinator Route
 app.delete("/coordinators/remove/:email", isAdminOrOrganizer, (req, res) => {
-  const { email } = req.params; // Fixed from req.get to req.params
+  const { email } = req.params;
   db.run(
     "DELETE FROM users WHERE email = ? AND role = 'coordinator'",
     [email],
     function (err) {
       if (err) {
-        console.error("Database Error:", err);
         return res
           .status(500)
           .json({ success: false, message: "Database Error" });
@@ -1238,7 +1095,6 @@ app.delete("/coordinators/remove/:email", isAdminOrOrganizer, (req, res) => {
   );
 });
 
-// Remove Organizer Route
 app.delete("/organizers/remove/:email", isAdmin, (req, res) => {
   const { email } = req.params;
   db.run(
@@ -1246,7 +1102,6 @@ app.delete("/organizers/remove/:email", isAdmin, (req, res) => {
     [email],
     function (err) {
       if (err) {
-        console.error("Database Error:", err);
         return res
           .status(500)
           .json({ success: false, message: "Database Error" });
@@ -1261,10 +1116,8 @@ app.delete("/organizers/remove/:email", isAdmin, (req, res) => {
   );
 });
 
-// General Static Pages (after specific routes)
 app.get("/:page", (req, res) => {
   const { page } = req.params;
-  console.log(`Rendering page: ${page}`);
   if (
     [
       "admin_dashboard",
@@ -1282,24 +1135,12 @@ app.get("/:page", (req, res) => {
       deletedUserId: req.query.deletedUserId || null,
     });
   } catch (err) {
-    console.error(`❌ Error rendering template '${page}': ${err.message}`);
     res.status(404).send(`Page not found: ${page}`);
   }
 });
 
-// 404 Handler
 app.use((req, res) => {
-  console.log(`404: ${req.url}`);
   res.status(404).redirect("/?error-message=Page not found");
 });
 
-// Global Error Handler
-// app.use((err, req, res, next) => {
-//   console.error("Server error:", err.stack);
-//   res.status(500).redirect("/?error-message=Server error occurred");
-// });
-
-// Start Server
-app.listen(PORT, () =>
-  console.log(`Server running at http://localhost:${PORT}`)
-);
+app.listen(PORT, () => {});
