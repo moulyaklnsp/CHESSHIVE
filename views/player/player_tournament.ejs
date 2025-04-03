@@ -227,27 +227,34 @@
                                 <td><%= tournament.location %></td>
                                 <td>₹<%= tournament.entry_fee %></td>
                                 <td class="<%= statusClass %>"><%= status %></td>
-                                <td><% 
-                                    const enrolledTeam = enrolledTeamTournaments.find(enrolled => enrolled.tournament_id === tournament.id);
-                                    let isPending = false;
-                                    let isFullyEnrolled = false;
-                                
-                                    if (enrolledTeam) { 
-                                        isPending = !(parseInt(enrolledTeam.approved) === 1);
-                                        isFullyEnrolled = parseInt(enrolledTeam.approved) === 1;
-                                %>
-                                <% } %>
-                                
-                                <% if (!enrolledTeam) { %>
-                                    <button type="button" class="join-btn" onclick="openJoinModal('<%= tournament.id %>')" <%= !currentSubscription ? 'disabled' : '' %>>
-                                        Join <%= !currentSubscription ? '(SUBSCRIPTION REQUIRED)' : '' %>
-                                    </button>
-                                <% } else if (isPending) { %>
-                                    <span class="status-pending">Pending Approval</span>
-                                <% } else if (isFullyEnrolled) { %>
-                                    <span class="enrolled-text">Already Enrolled</span>
-                                <% } %>
-                                
+                                <td>
+                                    <% 
+                                        const enrolledTeam = enrolledTeamTournaments.find(enrolled => enrolled.tournament_id === tournament.id);
+                                        const currentUser = username; 
+                                        let isPending = false;
+                                        let isFullyEnrolled = false;
+                                        let userHasApproved = false;
+                                        let captainName = '';
+
+                                        if (enrolledTeam) {
+                                            // Fetch captain's name from users table via captain_id
+                                            captainName = enrolledTeam.captainName || 'Unknown Captain'; // Assuming captainName is passed from backend
+                                            isPending = !(enrolledTeam.player1_approved === 1 && enrolledTeam.player2_approved === 1 && enrolledTeam.player3_approved === 1);
+                                            isFullyEnrolled = enrolledTeam.player1_approved === 1 && enrolledTeam.player2_approved === 1 && enrolledTeam.player3_approved === 1;
+                                            userHasApproved = (enrolledTeam.player1_name === currentUser && enrolledTeam.player1_approved === 1) ||
+                                                              (enrolledTeam.player2_name === currentUser && enrolledTeam.player2_approved === 1) ||
+                                                              (enrolledTeam.player3_name === currentUser && enrolledTeam.player3_approved === 1);
+                                        }
+                                    %>
+                                    <% if (!enrolledTeam) { %>
+                                        <button type="button" class="join-btn" onclick="openJoinModal('<%= tournament.id %>')" <%= !currentSubscription ? 'disabled' : '' %>>
+                                            Join <%= !currentSubscription ? '(SUBSCRIPTION REQUIRED)' : '' %>
+                                        </button>
+                                    <% } else if (isPending && !userHasApproved) { %>
+                                        <span class="status-pending">Pending Approval</span>
+                                    <% } else if (userHasApproved || isFullyEnrolled) { %>
+                                        <span class="enrolled-text">Already Enrolled (Captain: <%= captainName %>)</span>
+                                    <% } %>
                                     <br>
                                     <a href="/tournament_pairings/<%= tournament.id %>">
                                         <button>View Pairings</button>

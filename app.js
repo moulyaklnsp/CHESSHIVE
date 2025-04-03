@@ -533,9 +533,7 @@ app.get("/:role/:subpage", (req, res) => {
       [username],
       (err, user) => {
         if (err || !user) {
-          return res.redirect(
-            "/player_dashboard?error-message=Player not found"
-          );
+          return res.redirect("/player_dashboard?error-message=Player not found");
         }
         db.get(
           "SELECT wallet_balance FROM user_balances WHERE user_id = ?",
@@ -562,29 +560,24 @@ app.get("/:role/:subpage", (req, res) => {
                   [username],
                   (err, enrolledIndividualTournaments) => {
                     if (err) {
-                      console.error(
-                        "Error fetching enrolled individual tournaments:",
-                        err
-                      );
-                      return res
-                        .status(500)
-                        .send("Error retrieving enrolled individual tournaments.");
+                      console.error("Error fetching enrolled individual tournaments:", err);
+                      return res.status(500).send("Error retrieving enrolled individual tournaments.");
                     }
-                    // Fetch team tournament enrollments
+                    // Fetch team tournament enrollments (captain or team member)
                     db.all(
-                      `SELECT et.* FROM enrolledtournaments_team et 
+                      `SELECT et.*, u.name AS captainName 
+                       FROM enrolledtournaments_team et 
                        JOIN tournaments t ON et.tournament_id = t.id 
-                       WHERE et.captain_id = ?`,
-                      [user.id],
+                       JOIN users u ON et.captain_id = u.id 
+                       WHERE et.captain_id = ? 
+                       OR et.player1_name = ? 
+                       OR et.player2_name = ? 
+                       OR et.player3_name = ?`,
+                      [user.id, username, username, username],
                       (err, enrolledTeamTournaments) => {
                         if (err) {
-                          console.error(
-                            "Error fetching enrolled team tournaments:",
-                            err
-                          );
-                          return res
-                            .status(500)
-                            .send("Error retrieving enrolled team tournaments.");
+                          console.error("Error fetching enrolled team tournaments:", err);
+                          return res.status(500).send("Error retrieving enrolled team tournaments.");
                         }
                         // Fetch current subscription
                         db.get(
@@ -593,14 +586,12 @@ app.get("/:role/:subpage", (req, res) => {
                           (err, subscription) => {
                             if (err) {
                               console.error("Error fetching subscription:", err);
-                              return res
-                                .status(500)
-                                .send("Error retrieving subscription.");
+                              return res.status(500).send("Error retrieving subscription.");
                             }
                             res.render("player/player_tournament", {
                               tournaments: tournaments || [],
                               enrolledIndividualTournaments: enrolledIndividualTournaments || [],
-                              enrolledTeamTournaments : enrolledTeamTournaments || [],
+                              enrolledTeamTournaments: enrolledTeamTournaments || [],
                               username,
                               walletBalance,
                               currentSubscription: subscription || null,
