@@ -94,6 +94,23 @@
                 <button onclick="redirectToLogin()">Log Out</button>
             </div>
         </div>
+
+        <div class="meetings">
+            <h2>Upcoming Meetings (Next 3 Days)</h2>
+            <% if (typeof meetings !== "undefined" && meetings.length > 0) { %>
+                <ul>
+                    <% meetings.forEach(meeting => { %>
+                        <li>
+                            <strong><%= meeting.title %></strong> - 
+                            <%= meeting.date %> at <%= meeting.time %> 
+                            [<a href="<%= meeting.link %>" target="_blank">Join</a>]
+                        </li>
+                    <% }) %>
+                </ul>
+            <% } else { %>
+                <p>No upcoming meetings.</p>
+            <% } %>
+        </div>
     </div>
 
     <script>

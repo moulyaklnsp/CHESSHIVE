@@ -131,38 +131,23 @@
         <div class="container2">
             <h1>Coordinator Dashboard</h1>
 
-            <% if (typeof meetings !== "undefined" && Array.isArray(meetings)) { %>
-
-            <!-- Latest Meetings Section -->
-            <h2>Latest Meetings</h2>
-            <div class="form-container">
-                <% if (meetings.length > 0) { %>
-                    <table border="1">
-                        <thead>
-                            <tr>
-                                <th>Meeting Title</th>
-                                <th>Date</th>
-                                <th>Time</th>
-                                <th>Agenda</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <% meetings.forEach(meeting => { %>
-                                <tr>
-                                    <td><%= meeting.title %></td>
-                                    <td><%= meeting.date %></td>
-                                    <td><%= meeting.time %></td>
-                                    <td><%= meeting.agenda %></td>
-                                </tr>
-                            <% }); %>
-                        </tbody>
-                    </table>
+            <div class="meetings">
+                <h2>Upcoming Meetings (Next 3 Days)</h2>
+                <% if (typeof meetings !== "undefined" && meetings.length > 0) { %>
+                    <ul>
+                        <% meetings.forEach(meeting => { %>
+                            <li>
+                                <strong><%= meeting.title %></strong> - 
+                                <%= meeting.date %> at <%= meeting.time %> 
+                                [<a href="<%= meeting.link %>" target="_blank">Join</a>]
+                            </li>
+                        <% }) %>
+                    </ul>
                 <% } else { %>
-                    <p>No meetings scheduled.</p>
+                    <p>No upcoming meetings.</p>
                 <% } %>
             </div>
-            <% } %>
-
+            
             <% if (typeof tournaments !== "undefined" && Array.isArray(tournaments)) { %>
 
             <!-- Tournaments to Conduct Section -->

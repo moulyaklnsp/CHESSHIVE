@@ -3,6 +3,7 @@ const path = require("path");
 const session = require("express-session");
 const authrouter = require("./routes/auth");
 const db = require("./routes/databasecongi");
+const moment = require('moment');
 
 const app = express();
 const PORT = 3000;
@@ -40,30 +41,64 @@ const renderDashboard = (dashboard, req, res, extraData = {}) => {
 
 app.get('/', (req, res) => res.render('index', getMessages(req)));
 app.get('/admin_dashboard', (req, res) => {
-    const adminName = req.session.username || "Admin"; // Fallback to "Admin" if no session username
+  const adminName = req.session.username || "Admin"; // Fallback if no session username
+  const threeDaysLater = moment().add(3, 'days').format('YYYY-MM-DD');
 
-    // Fetch contact messages from the database
-    db.all("SELECT * FROM contact ORDER BY submission_date DESC", [], (err, contactMessages) => {
-        if (err) {
-            console.error("Error fetching contact messages:", err.message);
-            return renderDashboard('admin/admin_dashboard', req, res, {
-                adminName,
-                contactMessages: [], // Fallback to empty array on error
-                errorMessage: "Error fetching contact messages"
-            });
-        }
+  // Fetch meetings
+  db.all("SELECT * FROM meetingsdb WHERE role = 'admin' AND date <= ?", [threeDaysLater], (err1, meetings) => {
+      if (err1) {
+          console.error("❌ Error fetching meetings:", err1);
+          return res.status(500).send("Internal Server Error");
+      }
 
-        // Render the dashboard with fetched data
-        renderDashboard('admin/admin_dashboard', req, res, {
-            adminName,
-            contactMessages: contactMessages || [], // Ensure it’s an array even if no messages
-            successMessage: req.query["success-message"] || null,
-            errorMessage: req.query["error-message"] || null
-        });
-    });
+      // Fetch contact messages
+      db.all("SELECT * FROM contact ORDER BY submission_date DESC", [], (err2, contactMessages) => {
+          if (err2) {
+              console.error("❌ Error fetching contact messages:", err2);
+              return renderDashboard('admin/admin_dashboard', req, res, {
+                  adminName,
+                  meetings,
+                  contactMessages: [],
+                  errorMessage: "Error fetching contact messages"
+              });
+          }
+
+          // Render the admin dashboard with both meetings and contact messages
+          renderDashboard('admin/admin_dashboard', req, res, {
+              adminName,
+              meetings,
+              contactMessages,
+              successMessage: req.query["success-message"] || null,
+              errorMessage: req.query["error-message"] || null
+          });
+      });
+  });
 });
-app.get('/organizer_dashboard', (req, res) => renderDashboard('organizer/organizer_dashboard', req, res));
-app.get('/coordinator_dashboard', (req, res) => renderDashboard('coordinator/coordinator_dashboard', req, res));
+
+app.get('/organizer_dashboard', (req, res) => {
+  const threeDaysLater = moment().add(3, 'days').format('YYYY-MM-DD');
+
+  db.all("SELECT * FROM meetingsdb WHERE date <= ?", [threeDaysLater], (err, meetings) => {
+      if (err) {
+          console.error("❌ Error fetching meetings:", err);
+          return res.status(500).send("Internal Server Error");
+      }
+      
+      renderDashboard('organizer/organizer_dashboard', req, res, { meetings });
+  });
+});
+app.get('/coordinator_dashboard', (req, res) => {
+  const threeDaysLater = moment().add(3, 'days').format('YYYY-MM-DD');
+
+  db.all("SELECT * FROM meetingsdb WHERE date <= ?", [threeDaysLater], (err, meetings) => {
+      if (err) {
+          console.error("❌ Error fetching meetings:", err);
+          return res.status(500).send("Internal Server Error");
+      }
+      
+      renderDashboard('coordinator/coordinator_dashboard', req, res, { meetings });
+  });
+});
 app.get('/player_dashboard', (req, res) => {
   const playerName = req.session.playerName || 'Guest'; // Fallback to 'Guest' if undefined
   const username = req.session.username; // Assuming username is stored in session
@@ -94,7 +129,7 @@ app.get('/player_dashboard', (req, res) => {
 
                   // Fetch pending team requests where the player is a team member
                   db.all(
-                      `SELECT et.*, t.name AS tournamentName, u.name AS captainName, 
+                      `SELECT et.*, t.name AS tournamentName, u.name AS captainName
                        FROM enrolledtournaments_team et
                        JOIN tournaments t ON et.tournament_id = t.id
                        JOIN users u ON et.captain_id = u.id
