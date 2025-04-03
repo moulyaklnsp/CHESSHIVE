@@ -1256,10 +1256,10 @@ app.use((req, res) => {
 });
 
 // Global Error Handler
-app.use((err, req, res, next) => {
-  console.error("Server error:", err.stack);
-  res.status(500).redirect("/?error-message=Server error occurred");
-});
+// app.use((err, req, res, next) => {
+//   console.error("Server error:", err.stack);
+//   res.status(500).redirect("/?error-message=Server error occurred");
+// });
 
 // Start Server
 app.listen(PORT, () =>

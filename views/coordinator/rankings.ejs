@@ -13,7 +13,7 @@
             <th>Player Name</th>
             <th>Score</th>
         </tr>
-        <% if (rankings.length > 0) { %>
+        <% if (typeof rankings !== "undefined" && rankings.length > 0) { %>
         <% rankings.forEach((player, index) => { %>
             <tr>
                 <td><%= index + 1 %></td>
