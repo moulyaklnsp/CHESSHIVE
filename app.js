@@ -867,7 +867,7 @@ app.get("/:role/:subpage", (req, res) => {
       );
     }
     db.get(
-      "SELECT name FROM tournaments WHERE id = ?",
+      "SELECT name, type FROM tournaments WHERE id = ?",
       [tournamentId],
       (err, tournament) => {
         if (err) {
@@ -880,19 +880,40 @@ app.get("/:role/:subpage", (req, res) => {
             "/coordinator_dashboard?error-message=Tournament not found"
           );
         }
+        // Fetch individual tournament players
         db.all(
           "SELECT username, college, gender FROM tournament_players WHERE tournament_id = ?",
           [tournamentId],
-          (err, players) => {
+          (err, individualPlayers) => {
             if (err) {
               return res.redirect(
                 "/coordinator_dashboard?error-message=Database Error"
               );
             }
-            res.render("coordinator/enrolled_players", {
-              tournamentName: tournament.name,
-              players: players || [],
-            });
+            // Fetch team tournament enrollments
+            db.all(
+              `SELECT et.player1_name, et.player2_name, et.player3_name, 
+                      et.player1_approved, et.player2_approved, et.player3_approved, 
+                      u.name AS captain_name 
+               FROM enrolledtournaments_team et 
+               JOIN users u ON et.captain_id = u.id 
+               WHERE et.tournament_id = ?`,
+              [tournamentId],
+              (err, teamEnrollments) => {
+                if (err) {
+                  console.error("Error fetching team enrollments:", err);
+                  return res.redirect(
+                    "/coordinator_dashboard?error-message=Database Error"
+                  );
+                }
+                res.render("coordinator/enrolled_players", {
+                  tournamentName: tournament.name,
+                  tournamentType: tournament.type, // Pass tournament type to distinguish in template
+                  individualPlayers: individualPlayers || [],
+                  teamEnrollments: teamEnrollments || [],
+                });
+              }
+            );
           }
         );
       }

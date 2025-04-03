@@ -10,39 +10,112 @@
     <% } %>
     <link rel="stylesheet" href="/css/primary_styles.css">
     <style>
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        th, td { padding: 8px; text-align: left; border: 1px solid #ccc; }
+        table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            margin-top: 10px; 
+        }
+        th, td { 
+            padding: 8px; 
+            text-align: left; 
+            border: 1px solid #ccc; 
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .approved { 
+            color: green; 
+        }
+        .pending { 
+            color: orange; 
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <% if (typeof tournamentName !== 'undefined') { %>
-        <h2>Enrolled Players for <%= tournamentName %></h2>
+            <h2>Enrolled Players for <%= tournamentName %></h2>
+
+            <% if (tournamentType === 'Individual') { %>
+                <h3>Individual Players</h3>
+                <% if (individualPlayers && individualPlayers.length > 0) { %>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Username</th>
+                                <th>College</th>
+                                <th>Gender</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% individualPlayers.forEach(player => { %>
+                                <tr>
+                                    <td><%= player.username %></td>
+                                    <td><%= player.college %></td>
+                                    <td><%= player.gender %></td>
+                                </tr>
+                            <% }); %>
+                        </tbody>
+                    </table>
+                <% } else { %>
+                    <p>No individual players enrolled in this tournament yet.</p>
+                <% } %>
+            <% } %>
+
+            <% if (tournamentType === 'Team') { %>
+                <h3>Team Enrollments</h3>
+                <% if (teamEnrollments && teamEnrollments.length > 0) { %>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Captain</th>
+                                <th>Player 1</th>
+                                <th>Player 2</th>
+                                <th>Player 3</th>
+                                <th>Approval Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% teamEnrollments.forEach(team => { %>
+                                <tr>
+                                    <td><%= team.captain_name %></td>
+                                    <td>
+                                        <%= team.player1_name %>
+                                        <span class="<%= team.player1_approved ? 'approved' : 'pending' %>">
+                                            (<%= team.player1_approved ? 'Approved' : 'Pending' %>)
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <%= team.player2_name %>
+                                        <span class="<%= team.player2_approved ? 'approved' : 'pending' %>">
+                                            (<%= team.player2_approved ? 'Approved' : 'Pending' %>)
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <%= team.player3_name %>
+                                        <span class="<%= team.player3_approved ? 'approved' : 'pending' %>">
+                                            (<%= team.player3_approved ? 'Approved' : 'Pending' %>)
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <% if (team.player1_approved && team.player2_approved && team.player3_approved) { %>
+                                            <span class="approved">Fully Approved</span>
+                                        <% } else { %>
+                                            <span class="pending">Pending</span>
+                                        <% } %>
+                                    </td>
+                                </tr>
+                            <% }); %>
+                        </tbody>
+                    </table>
+                <% } else { %>
+                    <p>No teams enrolled in this tournament yet.</p>
+                <% } %>
+            <% } %>
         <% } else { %>
             <p>No players available.</p>
         <% } %>
-        <% if (typeof players !== 'undefined' && players.length > 0) { %>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Username</th>
-                        <th>College</th>
-                        <th>Gender</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <% players.forEach(player => { %>
-                        <tr>
-                            <td><%= player.username %></td>
-                            <td><%= player.college %></td>
-                            <td><%= player.gender %></td>
-                        </tr>
-                    <% }); %>
-                </tbody>
-            </table>
-        <% } else { %>
-            <p>No players enrolled in this tournament yet.</p>
-        <% } %>
+
         <div class="back-container">
             <a href="/coordinator/tournament_management" class="back">Back to Tournament Management</a>
         </div>
