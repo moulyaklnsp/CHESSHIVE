@@ -46,7 +46,29 @@ const renderDashboard = (dashboard, req, res, extraData = {}) => {
 };
 
 app.get('/', (req, res) => res.render('index', getMessages(req)));
-app.get('/admin_dashboard', (req, res) => renderDashboard('admin/admin_dashboard', req, res));
+app.get('/admin_dashboard', (req, res) => {
+    const adminName = req.session.username || "Admin"; // Fallback to "Admin" if no session username
+
+    // Fetch contact messages from the database
+    db.all("SELECT * FROM contact ORDER BY submission_date DESC", [], (err, contactMessages) => {
+        if (err) {
+            console.error("Error fetching contact messages:", err.message);
+            return renderDashboard('admin/admin_dashboard', req, res, {
+                adminName,
+                contactMessages: [], // Fallback to empty array on error
+                errorMessage: "Error fetching contact messages"
+            });
+        }
+
+        // Render the dashboard with fetched data
+        renderDashboard('admin/admin_dashboard', req, res, {
+            adminName,
+            contactMessages: contactMessages || [], // Ensure it’s an array even if no messages
+            successMessage: req.query["success-message"] || null,
+            errorMessage: req.query["error-message"] || null
+        });
+    });
+});
 app.get('/organizer_dashboard', (req, res) => renderDashboard('organizer/organizer_dashboard', req, res));
 app.get('/coordinator_dashboard', (req, res) => renderDashboard('coordinator/coordinator_dashboard', req, res));
 app.get('/player_dashboard', (req, res) => {

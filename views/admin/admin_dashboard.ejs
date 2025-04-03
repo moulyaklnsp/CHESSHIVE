@@ -83,6 +83,21 @@
             <div class="logout-box">
                 <button onclick="redirectToLogin()">Log Out</button>
             </div>
+            <div class="contact-messages">
+                <h2>Contact Messages</h2>
+                <% if (typeof contactMessages !== 'undefined' && contactMessages.length > 0) { %>
+                    <ul>
+                        <% contactMessages.forEach(message => { %>
+                            <li>
+                                <strong>Name:</strong> <%= message.name %><br>
+                                <strong>Message:</strong> <%= message.message %><br>
+                            </li>
+                        <% }); %>
+                    </ul>
+                <% } else { %>
+                    <p>No messages available.</p>
+                <% } %>
+            </div>
         </div>
 
 

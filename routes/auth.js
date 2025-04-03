@@ -623,6 +623,92 @@ router.post('/admin_meetings/schedule', (req, res) => {
     });
 });
 
+router.post('/contactus', (req, res) => {
+    console.log("Raw req.body:", req.body); // Log the raw object
+    const { name, email, message } = req.body || {}; // Fallback to empty object to avoid destructuring undefined
+    console.log("Destructured:", { name, email, message }); // Log destructured values
+    let errors = {};
 
+    // Server-side validation
+    if (!name || !/^[A-Za-z]+(?: [A-Za-z]+)*$/.test(name)) {
+        errors.name = "Name should only contain letters";
+    }
+    if (!email || !/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email)) {
+        errors.email = "Please enter a valid email address";
+    }
+    if (!message || message.trim() === '') {
+        errors.message = "Message cannot be empty";
+    }
 
+    if (Object.keys(errors).length > 0) {
+        return res.render('contactus', {
+            name,
+            email,
+            message,
+            errors,
+            successMessage: null
+        });
+    }
+    // Check if the email belongs to an existing player
+    db.get(
+        "SELECT * FROM users WHERE name = ? AND email = ? AND role = 'player' AND isDeleted = 0",
+        [name,email],
+        (err, user) => {
+            if (err) {
+                console.error("Error checking user existence:", err.message);
+                return res.render('contactus', {
+                    name,
+                    email,
+                    message,
+                    errors: { db: "Database error occurred" },
+                    successMessage: null
+                });
+            }
+
+            if (!user) {
+                errors.email = "Only registered players can submit messages. Please sign up or use a player account.";
+                return res.render('contactus', {
+                    name,
+                    email,
+                    message,
+                    errors,
+                    successMessage: null
+                });
+            }
+
+            // If user exists and is a player, insert the message
+            db.run(
+                "INSERT INTO contact (name, email, message) VALUES (?, ?, ?)",
+                [name, email, message],
+                function(err) {
+                    if (err) {
+                        console.error("Error inserting contact message:", err.message);
+                        return res.render('contactus', {
+                            name,
+                            email,
+                            message,
+                            errors: { db: "Error saving your message. Please try again." },
+                            successMessage: null
+                        });
+                    }
+
+                    // Log contact table contents for debugging
+                    db.all("SELECT * FROM contact", [], (err, rows) => {
+                        if (err) {
+                            console.error("Error fetching contact table rows:", err.message);
+                        } else {
+                            console.log("name: ",name);
+                            console.log("\n=== Current Contact Table Contents ===");
+                            console.log("Total rows:", rows.length);
+                            console.table(rows);
+                            console.log("=====================================\n");
+                        }
+                    });
+
+                    res.redirect('/contactus?success-message=Message sent successfully!');
+                }
+            );
+        }
+    );
+});
 module.exports = router;
