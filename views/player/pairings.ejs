@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Final Rankings - ChessHive</title>
+    <title>Pairings & Results - ChessHive</title>
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
@@ -27,7 +27,7 @@
         }
 
         .container {
-            max-width: 900px;
+            max-width: 1000px;
             margin: 0 auto;
         }
 
@@ -44,11 +44,11 @@
         }
 
         h2::before {
-            content: '🏆';
+            content: '⚔️';
             font-size: 2.5rem;
         }
 
-        .rankings-container {
+        .pairings-container {
             background: white;
             border-radius: 15px;
             padding: 2rem;
@@ -78,31 +78,46 @@
             background-color: rgba(135, 206, 235, 0.1);
         }
 
-        .rank {
-            font-weight: bold;
-            color: var(--sea-green);
-            font-family: 'Cinzel', serif;
-        }
-
-        .top-3 {
-            font-size: 1.1rem;
-        }
-
-        .rank-1 {
-            background-color: rgba(255, 215, 0, 0.1);
-        }
-
-        .rank-2 {
-            background-color: rgba(192, 192, 192, 0.1);
-        }
-
-        .rank-3 {
-            background-color: rgba(205, 127, 50, 0.1);
-        }
-
         .score {
-            font-weight: bold;
             color: var(--sea-green);
+            font-weight: bold;
+        }
+
+        .bye {
+            color: #666;
+            font-style: italic;
+        }
+
+        form {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        select {
+            padding: 0.5rem;
+            border: 2px solid var(--sea-green);
+            border-radius: 8px;
+            font-family: 'Playfair Display', serif;
+            background: white;
+        }
+
+        button {
+            background: var(--sea-green);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: 'Cinzel', serif;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            background: #236B43;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
         }
 
         .navigation {
@@ -129,10 +144,6 @@
             box-shadow: 0 4px 8px rgba(0,0,0,0.1);
         }
 
-        .medal-icon {
-            font-size: 1.2rem;
-        }
-
         @media (max-width: 768px) {
             body {
                 padding: 1rem;
@@ -142,48 +153,50 @@
                 font-size: 2rem;
             }
 
-            .rankings-container {
+            .pairings-container {
                 padding: 1rem;
             }
 
-            td, th {
-                padding: 0.8rem;
+            form {
+                flex-direction: column;
             }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h2>Final Rankings</h2>
-        
-        <div class="rankings-container">
-            <table>
-                <tr>
-                    <th>Rank</th>
-                    <th>Player Name</th>
-                    <th>Score</th>
-                </tr>
-                <% if (rankings && rankings.length > 0) { %>
-                    <% rankings.forEach((player, index) => { %>
-                        <tr>
-                            <td><%= index + 1 %></td>
-                            <td><%= player.username %></td>
-                            <td><%= player.score %></td>
-                        </tr>
-                    <% }); %>
-                <% } else { %>
-                    <tr>
-                        <td colspan="3">No rankings available.</td>
-                    </tr>
-                <% } %>
-            </table>
-        </div>
-        <div class="navigation">
-            <a href="/coordinator/tournament_management" class="nav-link">
-                <i class="fas fa-users"></i> Back to tournaments
-            </a>
-        </div>
-    </div>
+        <h1>Pairings & Results</h1>
 
+    <% if (allRounds.length === 0) { %>
+        <p>No pairings available.</p>
+    <% } else { %>
+        <% allRounds.forEach(roundData => { %>
+            <h2>Round <%= roundData.round %></h2>
+            <table border="1">
+                <tr>
+                    <th>Player 1</th>
+                    <th>Player 2</th>
+                    <th>Result</th>
+                </tr>
+                <% roundData.pairings.forEach(pair => { %>
+                    <tr>
+                        <td><%= pair.player1.username %> (Score: <%= pair.player1.score %>)</td>
+                        <td><%= pair.player2 ? pair.player2.username : 'BYE' %></td>
+                        <td><%= pair.result %></td>
+                    </tr>
+                <% }); %>
+            </table>
+            
+            <% if (roundData.byePlayer) { %>
+                <p><strong>BYE:</strong> <%= roundData.byePlayer.username %> (Score: <%= roundData.byePlayer.score %>)</p>
+            <% } %>
+        <% }); %>
+    <% } %>
+    </div>
+    <div class="navigation">
+        <a href="/player/player_tournament" class="nav-link">
+            <i class="fas fa-users"></i> Back to Player tournament
+        </a>
+    </div>
 </body>
 </html>

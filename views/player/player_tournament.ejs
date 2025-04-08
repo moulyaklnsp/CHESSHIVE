@@ -4,67 +4,268 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Player Tournaments - ChessHive</title>
-    
-    <link rel="stylesheet" href="/css/primary_styles.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&display=swap" rel="stylesheet">
-
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        .subscription-message {
-            color: red;
-            margin-bottom: 10px;
+        :root {
+            --sea-green: #2E8B57;
+            --cream: #FFFDD0;
+            --sky-blue: #87CEEB;
+            --dark-green: #236B43;
+            --light-gray: #f9f9f9;
+            --red: #ff4d4d;
+            --yellow: #ffcc00;
         }
-        .subscription-message a {
-            color: blue;
-            text-decoration: underline;
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
-        .join-btn:disabled {
-            background-color: #888;
-            cursor: not-allowed;
+
+        body {
+            font-family: 'Playfair Display', serif;
+            background-color: var(--cream);
+            min-height: 100vh;
+            padding-bottom: 60px;
         }
-        .tournament-name {
-            cursor: pointer;
-            color: #007BFF;
-            text-decoration: underline;
+
+        .content {
+            padding: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
         }
+
+        h1, h2, h3 {
+            font-family: 'Cinzel', serif;
+            color: var(--sea-green);
+            margin-bottom: 1.5rem;
+        }
+
+        .black-h2 {
+            color: var(--sea-green);
+            font-family: 'Cinzel', serif;
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .form-container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: white;
+        }
+
+        th {
+            background-color: var(--sea-green);
+            color: white;
+            padding: 12px;
+            text-align: left;
+        }
+
+        td {
+            padding: 12px;
+            border: 1px solid #ddd;
+        }
+
+        tr:hover {
+            background-color: var(--light-gray);
+        }
+
+        .status-completed {
+            color: var(--red);
+            font-weight: bold;
+        }
+
+        .status-ongoing {
+            color: var(--yellow);
+            font-weight: bold;
+        }
+
+        .status-yet-to-start {
+            color: var(--sea-green);
+            font-weight: bold;
+        }
+
+        .wallet-section {
+            background-color: var(--sea-green);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .wallet-section h3 {
+            color: white;
+            margin-top: 0;
+        }
+
         .tournament-details {
             display: none;
-            margin-top: 10px;
             padding: 10px;
-            border: 1px solid #ccc;
-            background-color: #f9f9f9;
+            background: var(--light-gray);
+            border-radius: 5px;
+            margin-top: 10px;
         }
-        .tournament-details img {
-            max-width: 300px;
-            height: auto;
+
+        .tournament-name {
+            cursor: pointer;
+            color: var(--sea-green);
+            font-weight: bold;
         }
-        .status-completed { color: green; }
-        .status-ongoing { color: orange; }
-        .status-yet-to-start { color: blue; }
+
+        .tournament-name:hover {
+            text-decoration: underline;
+        }
+
+        button, .back-to-dashboard {
+            background-color: var(--sea-green);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Playfair Display', serif;
+            margin: 5px 2px;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        button:hover, .back-to-dashboard:hover {
+            background-color: var(--dark-green);
+            transform: translateY(-2px);
+        }
+
+        button[disabled] {
+            background-color: gray;
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        .subscription-message {
+            background-color: var(--sky-blue);
+            color: var(--sea-green);
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        .subscription-message a {
+            color: var(--sea-green);
+            font-weight: bold;
+            text-decoration: underline;
+        }
+
+        .back-to-dashboard {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            z-index: 1000;
+        }
+
+        .join-form {
+            display: none;
+            padding: 10px;
+            background: var(--light-gray);
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+
+        .join-form label {
+            display: block;
+            margin: 5px 0;
+            color: var(--sea-green);
+        }
+
+        .join-form input[type="text"] {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid var(--sea-green);
+            border-radius: 5px;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: var(--sky-blue);
+            color: var(--sea-green);
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-family: 'Cinzel', serif;
+            font-weight: bold;
+            margin: 0.2rem;
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        @media (max-width: 768px) {
+            .content {
+                padding: 1rem;
+            }
+
+            table {
+                display: block;
+                overflow-x: auto;
+            }
+
+            .back-to-dashboard {
+                bottom: 20px;
+                right: 20px;
+            }
+
+            .btn {
+                display: block;
+                margin: 0.5rem 0;
+                text-align: center;
+            }
+        }
     </style>
 </head>
 <body>
-    <div class="container2">
+    <div class="content">
+        <h1>
+            <i class="fas fa-trophy"></i> Tournaments
+        </h1>
+        
         <!-- Success/Error Messages -->
-        <% if (successMessage) { %>
+        <% if (typeof successMessage !== "undefined" && successMessage) { %>
             <p style="color: green;"><%= successMessage %></p>
         <% } %>
-        <% if (errorMessage) { %>
+        <% if (typeof errorMessage !== "undefined" && errorMessage) { %>
             <p style="color: red;"><%= errorMessage %></p>
         <% } %>
 
         <!-- Subscription Check -->
-        <% if (!currentSubscription) { %>
+        <% if (typeof currentSubscription !== "undefined" && !currentSubscription) { %>
             <div class="subscription-message">
                 YOU MUST BE SUBSCRIBED TO JOIN TOURNAMENTS. 
-                <a href="/subscribe">Subscribe Now</a>
+                <a href="/player/subscription">Subscribe Now</a>
             </div>
         <% } %>
 
         <!-- Wallet Section -->
-        <div class="form-container table-div">
-            <h3>Wallet Balance: ₹<span id="walletBalance"><%= walletBalance %></span></h3>
+        <div class="wallet-section">
+            <h3>Wallet Balance: ₹<span id="walletBalance"><%= typeof walletBalance !== "undefined" ? walletBalance : 0 %></span></h3>
             <form action="/player/add-funds" method="POST">
                 <input type="number" name="amount" placeholder="Enter amount" min="1" required>
                 <input type="hidden" name="redirectTo" value="/player/player_tournament">
@@ -75,7 +276,13 @@
         <!-- Individual Tournaments -->
         <h2 class="black-h2">Available Individual Tournaments</h2>
         <div class="form-container">
-            <% const individualTournaments = tournaments.filter(t => t.type === 'Individual'); %>
+            <% 
+                const individualTournaments = tournaments.filter(t => {
+                    const today = new Date();
+                    const tournamentDate = new Date(t.date);
+                    return tournamentDate >= today && t.type === 'Individual';
+                }); 
+            %>
             <% if (individualTournaments.length > 0) { %>
                 <table border="1">
                     <thead>
@@ -96,10 +303,7 @@
                                 let status = '';
                                 let statusClass = '';
 
-                                if (tournamentDate < today) {
-                                    status = 'Completed';
-                                    statusClass = 'status-completed';
-                                } else if (tournamentDate.toDateString() === today.toDateString()) {
+                                if (tournamentDate.toDateString() === today.toDateString()) {
                                     status = 'Ongoing';
                                     statusClass = 'status-ongoing';
                                 } else {
@@ -113,15 +317,8 @@
                                         <%= tournament.name %>
                                     </span>
                                     <div id="details-<%= tournament.id %>" class="tournament-details">
-                                        <p><strong>Date:</strong> <%= tournament.date %></p>
                                         <p><strong>Time:</strong> <%= tournament.time || 'N/A' %></p>
-                                        <p><strong>Venue:</strong> <%= tournament.location %></p>
-                                        <p><strong>Time Control:</strong> <%= tournament.time_control || 'N/A' %></p>
-                                        <p><strong>No. of Rounds:</strong> <%= tournament.rounds || 'N/A' %></p>
-                                        <% if (tournament.poster_url) { %>
-                                            <p><strong>Poster:</strong></p>
-                                            <img src="<%= tournament.poster_url %>" alt="Tournament Poster">
-                                        <% } %>
+                                        <p><strong>No. of Rounds:</strong> <%= tournament.no_of_rounds || 'N/A' %></p>
                                     </div>
                                 </td>
                                 <td><%= tournament.date %></td>
@@ -129,7 +326,7 @@
                                 <td>₹<%= tournament.entry_fee %></td>
                                 <td class="<%= statusClass %>"><%= status %></td>
                                 <td>
-                                    <% const alreadyEnrolled = enrolledTournaments.some(enrolled => enrolled.id === tournament.id); %>
+                                    <% const alreadyEnrolled = enrolledIndividualTournaments.some(enrolled => enrolled.id === tournament.id); %>
                                     <% if (!alreadyEnrolled) { %>
                                         <form action="/player/join-tournament" method="POST">
                                             <input type="hidden" name="tournamentId" value="<%= tournament.id %>">
@@ -141,12 +338,8 @@
                                         <span class="enrolled-text">Already Enrolled</span>
                                     <% } %>
                                     <br>
-                                    <a href="/player/tournament-pairings/<%= tournament.id %>">
-                                        <button>View Pairings</button>
-                                    </a>
-                                    <a href="/player/tournament-results/<%= tournament.id %>">
-                                        <button>View Results</button>
-                                    </a>
+                                    <a href="/player/pairings?tournament_id=<%= tournament.id %>&rounds=5" class="btn"><i class="fas fa-chess-board"></i>View Pairings & Results</a>
+                                    <a href="/player/rankings?tournament_id=<%= tournament.id %>" class="btn"><i class="fas fa-medal"></i>View Final Rankings</a>
                                 </td>
                             </tr>
                         <% }); %>
@@ -160,7 +353,13 @@
         <!-- Team Tournaments -->
         <h2 class="black-h2">Available Team Tournaments</h2>
         <div class="form-container">
-            <% const teamTournaments = tournaments.filter(t => t.type === 'Team'); %>
+            <% 
+                const teamTournaments = tournaments.filter(t => {
+                    const today = new Date();
+                    const tournamentDate = new Date(t.date);
+                    return tournamentDate >= today && t.type === 'Team';
+                }); 
+            %>
             <% if (teamTournaments.length > 0) { %>
                 <table border="1">
                     <thead>
@@ -181,10 +380,7 @@
                                 let status = '';
                                 let statusClass = '';
 
-                                if (tournamentDate < today) {
-                                    status = 'Completed';
-                                    statusClass = 'status-completed';
-                                } else if (tournamentDate.toDateString() === today.toDateString()) {
+                                if (tournamentDate.toDateString() === today.toDateString()) {
                                     status = 'Ongoing';
                                     statusClass = 'status-ongoing';
                                 } else {
@@ -198,15 +394,8 @@
                                         <%= tournament.name %>
                                     </span>
                                     <div id="details-<%= tournament.id %>" class="tournament-details">
-                                        <p><strong>Date:</strong> <%= tournament.date %></p>
                                         <p><strong>Time:</strong> <%= tournament.time || 'N/A' %></p>
-                                        <p><strong>Venue:</strong> <%= tournament.location %></p>
-                                        <p><strong>Time Control:</strong> <%= tournament.time_control || 'N/A' %></p>
                                         <p><strong>No. of Rounds:</strong> <%= tournament.rounds || 'N/A' %></p>
-                                        <% if (tournament.poster_url) { %>
-                                            <p><strong>Poster:</strong></p>
-                                            <img src="<%= tournament.poster_url %>" alt="Tournament Poster">
-                                        <% } %>
                                     </div>
                                 </td>
                                 <td><%= tournament.date %></td>
@@ -214,24 +403,45 @@
                                 <td>₹<%= tournament.entry_fee %></td>
                                 <td class="<%= statusClass %>"><%= status %></td>
                                 <td>
-                                    <% const alreadyEnrolled = enrolledTournaments.some(enrolled => enrolled.id === tournament.id); %>
-                                    <% if (!alreadyEnrolled) { %>
-                                        <form action="/player/join-tournament" method="POST">
-                                            <input type="hidden" name="tournamentId" value="<%= tournament.id %>">
-                                            <button type="submit" class="join-btn" <%= !currentSubscription ? 'disabled' : '' %>>
-                                                Join <%= !currentSubscription ? '(SUBSCRIPTION REQUIRED)' : '' %>
-                                            </button>
-                                        </form>
-                                    <% } else { %>
-                                        <span class="enrolled-text">Already Enrolled</span>
+                                    <% 
+                                        const enrolledTeam = enrolledTeamTournaments.find(enrolled => enrolled.tournament_id === tournament.id);
+                                        const currentUser = username; 
+                                        let isPending = false;
+                                        let isFullyEnrolled = false;
+                                        let userHasApproved = false;
+                                        let captainName = '';
+
+                                        if (enrolledTeam) {
+                                            captainName = enrolledTeam.captainName || 'Unknown Captain';
+                                            isPending = !(enrolledTeam.player1_approved === 1 && enrolledTeam.player2_approved === 1 && enrolledTeam.player3_approved === 1);
+                                            isFullyEnrolled = enrolledTeam.player1_approved === 1 && enrolledTeam.player2_approved === 1 && enrolledTeam.player3_approved === 1;
+                                            userHasApproved = (enrolledTeam.player1_name === currentUser && enrolledTeam.player1_approved === 1) ||
+                                                              (enrolledTeam.player2_name === currentUser && enrolledTeam.player2_approved === 1) ||
+                                                              (enrolledTeam.player3_name === currentUser && enrolledTeam.player3_approved === 1);
+                                        }
+                                    %>
+                                    <% if (!enrolledTeam) { %>
+                                        <button type="button" class="join-btn" onclick="toggleJoinForm('join-form-<%= tournament.id %>')" <%= !currentSubscription ? 'disabled' : '' %>>
+                                            Join <%= !currentSubscription ? '(SUBSCRIPTION REQUIRED)' : '' %>
+                                        </button>
+                                        <div id="join-form-<%= tournament.id %>" class="join-form">
+                                            <form action="/player/join-tournament" method="POST">
+                                                <input type="hidden" name="tournamentId" value="<%= tournament.id %>">
+                                                <label for="player1-<%= tournament.id %>">Player 1:</label>
+                                                <input type="text" name="player1" id="player1-<%= tournament.id %>" required>
+                                                <label for="player2-<%= tournament.id %>">Player 2:</label>
+                                                <input type="text" name="player2" id="player2-<%= tournament.id %>" required>
+                                                <label for="player3-<%= tournament.id %>">Player 3:</label>
+                                                <input type="text" name="player3" id="player3-<%= tournament.id %>" required>
+                                                <button type="submit" class="join-btn">Submit Team</button>
+                                            </form>
+                                        </div>
+                                    <% } else if (isPending && !userHasApproved) { %>
+                                        <span class="status-pending">Pending Approval</span>
+                                    <% } else if (userHasApproved || isFullyEnrolled) { %>
+                                        <span class="enrolled-text">Already Enrolled (Captain: <%= captainName %>)</span>
                                     <% } %>
                                     <br>
-                                    <a href="/player/tournament-pairings/<%= tournament.id %>">
-                                        <button>View Pairings</button>
-                                    </a>
-                                    <a href="/player/tournament-results/<%= tournament.id %>">
-                                        <button>View Results</button>
-                                    </a>
                                 </td>
                             </tr>
                         <% }); %>
@@ -241,16 +451,23 @@
                 <p>No approved team tournaments available.</p>
             <% } %>
         </div>
-
-        <div class="back-container">
-            <a href="/player/player_dashboard" class="back">Back to Dashboard</a>
-        </div>
     </div>
+
+    <!-- Fixed Back to Dashboard Button -->
+    <a href="/player/player_dashboard" class="back-to-dashboard">
+        <i class="fas fa-arrow-left"></i>
+        Back to Dashboard
+    </a>
 
     <script>
         function toggleDetails(detailId) {
             const details = document.getElementById(detailId);
             details.style.display = details.style.display === 'block' ? 'none' : 'block';
+        }
+
+        function toggleJoinForm(formId) {
+            const form = document.getElementById(formId);
+            form.style.display = form.style.display === 'block' ? 'none' : 'block';
         }
     </script>
 </body>

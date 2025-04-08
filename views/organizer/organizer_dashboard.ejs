@@ -4,102 +4,322 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Organizer Dashboard - ChessHive</title>
-    <link rel="stylesheet" href="/css/primary_styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        body {
+        :root {
+            --sea-green: #2E8B57;
+            --cream: #FFFDD0;
+            --sky-blue: #87CEEB;
+        }
+
+        * {
             margin: 0;
-            font-family: Arial, sans-serif;
+            padding: 0;
+            box-sizing: border-box;
         }
-        .dashboard {
-            display: flex;
+
+        body {
+            font-family: 'Playfair Display', serif;
+            background-color: var(--cream);
             min-height: 100vh;
+            display: flex;
         }
+
         .sidebar {
-            width: 250px;
-            background-color: #2c3e50;
+            width: 280px;
+            background-color: var(--sea-green);
             color: white;
-            padding: 20px;
-            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+            height: 100vh;
+            position: fixed;
+            left: 0; /* Changed from -280px to 0 to make sidebar visible by default */
+            top: 0;
+            padding-top: 1rem;
+            z-index: 1000;
+            box-shadow: 4px 0 10px rgba(0,0,0,0.1);
         }
-        .sidebar h2 {
-            font-size: 1.5em;
-            margin-bottom: 20px;
+
+        .sidebar-header {
             text-align: center;
+            padding: 1rem;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 1rem;
         }
+
+
+        .nav-section {
+            margin-bottom: 1rem;
+            padding: 0 1rem;
+        }
+
+        .nav-section-title {
+            color: var(--cream);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            padding: 0.5rem 1rem;
+            opacity: 0.7;
+        }
+
         .sidebar a {
-            display: block;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
             color: white;
             text-decoration: none;
-            padding: 10px;
-            margin: 10px 0;
+            padding: 0.8rem 1.5rem;
+            transition: all 0.3s ease;
+            font-family: 'Playfair Display', serif;
             border-radius: 5px;
-            transition: background-color 0.3s;
+            margin: 0.2rem 0;
         }
+
         .sidebar a:hover {
-            background-color: #34495e;
+            background: rgba(135, 206, 235, 0.2);
+            color: var(--cream);
+            transform: translateX(5px);
         }
+
+        .sidebar a i {
+            width: 20px;
+            text-align: center;
+        }
+
         .content {
-            /* flex-grow: 1; */
-            padding: 20px;
-            background-color: #ecf0f1;
-            /* position: relative; */
+            flex-grow: 1;
+            margin-left: 280px; /* Changed from 60px to match sidebar width */
+            padding: 2rem;
         }
-        .greeting {
-            font-size: 1.8em;
-            color: #2c3e50;
-            margin-bottom: 20px;
+
+        /* We don't need the sidebar-open class anymore since sidebar is always visible */
+
+        h1 {
+            font-family: 'Cinzel', serif;
+            color: var(--sea-green);
+            margin-bottom: 2rem;
+            font-size: 2.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
         }
+
         .logout-box {
             position: absolute;
-            top: 20px;
-            right: 20px;
+            bottom: 2rem;
+            width: 100%;
+            padding: 0 2rem;
         }
+
         .logout-box button {
-            padding: 10px 20px;
-            background-color: #e74c3c;
-            color: white;
+            width: 100%;
+            background: var(--sky-blue);
+            color: var(--sea-green);
             border: none;
-            border-radius: 5px;
+            padding: 1rem;
+            border-radius: 8px;
             cursor: pointer;
-            transition: background-color 0.3s;
+            font-family: 'Cinzel', serif;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
         }
+
         .logout-box button:hover {
-            background-color: #c0392b;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            background: #6CB4D4;
+        }
+        .join-link {
+            background-color: var(--sky-blue);
+            color: var(--sea-green);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .join-link:hover {
+            background-color: #6CB4D1;
+            transform: translateY(-2px);
+        }
+
+        .form-container {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+        /* Modified the media query for responsive design */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                left: -100%; /* Hide sidebar on mobile by default */
+                transition: 0.3s;
+            }
+
+            .sidebar.open {
+                left: 0;
+            }
+
+            .content {
+                margin-left: 0;
+                padding: 1rem;
+            }
+
+
+            h1 {
+                font-size: 1.8rem;
+                flex-direction: column;
+                text-align: center;
+                gap: 0.5rem;
+            }
+
+            /* Add back menu button for mobile view */
+            .menu-btn {
+                display: block;
+                position: fixed;
+                left: 1rem;
+                top: 1rem;
+                background: var(--sea-green);
+                color: white;
+                border: none;
+                padding: 0.8rem;
+                border-radius: 8px;
+                cursor: pointer;
+                z-index: 1001;
+                transition: all 0.3s ease;
+            }
+
+            .menu-btn:hover {
+                background: #236B43;
+                transform: scale(1.05);
+            }
         }
     </style>
 </head>
+
 <body>
-    <div class="sidebar-container">
-        <button class="menu-btn" onclick="toggleSidebar()">☰ Menu</button>
-        <nav class="sidebar" id="sidebar">
-            <h2 class="secondary-header">Organizer Dashboard</h2>
-            <a href="/organizer/organizer_profile">Profile Page</a>
-            <a href="/organizer/coordinator_management">Manage Coordinators</a>
-            <a href="/organizer/organizer_tournament">Tournament Oversight</a>
-            <a href="/organizer/college_stats">College Performance Stats</a>
-            <a href="/organizer/store_monitoring">Store Monitoring</a>
-            <a href="/organizer/meetings">Schedule Meetings</a>
-            <a href="/organizer/chat">Chat</a>
-        </nav>
-    </div>
+    <!-- Menu button only for mobile view -->
+    <button class="menu-btn" id="menuBtn" style="display: none;">
+        <i class="fas fa-bars"></i>
+    </button>
+    
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h2><i class="fas fa-chess"></i> ChessHive</h2>
+            <!-- <% if (typeof organizerName !== "undefined") { %>
+                <p>Welcome, <%= organizerName %>!</p>
+            <% } %> -->
+        </div>
+    
+        <div class="nav-section">
+            <div class="nav-section-title">Main Menu</div>
+            <a href="/organizer/organizer_profile"><i class="fas fa-user"></i> Profile Page</a>
+            <a href="/organizer/coordinator_management"><i class="fas fa-users-cog"></i> Manage Coordinators</a>
+            <a href="/organizer/organizer_tournament"><i class="fas fa-trophy"></i> Tournament Oversight</a>
+            <a href="/organizer/college_stats"><i class="fas fa-chart-bar"></i> College Performance Stats</a>
+            <a href="/organizer/store_monitoring"><i class="fas fa-store"></i> Store Monitoring</a>
+            <a href="/organizer/meetings"><i class="fas fa-calendar-alt"></i> Schedule Meetings</a>
+            <!-- <a href="/organizer/chat"><i class="fas fa-comments"></i> Chat</a> -->
+        </div>
+
+        <div class="logout-box">
+            <button onclick="handleLogout()">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Log Out</span>
+            </button>
+        </div>
         
-        <!-- Main Content -->
-        <div class="content">
-            <% if (typeof organizerName !== "undefined" && organizerName) { %>
-                <div class="greeting">Welcome, <%= organizerName %>!</div>
+    </div>
+    <div class="content">
+        <h1 class="greeting">
+            Welcome, <%= typeof organizerName !== "undefined" ? adminName : "Organizer" %>!
+        </h1>
+
+        <div class="form-container">
+            <h2>Upcoming Meetings (Next 3 Days)</h2>
+            <% if (typeof meetings !== "undefined" && meetings.length > 0) { %>
+                <ul>
+                    <% meetings.forEach(meeting => { %>
+                        <li>
+                            <strong><%= meeting.title %></strong> - 
+                            <%= meeting.date %> at <%= meeting.time %> 
+                            <a href="<%= meeting.link %>" target="_blank" class="join-link">
+                                <i class="fas fa-video"></i> Join
+                            </a>
+                        </li>
+                    <% }) %>
+                </ul>
             <% } else { %>
-                <div class="greeting">Welcome, Organizer!</div>
+                <p>No upcoming meetings.</p>
             <% } %>
-            <div class="logout-box">
-                <button onclick="redirectToLogin()">Log Out</button>
-            </div>
         </div>
     </div>
-
+    
+    
     <script>
-        function redirectToLogin() {
-            window.location.href = "/login";
+        // Check if the device is mobile
+        function isMobile() {
+            return window.innerWidth <= 768;
         }
+
+        // Show/hide menu button based on screen size
+        function updateMenuButtonVisibility() {
+            const menuBtn = document.getElementById("menuBtn");
+            const sidebar = document.getElementById("sidebar");
+            
+            if (isMobile()) {
+                menuBtn.style.display = "block";
+                // Ensure sidebar is hidden on mobile by default
+                sidebar.style.left = "-100%";
+            } else {
+                menuBtn.style.display = "none";
+                // Ensure sidebar is visible on desktop
+                sidebar.style.left = "0";
+            }
+        }
+
+        // Toggle sidebar function (only used on mobile)
+        function toggleSidebar() {
+            const sidebar = document.getElementById("sidebar");
+            
+            if (sidebar.style.left === "0px") {
+                sidebar.style.left = "-100%";
+            } else {
+                sidebar.style.left = "0px";
+            }
+        }
+    
+        // Logout function
+        function handleLogout() {
+                window.location.href = '/login';
+        }
+    
+        // Add click event listeners to all nav items
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', function(e) {
+                // Add loading state if needed
+                this.style.opacity = '0.7';
+                
+                // Navigate to the href
+                window.location.href = this.getAttribute('href');
+            });
+        });
+
+        // Add event listener for menu button
+        document.getElementById("menuBtn").addEventListener("click", toggleSidebar);
+
+        // Run on page load and resize
+        window.addEventListener("load", updateMenuButtonVisibility);
+        window.addEventListener("resize", updateMenuButtonVisibility);
     </script>
 </body>
+
 </html>

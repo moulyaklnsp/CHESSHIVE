@@ -4,24 +4,164 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Manage Subscription - ChessHive</title>
-    <link rel="stylesheet" href="/css/primary_styles.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --sea-green: #2E8B57;
+            --cream: #FFFDD0;
+            --sky-blue: #87CEEB;
+        }
+
+        body {
+            background-color: var(--cream);
+            font-family: 'Playfair Display', serif;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        h2, h3, h4 {
+            font-family: 'Cinzel', serif;
+            color: var(--sea-green);
+            text-align: center;
+        }
+
+        .table-div {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            margin: 20px 0;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .table-div:hover {
+            transform: translateY(-5px);
+        }
+
+        .form-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .wallet-section {
+            background-color: var(--sea-green);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .wallet-section h3 {
+            color: white;
+            margin-top: 0;
+        }
+
+        button, .back {
+            background-color: var(--sky-blue);
+            color: var(--sea-green);
+            border: none;
+            padding: 12px 24px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-top: 15px;
+            font-family: 'Cinzel', serif;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+
+        button:hover, .back:hover {
+            background-color: #6CB4D4;
+            transform: translateY(-2px);
+        }
+
+        input[type="number"] {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border: 2px solid var(--sea-green);
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        .success-message {
+            background-color: var(--sea-green);
+            color: white;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .error-message {
+            background-color: #ff6b6b;
+            color: white;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .plan-features {
+            list-style: none;
+            padding: 0;
+            margin: 15px 0;
+        }
+
+        .plan-features li {
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(46, 139, 87, 0.2);
+        }
+
+        .plan-features li:last-child {
+            border-bottom: none;
+        }
+
+        .price {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--sea-green);
+            margin: 15px 0;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .form-container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
 </head>
 <body>
     <div class="container">
-        <h2 class="black-h2">Manage Subscription</h2>
-         <!-- Success/Error Messages -->
-         <% if (successMessage) { %>
-            <p style="color: green;"><%= successMessage %></p>
+        <h2>Manage Subscription</h2>
+        
+        <!-- Success/Error Messages -->
+        <% if (successMessage) { %>
+            <div class="success-message"><%= successMessage %></div>
         <% } %>
         <% if (errorMessage) { %>
-            <p style="color: red;"><%= errorMessage %></p>
+            <div class="error-message"><%= errorMessage %></div>
         <% } %>
         
         <!-- Wallet Section -->
-        <div class="table-div">
+        <div class="wallet-section">
+            <span class="wallet-icon">💰</span>
             <h3>Wallet Balance: &#8377;<span id="walletBalance"><%= walletBalance %></span></h3>
             <form action="/player/add-funds" method="POST">
                 <input type="number" name="amount" placeholder="Enter amount" min="1" required>
@@ -34,8 +174,11 @@
         <div class="form-container">
             <div class="table-div">
                 <h3>Basic Plan</h3>
-                <p>Access to tournaments and a discount of 10% on store products.</p>
-                <p>Price: &#8377;15/month</p>
+                <ul class="plan-features">
+                    <li>Access to tournaments</li>
+                    <li>10% discount on store products</li>
+                </ul>
+                <div class="price">&#8377;15/month</div>
                 <form action="/player/subscribe" method="POST">
                     <input type="hidden" name="plan" value="Basic">
                     <input type="hidden" name="price" value="15">
@@ -44,8 +187,11 @@
             </div>
             <div class="table-div">
                 <h3>Premium Plan</h3>
-                <p> Access to tournaments and a discount of 20% on store products.</p>
-                <p>Price: &#8377;30/month</p>
+                <ul class="plan-features">
+                    <li>Access to tournaments</li>
+                    <li>20% discount on store products</li>
+                </ul>
+                <div class="price">&#8377;30/month</div>
                 <form action="/player/subscribe" method="POST">
                     <input type="hidden" name="plan" value="Premium">
                     <input type="hidden" name="price" value="30">

@@ -3,106 +3,399 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Coordinator Dashboard - ChessHive</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/css/primary_styles.css">
+    <title>Tournament Management - ChessHive</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        .tournament-details {
-            display: none;
-            margin-top: 10px;
-            padding: 10px;
-            border: 1px solid #ccc;
-            background-color: #f9f9f9;
+        :root {
+            --sea-green: #2E8B57;
+            --cream: #FFFDD0;
+            --sky-blue: #87CEEB;
         }
-        .tournament-name {
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Playfair Display', serif;
+            background-color: var(--cream);
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h2, h3, h4 {
+            font-family: 'Cinzel', serif;
+            color: var(--sea-green);
+        }
+
+        h2 {
+            font-size: 2.5rem;
+            margin-bottom: 2rem;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        h2::before {
+            content: '♟️';
+            font-size: 2.5rem;
+        }
+
+        h3 {
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+        }
+
+        h4 {
+            font-size: 1.2rem;
+            margin-bottom: 1.5rem;
+            color: #666;
+        }
+
+        .message {
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .success {
+            background-color: rgba(46, 139, 87, 0.1);
+            color: var(--sea-green);
+        }
+
+        .error {
+            background-color: #ffebee;
+            color: #c62828;
+        }
+
+        .table-div {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 1.5rem;
+        }
+
+        th {
+            background-color: var(--sea-green);
+            color: white;
+            padding: 1rem;
+            text-align: left;
+            font-family: 'Cinzel', serif;
+        }
+
+        td {
+            padding: 1rem;
+            border-bottom: 1px solid rgba(46, 139, 87, 0.2);
+        }
+
+        tr:hover {
+            background-color: rgba(135, 206, 235, 0.1);
+        }
+
+        .status-completed { 
+            color: var(--sea-green);
+            font-weight: bold;
+        }
+
+        .status-ongoing { 
+            color: var(--sky-blue);
+            font-weight: bold;
+        }
+
+        .status-yet-to-start { 
+            color: #666;
+            font-weight: bold;
+        }
+
+        .status-pending { 
+            color: #c62828;
+            font-weight: bold;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: var(--sky-blue);
+            color: var(--sea-green);
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-family: 'Cinzel', serif;
+            font-weight: bold;
+            margin: 0.2rem;
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .back-container {
+            text-align: right;
+            margin-top: 2rem;
+        }
+
+        .back {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: var(--sea-green);
+            color: white;
+            text-decoration: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            font-family: 'Cinzel', serif;
+            font-weight: bold;
+        }
+
+        .back:hover {
+            background: #236B43;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .form-container {
+            width: 100%;
+            padding: 2rem 0;
+        }
+
+        form {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--sea-green);
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 0.8rem;
+            border: 2px solid var(--sea-green);
+            border-radius: 8px;
+            font-size: 1rem;
+            background-color: rgba(255, 255, 255, 0.9);
+            transition: all 0.3s ease;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--sky-blue);
+            box-shadow: 0 0 0 3px rgba(135, 206, 235, 0.2);
+        }
+
+        select {
             cursor: pointer;
-            color: #007BFF;
-            text-decoration: underline;
         }
-        .status-completed { color: green; }
-        .status-ongoing { color: orange; }
-        .status-yet-to-start { color: blue; }
-        .status-pending { color: gray; }
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        th, td { padding: 8px; text-align: left; }
+        form {
+            grid-template-columns: 1fr;
+        }
+        .add-tournament-button {
+            grid-column: 1 / -1;
+        }
+        button {
+            background-color: var(--sea-green);
+            color: var(--cream);
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Cinzel', serif;
+            font-weight: bold;
+            width: 100%;
+        }
+
+        button:hover {
+            background-color: #236B43;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 1rem;
+            }
+
+            .table-div {
+                padding: 1rem;
+            }
+
+            td, th {
+                padding: 0.8rem;
+            }
+
+            .btn {
+                display: block;
+                margin: 0.5rem 0;
+                text-align: center;
+            }
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h2 class="black-h2">Coordinator Dashboard - Tournament Management</h2>
+        <h2>Tournament Management</h2>
 
-        <!-- Success/Error Messages -->
         <% if (successMessage) { %>
-            <p style="color: green;"><%= successMessage %></p>
+            <div class="message success">
+                <i class="fas fa-check-circle"></i> <%= successMessage %>
+            </div>
         <% } %>
         <% if (errorMessage) { %>
-            <p style="color: red;"><%= errorMessage %></p>
+            <div class="message error">
+                <i class="fas fa-exclamation-circle"></i> <%= errorMessage %>
+            </div>
         <% } %>
 
+        <!-- Add Tournament Form -->
+        <div class="form-container" id="tournamentFormSection">
+            <h3 id="formTitle">Add New Tournament</h3>
+            <form class="form-container" id="tournamentForm" action="/tournament_management" method="POST">
+                <input type="hidden" id="tournamentId" name="tournamentId">
+                
+                <label for="tournamentName">Tournament Name:</label>
+                <input type="text" id="tournamentName" name="tournamentName" value="<%= typeof tournamentName !== 'undefined' ? tournamentName : '' %>" required>
+
+                <label for="tournamentDate">Date:</label>
+                <input type="date" id="tournamentDate" name="tournamentDate" value="<%= typeof tournamentDate !== 'undefined' ? tournamentDate : '' %>" required>
+
+                <label for="tournamentTime">Time:</label>
+                <input type="time" name="tournamentTime" required>
+
+                <label for="tournamentLocation">Location:</label>
+                <input type="text" id="tournamentLocation" name="tournamentLocation" value="<%= typeof tournamentLocation !== 'undefined' ? tournamentLocation : '' %>" required>
+
+                <label for="entryFee">Entry Fee (₹):</label>
+                <input type="number" id="entryFee" name="entryFee" min="0" step="0.01" value="<%= typeof entryFee !== 'undefined' ? entryFee : '' %>" required>
+
+                <label for="type">Type:</label>
+                <select id="type" name="type" required>
+                    <option value="" disabled selected>Select Type</option>
+                    <option value="Individual" <%= (typeof type !== 'undefined' && type === 'Individual') ? 'selected' : '' %>>Individual</option>
+                    <option value="Team" <%= (typeof type !== 'undefined' && type === 'Team') ? 'selected' : '' %>>Team</option>
+                </select>
+
+                <label for="noOfRounds">No of Rounds:</label>
+                <input type="nadd-tournament-btnumber" id="noOfRounds" name="noOfRounds" value="<%= typeof no_of_rounds !== 'undefined' ? no_of_rounds : '' %>" required>
+                <div class = "add-tournament-btn">
+                <button type="submit" id="submitButton">Add Tournament</button>
+                </div>
+            </form>
+        </div>
+
         <!-- Tournament List -->
-        <div class="table-div" id="tournamentListSection">
+        <div class="table-div">
             <h3>Your Tournaments</h3>
             <h4>Tournaments you've submitted will appear here with their approval status</h4>
-            <div id="Coordinator_tournamentTable">
-                <% if (Array.isArray(tournaments) && tournaments.length > 0) { %>
-                    <table border="1">
-                        <thead>
-                            <tr>
-                                <th>Name</th>
-                                <th>Date</th>
-                                <th>Location</th>
-                                <th>Entry Fee</th>
-                                <th>Status</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <% tournaments.forEach(tournament => { %>
-                                <% 
-                                    const today = new Date('2025-03-27');
-                                    const tournamentDate = new Date(tournament.date);
-                                    let status = tournament.status || 'Pending';
-                                    let statusClass = 'status-pending';
-                                    if (status === 'Approved') {
-                                        if (tournamentDate < today) {
-                                            status = 'Completed';
-                                            statusClass = 'status-completed';
-                                        } else if (tournamentDate.toDateString() === today.toDateString()) {
-                                            status = 'Ongoing';
-                                            statusClass = 'status-ongoing';
-                                        } else {
-                                            status = 'Yet to Start';
-                                            statusClass = 'status-yet-to-start';
-                                        }
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th><i class="fas fa-trophy"></i> Name</th>
+                        <th><i class="fas fa-calendar"></i> Date</th>
+                        <th>Time</th>
+                        <th><i class="fas fa-map-marker-alt"></i> Location</th>
+                        <th><i class="fas fa-rupee-sign"></i> Entry Fee</th>
+                        <th>Type</th>
+                        <th>No Of Rounds</th>
+                        <th><i class="fas fa-info-circle"></i> Status</th>
+                        <th><i class="fas fa-cogs"></i> Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% if (Array.isArray(tournaments) && tournaments.length > 0) { %>
+                        <% tournaments.forEach(tournament => { %>
+                            <% 
+                                const today = new Date('2025-03-27');
+                                const tournamentDate = new Date(tournament.date);
+                                let status = tournament.status || 'Pending';
+                                let statusClass = 'status-pending';
+                                if (status === 'Approved') {
+                                    if (tournamentDate < today) {
+                                        status = 'Completed';
+                                        statusClass = 'status-completed';
+                                    } else if (tournamentDate.toDateString() === today.toDateString()) {
+                                        status = 'Ongoing';
+                                        statusClass = 'status-ongoing';
+                                    } else {
+                                        status = 'Yet to Start';
+                                        statusClass = 'status-yet-to-start';
                                     }
-                                %>
-                                <tr>
-                                    <td><%= tournament.name %></td>
-                                    <td><%= tournament.date %></td>
-                                    <td><%= tournament.location %></td>
-                                    <td>₹<%= tournament.entry_fee %></td>
-                                    <td class="<%= statusClass %>"><%= status %></td>
-                                    <td>
-                                        <% if (tournament.status === 'Approved') { %>
-                                            <a href="/tournament/<%= tournament.id %>/players" class="btn">View Enrolled Players</a>
-                                            <a href="/tournament/<%= tournament.id %>/pairings" class="btn">View Pairings & Results</a>
-                                            <a href="/tournament/<%= tournament.id %>/rankings" class="btn">View Final Rankings</a>
-                                        <% } %>
-                                    </td>
-                                </tr>
-                            <% }); %>
-                        </tbody>
-                    </table>
-                <% } else { %>
-                    <p>No tournaments available.</p>
-                <% } %>
-            </div>
+                                }
+                            %>
+                            <tr>
+                                <td><%= tournament.name %></td>
+                                <td><%= tournament.date %></td>
+                                <td><%= tournament.time %></td>
+                                <td><%= tournament.location %></td>
+                                <td>₹<%= tournament.entry_fee %></td>
+                                <td><%= tournament.type %></td>
+                                <td><%= tournament.no_of_rounds %></td>
+                                <td class="<%= statusClass %>">
+                                    <i class="fas fa-circle"></i> <%= status %>
+                                </td>
+                                <td>
+                                    <% if (tournament.status === 'Approved') { %>
+                                        <a href="/coordinator/enrolled_players?tournament_id=<%= tournament.id %>" class="btn">
+                                            <i class="fas fa-users"></i> Players
+                                        </a>
+                                    <%  if(tournament.type === 'Individual') { %>
+                                        <a href="/coordinator/pairings?tournament_id=<%= tournament.id %>&rounds=5" class="btn">
+                                            <i class="fas fa-chess-board"></i> Pairings
+                                        </a>
+                                        <a href="/coordinator/rankings?tournament_id=<%= tournament.id %>" class="btn">
+                                            <i class="fas fa-medal"></i> Rankings
+                                        </a>
+                                    <% } %>
+                                    <% } %>
+                                </td>
+                            </tr>
+                        <% }); %>
+                    <% } else { %>
+                        <tr>
+                            <td colspan="6" style="text-align: center;">
+                                <i class="fas fa-info-circle"></i> No tournaments available.
+                            </td>
+                        </tr>
+                    <% } %>
+                </tbody>
+            </table>
+
             <div class="back-container">
-                <a href="/coordinator/coordinator_dashboard" class="back">Back to Dashboard</a>
+                <a href="/coordinator/coordinator_dashboard" class="back">
+                    <i class="fas fa-arrow-left"></i> Back to Dashboard
+                </a>
             </div>
         </div>
     </div>
+    <script src="/js/organizer_management.js"> </script>
 </body>
 </html>

@@ -3,49 +3,264 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Store Management</title>
-    <link rel="stylesheet" href="/css/primary_styles.css">
+    <title>Store Management - ChessHive</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --sea-green: #2E8B57;
+            --cream: #FFFDD0;
+            --sky-blue: #87CEEB;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Playfair Display', serif;
+            background-color: var(--cream);
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h2 {
+            font-family: 'Cinzel', serif;
+            font-size: 2.5rem;
+            color: var(--sea-green);
+            margin-bottom: 2rem;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        h2::before {
+            content: '🛍️';
+            font-size: 2.5rem;
+        }
+
+        .form-container {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+
+        form {
+            display: grid;
+            gap: 1.5rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        label {
+            font-family: 'Cinzel', serif;
+            color: var(--sea-green);
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+
+        input {
+            width: 100%;
+            padding: 0.8rem;
+            border: 2px solid var(--sea-green);
+            border-radius: 8px;
+            font-family: 'Playfair Display', serif;
+            transition: all 0.3s ease;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--sky-blue);
+            box-shadow: 0 0 0 3px rgba(135, 206, 235, 0.3);
+        }
+
+        button {
+            background: var(--sea-green);
+            color: white;
+            border: none;
+            padding: 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: 'Cinzel', serif;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        button:hover {
+            background: #236B43;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .product-card {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+
+        .product-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .product-image {
+            width: 100%;
+            height: 200px;
+            overflow: hidden;
+        }
+
+        .product-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .product-card:hover .product-image img {
+            transform: scale(1.1);
+        }
+
+        .product-info {
+            padding: 1.5rem;
+        }
+
+        h4 {
+            font-family: 'Cinzel', serif;
+            color: var(--sea-green);
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+        }
+
+        .price {
+            color: var(--sea-green);
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .available {
+            color: #666;
+        }
+
+        .back-container {
+            text-align: right;
+            margin-top: 2rem;
+        }
+
+        .back {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: var(--sea-green);
+            color: white;
+            text-decoration: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            font-family: 'Cinzel', serif;
+            font-weight: bold;
+        }
+
+        .back:hover {
+            background: #236B43;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 1rem;
+            }
+
+            .form-container {
+                padding: 1.5rem;
+            }
+
+            .product-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
 </head>
 <body>
-<div class="container">
-    <div class="form-container">
+    <div class="container">
         <h2>Store Management</h2>
-        <form action="/coordinator/add-product" method="POST">
-            <label>Product Name:</label>
-            <input type="text" name="productName" required>
-            <label>Price:</label>
-            <input type="number" name="productPrice" required>
-            <label>Image URL:</label>
-            <input type="text" name="productImage" required>
-            <label>Availability:</label>
-            <input type="number" name="availability" required>
-            <button type="submit">Add Product</button>
-   
-        </form>
-    </div>
+        
+        <div class="form-container">
+            <form action="/coordinator/add-product" method="POST">
+                <div>
+                    <label><i class="fas fa-tag"></i> Product Name:</label>
+                    <input type="text" name="productName" required>
+                </div>
+                <div>
+                    <label><i class="fas fa-rupee-sign"></i> Price:</label>
+                    <input type="number" name="productPrice" required>
+                </div>
+                <div>
+                    <label><i class="fas fa-image"></i> Image URL:</label>
+                    <input type="text" name="productImage" required>
+                </div>
+                <div>
+                    <label><i class="fas fa-boxes"></i> Availability:</label>
+                    <input type="number" name="availability" required>
+                </div>
+                <button type="submit">
+                    <i class="fas fa-plus-circle"></i> Add Product
+                </button>
+            </form>
+        </div>
 
-    <div>
-        <h2 class="black-h2">Products List</h2>
-        <div class="product-card">
+        <h2>Products List</h2>
+        <div class="product-grid">
             <% if (typeof products !== "undefined" && products.length > 0) { %>
                 <% products.forEach(product => { %>
-                    <div class="product-image">
-                        <img src="<%= product.image_url %>" alt="<%= product.name %>">
-                    </div>
-                    <div class="product-item product-info">
-                        <h4><%= product.name %></h4>
-                        <p class="price">Price: &#8377;<%= product.price %></p>
-                        <p class="available">Available Products:<%= product.availability %></p>
+                    <div class="product-card">
+                        <div class="product-image">
+                            <img src="<%= product.image_url %>" alt="<%= product.name %>">
+                        </div>
+                        <div class="product-info">
+                            <h4><%= product.name %></h4>
+                            <p class="price"><i class="fas fa-rupee-sign"></i> <%= product.price %></p>
+                            <p class="available">
+                                <i class="fas fa-box"></i> Available: <%= product.availability %>
+                            </p>
+                        </div>
                     </div>
                 <% }); %>
             <% } else { %>
-                <p>No products available.</p>
+                <div class="form-container" style="text-align: center;">
+                    <i class="fas fa-box-open"></i> No products available.
+                </div>
             <% } %>
         </div>
-        <div class="form-container back-container">
-            <a href="/coordinator/coordinator_dashboard" class="back">Back to Dashboard</a>
+
+        <div class="back-container">
+            <a href="/coordinator/coordinator_dashboard" class="back">
+                <i class="fas fa-arrow-left"></i> Back to Dashboard
+            </a>
         </div>
     </div>
-</div>
 </body>
 </html>

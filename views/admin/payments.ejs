@@ -3,41 +3,233 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Payments & Subscriptions</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&display=swap" rel="stylesheet">
+    <title>Payments & Subscriptions - ChessHive</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --sea-green: #2E8B57;
+            --cream: #FFFDD0;
+            --sky-blue: #87CEEB;
+        }
 
-    <link rel="stylesheet" href="/css/primary_styles.css">
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Playfair Display', serif;
+            background-color: var(--cream);
+            color: var(--sea-green);
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h2 {
+            font-family: 'Cinzel', serif;
+            font-size: 2.5rem;
+            color: var(--sea-green);
+            margin-bottom: 2rem;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        h2::before {
+            content: '💰';
+            font-size: 2.5rem;
+        }
+
+        .table-div {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            overflow-x: auto;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            gap: 1rem;
+        }
+
+        .search-box {
+            flex: 1;
+            max-width: 300px;
+            position: relative;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 0.8rem 1rem 0.8rem 2.5rem;
+            border: 2px solid var(--sea-green);
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--sea-green);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 2rem;
+        }
+
+        th {
+            background-color: var(--sea-green);
+            color: var(--cream);
+            padding: 1.2rem;
+            text-align: left;
+            font-family: 'Cinzel', serif;
+        }
+
+        td {
+            padding: 1rem;
+            border-bottom: 1px solid rgba(46, 139, 87, 0.2);
+        }
+
+        tr:hover {
+            background-color: rgba(135, 206, 235, 0.1);
+        }
+
+        .subscription-badge {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            background-color: var(--sky-blue);
+            color: var(--sea-green);
+            display: inline-block;
+        }
+
+        .back-container {
+            margin-top: 2rem;
+            text-align: right;
+        }
+
+        .back {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background-color: var(--sea-green);
+            color: var(--cream);
+            text-decoration: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            font-family: 'Cinzel', serif;
+            font-weight: bold;
+        }
+
+        .back:hover {
+            background-color: #236B43;
+            transform: translateY(-2px);
+        }
+
+        @media (max-width: 768px) {
+            .controls {
+                flex-direction: column;
+            }
+
+            .search-box {
+                max-width: 100%;
+            }
+        }
+    </style>
 </head>
 <body>
     <div class="container">
-        <h2 class="black-h2">Payments & Subscriptions</h2>
+        <h2>Payments & Subscriptions</h2>
+
         <div class="table-div">
+            <div class="controls">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="Search players..." id="searchInput">
+                </div>
+            </div>
+
             <table>
-                <tr>
-                    <th>Player Name</th>
-                    <th>Subscription Level</th>
-                    <th>Date of Subscription</th>
-                </tr>
-                <% if (typeof players !== "undefined" && players.length > 0) { %>
-                <% players.forEach(player => { %>
+                <thead>
                     <tr>
-                        <td><%= player.name %></td>
-                        <td>Level <%= player.plan %></td>
-                        <td><%= player.start_date %></td>
+                        <th><i class="fas fa-user"></i> Player Name</th>
+                        <th><i class="fas fa-crown"></i> Subscription Level</th>
+                        <th><i class="fas fa-calendar"></i> Date of Subscription</th>
                     </tr>
-                <% }); %>
-                <% } else { %>
-                    <tr>
-                        <td colspan="6">No players available.</td>
-                    </tr>
-                <% } %>
+                </thead>
+                <tbody>
+                    <% if (typeof players !== "undefined" && players.length > 0) { %>
+                        <% players.forEach(player => { %>
+                            <tr>
+                                <td><%= player.name %></td>
+                                <td>
+                                    <span class="subscription-badge">
+                                        Level <%= player.plan %>
+                                    </span>
+                                </td>
+                                <td><%= player.start_date %></td>
+                            </tr>
+                        <% }); %>
+                    <% } else { %>
+                        <tr>
+                            <td colspan="3" style="text-align: center; padding: 2rem;">
+                                <i class="fas fa-info-circle"></i> No players available.
+                            </td>
+                        </tr>
+                    <% } %>
+                </tbody>
             </table>
+
             <div class="back-container">
-                <a href="/admin/admin_dashboard" class="back">Back to Dashboard</a>
+                <a href="/admin/admin_dashboard" class="back">
+                    <i class="fas fa-arrow-left"></i> Back to Dashboard
+                </a>
             </div>
         </div>
     </div>
+
+    <script>
+        // Search functionality
+        document.getElementById('searchInput').addEventListener('keyup', function() {
+            let filter = this.value.toLowerCase();
+            let rows = document.getElementsByTagName('tr');
+
+            for (let i = 1; i < rows.length; i++) {
+                let visible = false;
+                let cells = rows[i].getElementsByTagName('td');
+                
+                for (let j = 0; j < cells.length; j++) {
+                    let cell = cells[j];
+                    if (cell) {
+                        let text = cell.textContent || cell.innerText;
+                        if (text.toLowerCase().indexOf(filter) > -1) {
+                            visible = true;
+                            break;
+                        }
+                    }
+                }
+                rows[i].style.display = visible ? '' : 'none';
+            }
+        });
+    </script>
 </body>
 </html>

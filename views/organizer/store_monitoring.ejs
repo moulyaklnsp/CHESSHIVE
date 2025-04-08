@@ -3,68 +3,305 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Organizer Dashboard</title>
-    <link rel="stylesheet" href="/css/primary_styles.css">
+    <title>Store Monitoring - ChessHive</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --sea-green: #2E8B57;
+            --cream: #FFFDD0;
+            --sky-blue: #87CEEB;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Playfair Display', serif;
+            background-color: var(--cream);
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto 2rem auto;
+        }
+
+        h2 {
+            font-family: 'Cinzel', serif;
+            font-size: 2.5rem;
+            color: var(--sea-green);
+            margin-bottom: 2rem;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        .products h2::before {
+            content: '🛍️';
+            font-size: 2.5rem;
+        }
+
+        .sales h2::before {
+            content: '📊';
+            font-size: 2.5rem;
+        }
+
+        .table-div {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 1rem;
+        }
+
+        th {
+            background-color: var(--sea-green);
+            color: var(--cream);
+            padding: 1.2rem;
+            text-align: left;
+            font-family: 'Cinzel', serif;
+        }
+
+        td {
+            padding: 1rem;
+            border-bottom: 1px solid rgba(46, 139, 87, 0.2);
+            vertical-align: middle;
+        }
+
+        tr:hover {
+            background-color: rgba(135, 206, 235, 0.1);
+        }
+
+        .product-image {
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 8px;
+            transition: transform 0.3s ease;
+        }
+
+        .product-image:hover {
+            transform: scale(1.2);
+        }
+
+        .price {
+            font-weight: bold;
+            color: var(--sea-green);
+        }
+
+        .empty-message {
+            text-align: center;
+            padding: 2rem;
+            color: var(--sea-green);
+            font-style: italic;
+            grid-column: 1 / -1;
+        }
+
+        .back-container {
+            text-align: right;
+            margin-top: 2rem;
+        }
+
+        .back {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background-color: var(--sea-green);
+            color: var(--cream);
+            text-decoration: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            font-family: 'Cinzel', serif;
+            font-weight: bold;
+        }
+
+        .back:hover {
+            background-color: #236B43;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .stats-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: var(--sea-green);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 1rem;
+            }
+
+            .table-div {
+                padding: 1rem;
+            }
+
+            td, th {
+                padding: 0.8rem;
+            }
+
+            .product-image {
+                width: 40px;
+                height: 40px;
+            }
+
+            .stats-summary {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
 </head>
 <body>
-    <div class="container">
-        <h2 class="black-h2">All Products Added</h2>
+    <div class="container products">
+        <h2>Products Overview</h2>
+        
+        <div class="stats-summary">
+            <div class="stat-card">
+                <div class="stat-value">
+                    <i class="fas fa-box"></i>
+                    <%= typeof products !== "undefined" ? products.length : 0 %>
+                </div>
+                <div class="stat-label">Total Products</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">₹<%= 
+                    typeof products !== "undefined" ? 
+                    products.reduce((sum, product) => sum + parseFloat(product.price), 0).toFixed(2) : 
+                    "0.00" 
+                %></div>
+                <div class="stat-label">Total Inventory Value</div>
+            </div>
+        </div>
+
         <div class="table-div">
             <table>
-                <tr>
-                    <th>Product</th>
-                    <th>Price</th>
-                    <th>Coordinator</th>
-                    <th>College</th>
-                    <th>Image</th>
-                </tr>
-                <% if (typeof products !== "undefined" && products.length > 0) { %>
-                    <% products.forEach(product => { %>
+                <thead>
+                    <tr>
+                        <th><i class="fas fa-image"></i> Image</th>
+                        <th><i class="fas fa-tag"></i> Product</th>
+                        <th><i class="fas fa-rupee-sign"></i> Price</th>
+                        <th><i class="fas fa-user"></i> Coordinator</th>
+                        <th><i class="fas fa-university"></i> College</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% if (typeof products !== "undefined" && products.length > 0) { %>
+                        <% products.forEach(product => { %>
+                            <tr>
+                                <td><img src="<%= product.image_url %>" alt="<%= product.name %>" class="product-image"></td>
+                                <td><%= product.name %></td>
+                                <td class="price">₹<%= product.price %></td>
+                                <td><%= product.coordinator || "N/A" %></td>
+                                <td><%= product.college || "N/A" %></td>
+                            </tr>
+                        <% }); %>
+                    <% } else { %>
                         <tr>
-                            <td><%= product.name %></td>
-                            <td>₹<%= product.price %></td>
-                            <td><%= product.coordinator || "undefined" %></td>
-                            <td><%= product.college || "undefined" %></td>
-                            <td><img src="<%= product.image_url %>" alt="<%= product.name %>" width="50"></td>
+                            <td colspan="5" class="empty-message">
+                                <i class="fas fa-box-open"></i> No products available.
+                            </td>
                         </tr>
-                    <% }); %>
-                <% } else { %>
-                    <p>No products available.</p>
-                <% } %>
+                    <% } %>
+                </tbody>
             </table>
         </div>
     </div>
 
-    <div class="container">
-        <h2 class="black-h2">Sales Report</h2>
+    <div class="container sales">
+        <h2>Sales Report</h2>
+        
+        <div class="stats-summary">
+            <div class="stat-card">
+                <div class="stat-value">
+                    <i class="fas fa-shopping-cart"></i>
+                    <%= typeof sales !== "undefined" ? sales.length : 0 %>
+                </div>
+                <div class="stat-label">Total Sales</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">₹<%= 
+                    typeof sales !== "undefined" ? 
+                    sales.reduce((sum, sale) => sum + parseFloat(sale.price), 0).toFixed(2) : 
+                    "0.00" 
+                %></div>
+                <div class="stat-label">Total Revenue</div>
+            </div>
+        </div>
+
         <div class="table-div">
             <table>
-                <tr>
-                    <th>Product</th>
-                    <th>Price</th>
-                    <th>Coordinator</th>
-                    <th>Buyer</th>
-                    <th>College</th>
-                    <th>Date</th>
-                </tr>
-                <% if (typeof sales !== "undefined" && sales.length > 0) { %>
-                    <% sales.forEach(sale => { %>
+                <thead>
+                    <tr>
+                        <th><i class="fas fa-tag"></i> Product</th>
+                        <th><i class="fas fa-rupee-sign"></i> Price</th>
+                        <th><i class="fas fa-user"></i> Coordinator</th>
+                        <th><i class="fas fa-user-check"></i> Buyer</th>
+                        <th><i class="fas fa-university"></i> College</th>
+                        <th><i class="fas fa-calendar"></i> Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% if (typeof sales !== "undefined" && sales.length > 0) { %>
+                        <% sales.forEach(sale => { %>
+                            <tr>
+                                <td><%= sale.product %></td>
+                                <td class="price">₹<%= sale.price %></td>
+                                <td><%= sale.coordinator || "N/A" %></td>
+                                <td><%= sale.buyer || "N/A" %></td>
+                                <td><%= sale.college || "N/A" %></td>
+                                <td><%= sale.purchase_date %></td>
+                            </tr>
+                        <% }); %>
+                    <% } else { %>
                         <tr>
-                            <td><%= sale.product%></td>
-                            <td>₹<%= sale.price %></td>
-                            <td><%= sale.coordinator || "undefined" %></td>
-                            <td><%= sale.buyer || "undefined" %></td>
-                            <td><%= sale.college || "undefined" %></td>
-                            <td><%= sale.purchase_date %></td>
+                            <td colspan="6" class="empty-message">
+                                <i class="fas fa-shopping-cart"></i> No sales recorded.
+                            </td>
                         </tr>
-                    <% }); %>
-                <% } else { %>
-                    <p>No products available.</p>
-                <% } %>
+                    <% } %>
+                </tbody>
             </table>
         </div>
+
         <div class="back-container">
-            <a href="/organizer_dashboard" class="back">Back to Dashboard</a>
+            <a href="/organizer/organizer_dashboard" class="back">
+                <i class="fas fa-arrow-left"></i> Back to Dashboard
+            </a>
         </div>
     </div>
 </body>

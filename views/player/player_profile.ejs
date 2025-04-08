@@ -3,81 +3,319 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Player Profile</title>
-    <link rel="stylesheet" href="/css/primary_styles.css">
-    <script src="/js/wallet.js"></script>
+    <title>Player Profile - ChessHive</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --sea-green: #2E8B57;
+            --cream: #FFFDD0;
+            --sky-blue: #87CEEB;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Playfair Display', serif;
+            background-color: var(--cream);
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .container-player-profile {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1, h2 {
+            font-family: 'Cinzel', serif;
+            color: var(--sea-green);
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        h1::before {
+            content: '👤';
+            font-size: 2.5rem;
+        }
+
+        .message {
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        .success {
+            background-color: rgba(46, 139, 87, 0.1);
+            color: var(--sea-green);
+        }
+
+        .error {
+            background-color: #ffebee;
+            color: #c62828;
+        }
+
+        .form-container {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+
+        .profile-info {
+            display: grid;
+            gap: 1.5rem;
+        }
+
+        .info-section {
+            background: var(--cream);
+            padding: 1.5rem;
+            border-radius: 8px;
+        }
+
+        .info-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            border-bottom: 1px solid rgba(46, 139, 87, 0.2);
+        }
+
+        .info-item:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            font-family: 'Cinzel', serif;
+            color: var(--sea-green);
+            font-weight: bold;
+            min-width: 150px;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .wallet {
+            background: var(--sea-green);
+            color: white;
+            padding: 2rem;
+            border-radius: 8px;
+            text-align: center;
+            margin: 2rem 0;
+        }
+
+        .wallet h2 {
+            color: white;
+            margin-bottom: 1rem;
+        }
+
+        .wallet-balance {
+            font-size: 2rem;
+            font-weight: bold;
+        }
+
+        .purchases {
+            margin-top: 2rem;
+        }
+
+        .purchases ul {
+            list-style: none;
+        }
+
+        .purchases li {
+            padding: 1rem;
+            border-bottom: 1px solid rgba(46, 139, 87, 0.2);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .back {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: var(--sea-green);
+            color: white;
+            text-decoration: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            font-family: 'Cinzel', serif;
+            font-weight: bold;
+        }
+
+        .delete-btn {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: 'Cinzel', serif;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .back:hover, .delete-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 1rem;
+            }
+
+            .form-container {
+                padding: 1.5rem;
+            }
+
+            .info-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.5rem;
+            }
+
+            .info-label {
+                min-width: auto;
+            }
+
+            .actions {
+                flex-direction: column;
+            }
+
+            .back, .delete-btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
 </head>
 <body>
-    <header class="header-player-profile">
-        <h1>Player Profile</h1>
-    </header>
     <div class="container-player-profile">
-        <!-- Display Success/Error Messages -->
+        <h1>Player Profile</h1>
+
         <% if (successMessage) { %>
-            <p class="success"><%= successMessage %></p>
+            <div class="message success">
+                <i class="fas fa-check-circle"></i> <%= successMessage %>
+            </div>
         <% } %>
         <% if (errorMessage) { %>
-            <p class="error"><%= errorMessage %></p>
+            <div class="message error">
+                <i class="fas fa-exclamation-circle"></i> <%= errorMessage %>
+            </div>
         <% } %>
 
-        <h2 class="black-h2">Personal Details</h2>
         <div class="form-container">
             <section class="profile-info">
                 <% if (typeof player !== "undefined") { %>
-                    <p><strong>Name:</strong> <span id="player-name"><%= player.name %></span></p>
-                    <p><strong>Email:</strong> <span id="player-email"><%= player.email %></span></p>
-                    <p><strong>Phone:</strong> <span id="player-phone"><%= player.phone %></span></p>
-                    <p><strong>FIDE ID:</strong> <span id="fide-id"><%= player.FIDE_ID || 'N/A' %></span></p>
-                    <p><strong>AICF ID:</strong> <span id="aicf-id"><%= player.AICF_ID || 'N/A' %></span></p>
-                    <p><strong>Subscription Plan:</strong> <%= player.subscription.plan %></p>
-                    <p><strong>Price:</strong> <%= player.subscription.price %></p>
-                    <p><strong>Start Date:</strong> <%= player.subscription.start_date %></p>
-                    <p><strong>Status:</strong> <%= player.isDeleted ? 'Deleted' : 'Active' %></p>
-                <% } else { %>
-                    <p>No players available.</p>
-                <% } %>
-            </section>
-            <section>
-                <% if (typeof player !== "undefined") { %>
-                    <h2>Player Stats</h2>
-                    <p><strong>Games Played:</strong> <span id="games-played"><%= player.gamesPlayed %></span></p>
-                    <p><strong>Wins:</strong> <span id="wins"><%= player.wins %></span></p>
-                    <p><strong>Losses:</strong> <span id="losses"><%= player.losses %></span></p>
-                    <p><strong>Draws:</strong> <span id="draws"><%= player.draws %></span></p>
-                    <p><strong>Win Rate:</strong> <span id="winrate"><%= player.winRate %>%</span></p>
-                    <p><strong>Rating:</strong> <span id="rating"><%= player.rating %></span></p>
-                <% } else { %>
-                    <p>No stats available.</p>
-                <% } %>
-            </section>
-            <section class="wallet">
-                <% if (typeof player !== "undefined") { %>
-                    <h2>Wallet</h2>
-                    <p><strong>Balance:</strong> &#8377;<span id="wallet-balance"><%= player.walletBalance %></span></p>
-                <% } else { %>
-                    <p>No wallet balance available.</p>
-                <% } %>
-            </section>
-            <section class="purchases">
-                <h2>Items Purchased</h2>
-                <% if (typeof player !== "undefined" && player.sales && player.sales.length > 0) { %>
-                    <ul id="items-list">
-                        <% player.sales.forEach(item => { %>
-                            <li><%= item %></li>
-                        <% }); %>
-                    </ul>
-                <% } else { %>
-                    <p>No items purchased yet.</p>
+                    <div class="info-section">
+                        <div class="info-item">
+                            <span class="info-label"><i class="fas fa-user"></i> Name:</span>
+                            <span><%= player.name %></span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label"><i class="fas fa-envelope"></i> Email:</span>
+                            <span><%= player.email %></span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label"><i class="fas fa-phone"></i> Phone:</span>
+                            <span><%= player.phone %></span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label"><i class="fas fa-id-card"></i> FIDE ID:</span>
+                            <span><%= player.FIDE_ID || 'N/A' %></span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label"><i class="fas fa-id-badge"></i> AICF ID:</span>
+                            <span><%= player.AICF_ID || 'N/A' %></span>
+                        </div>
+                    </div>
+
+                    <div class="info-section">
+                        <h2><i class="fas fa-chess"></i> Player Stats</h2>
+                        <div class="info-item">
+                            <span class="info-label"><i class="fas fa-gamepad"></i> Games Played:</span>
+                            <span><%= player.gamesPlayed %></span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label"><i class="fas fa-trophy"></i> Wins:</span>
+                            <span><%= player.wins %></span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label"><i class="fas fa-times"></i> Losses:</span>
+                            <span><%= player.losses %></span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label"><i class="fas fa-handshake"></i> Draws:</span>
+                            <span><%= player.draws %></span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label"><i class="fas fa-percentage"></i> Win Rate:</span>
+                            <span><%= player.winRate %>%</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label"><i class="fas fa-star"></i> Rating:</span>
+                            <span><%= player.rating %></span>
+                        </div>
+                    </div>
+
+                    <div class="wallet">
+                        <h2><i class="fas fa-wallet"></i> Wallet</h2>
+                        <div class="wallet-balance">
+                            ₹<%= player.walletBalance %>
+                        </div>
+                    </div>
+
+                    <div class="purchases">
+                        <h2><i class="fas fa-shopping-bag"></i> Items Purchased</h2>
+                        <% if (player.sales && player.sales.length > 0) { %>
+                            <ul>
+                                <% player.sales.forEach(item => { %>
+                                    <li><i class="fas fa-chess-pawn"></i> <%= item %></li>
+                                <% }); %>
+                            </ul>
+                        <% } else { %>
+                            <p>No items purchased yet.</p>
+                        <% } %>
+                    </div>
                 <% } %>
             </section>
         </div>
 
-        <!-- Actions Section with Delete Account Button -->
         <div class="form-container actions">
-            <a href="/player/player_dashboard" class="back">Back to Dashboard</a>
+            <a href="/player/player_dashboard" class="back">
+                <i class="fas fa-arrow-left"></i> Back to Dashboard
+            </a>
             <% if (typeof player !== "undefined" && !player.isDeleted) { %>
                 <form action="/player/delete" method="POST" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete your account? This action can be undone.');">
-                    <button type="submit" class="delete-btn">Delete Account</button>
+                    <button type="submit" class="delete-btn">
+                        <i class="fas fa-user-times"></i> Delete Account
+                    </button>
                 </form>
             <% } %>
         </div>

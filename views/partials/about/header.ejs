@@ -14,7 +14,7 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="/about" class="nav-link">
+                    <a href="/about" class="nav-link join-btn active">
                         <i class="fas fa-info-circle"></i>
                         <span>About</span>
                     </a>
@@ -133,6 +133,14 @@
     .join-btn:hover {
         background-color: var(--cream);
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Active state for About page */
+    .join-btn.active {
+        background-color: var(--cream);
+        color: var(--sea-green);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        transform: translateY(-2px);
     }
 
     .mobile-menu-btn {

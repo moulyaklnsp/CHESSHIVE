@@ -3,102 +3,270 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Organizer Dashboard - Tournament Monitoring</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/css/primary_styles.css">
+    <title>Tournament Management - ChessHive</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
+        :root {
+            --sea-green: #2E8B57;
+            --cream: #FFFDD0;
+            --sky-blue: #87CEEB;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Playfair Display', serif;
+            background-color: var(--cream);
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h2, h3 {
+            font-family: 'Cinzel', serif;
+            color: var(--sea-green);
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        h2 {
+            font-size: 2.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        h2::before {
+            content: '🏆';
+            font-size: 2.5rem;
+        }
+
+        .message {
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        .success { 
+            background-color: rgba(46, 139, 87, 0.1);
+            color: var(--sea-green);
+        }
+
+        .error {
+            background-color: #ffebee;
+            color: #c62828;
+        }
+
+        .table-div {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 1rem;
+        }
+
+        th {
+            background-color: var(--sea-green);
+            color: var(--cream);
+            padding: 1rem;
+            text-align: left;
+            font-family: 'Cinzel', serif;
+        }
+
+        td {
+            padding: 1rem;
+            border-bottom: 1px solid rgba(46, 139, 87, 0.2);
+        }
+
+        tr:hover {
+            background-color: rgba(135, 206, 235, 0.1);
+        }
+
         .approved-by {
             font-style: italic;
-            color: #555;
+            color: var(--sea-green);
+            font-size: 0.9rem;
         }
+
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+        }
+
         .approve-btn, .reject-btn {
-            padding: 5px 10px;
-            margin: 0 5px;
+            padding: 0.6rem 1rem;
             border: none;
-            border-radius: 3px;
+            border-radius: 8px;
             cursor: pointer;
+            font-family: 'Cinzel', serif;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
         }
+
         .approve-btn {
-            background-color: #28a745;
-            color: white;
+            background-color: var(--sea-green);
+            color: var(--cream);
         }
+
         .reject-btn {
             background-color: #dc3545;
             color: white;
+        }
+
+        .approve-btn:hover, .reject-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .back-container {
+            text-align: right;
+        }
+
+        .back {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background-color: var(--sea-green);
+            color: var(--cream);
+            text-decoration: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            font-family: 'Cinzel', serif;
+            font-weight: bold;
+        }
+
+        .back:hover {
+            background-color: #236B43;
+            transform: translateY(-2px);
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 1rem;
+            }
+
+            .table-div {
+                padding: 1rem;
+            }
+
+            td, th {
+                padding: 0.8rem;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h2 class="black-h2">Tournament Management</h2>
+        <h2>Tournament Management</h2>
 
-        <!-- Success/Error Messages -->
         <% if (successMessage) { %>
-            <p style="color: green;"><%= successMessage %></p>
+            <div class="message success">
+                <i class="fas fa-check-circle"></i> <%= successMessage %>
+            </div>
         <% } %>
         <% if (errorMessage) { %>
-            <p style="color: red;"><%= errorMessage %></p>
+            <div class="message error">
+                <i class="fas fa-exclamation-circle"></i> <%= errorMessage %>
+            </div>
         <% } %>
 
-        <!-- Tournament List -->
-        <div class="table-div" id="tournamentListSection">
+        <div class="table-div">
             <h3>Tournament Approval & Management</h3>
-            <h4>Review pending tournaments and manage existing ones</h4>
-            <div id="Organiser_tournamentTable">
-                <% if (Array.isArray(tournaments) && tournaments.length > 0) { %>
-                    <table border="1">
-                        <thead>
+            <table>
+                <thead>
+                    <tr>
+                        <th><i class="fas fa-trophy"></i> Name</th>
+                        <th><i class="fas fa-calendar"></i> Date</th>
+                        <th><i class="fas fa-map-marker-alt"></i> Location</th>
+                        <th><i class="fas fa-coins"></i> Entry Fee</th>
+                        <th><i class="fas fa-user"></i> Added By</th>
+                        <th><i class="fas fa-info-circle"></i> Status</th>
+                        <th><i class="fas fa-cogs"></i> Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% if (Array.isArray(tournaments) && tournaments.length > 0) { %>
+                        <% tournaments.forEach(tournament => { %>
                             <tr>
-                                <th>Name</th>
-                                <th>Date</th>
-                                <th>Location</th>
-                                <th>Entry Fee</th>
-                                <th>Added By</th>
-                                <th>Status</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <% tournaments.forEach(tournament => { %>
-                                <tr>
-                                    <td><%= tournament.name %></td>
-                                    <td><%= tournament.date %></td>
-                                    <td><%= tournament.location %></td>
-                                    <td>₹<%= tournament.entry_fee %></td>
-                                    <td><%= tournament.added_by %></td>
-                                    <td>
-                                        <% if (tournament.status === 'Approved') { %>
-                                            Approved <span class="approved-by">by <%= tournament.approved_by %></span>
-                                        <% } else { %>
-                                            <%= tournament.status || 'Pending' %>
-                                        <% } %>
-                                    </td>
-                                    <td>
-                                        <% if (!tournament.status || tournament.status === 'Pending') { %>
+                                <td><%= tournament.name %></td>
+                                <td><%= tournament.date %></td>
+                                <td><%= tournament.location %></td>
+                                <td>₹<%= tournament.entry_fee %></td>
+                                <td><%= tournament.added_by %></td>
+                                <td>
+                                    <% if (tournament.status === 'Approved') { %>
+                                        <span style="color: var(--sea-green);">
+                                            <i class="fas fa-check-circle"></i> Approved
+                                        </span>
+                                        <div class="approved-by">by <%= tournament.approved_by %></div>
+                                    <% } else { %>
+                                        <span style="color: #f39c12;">
+                                            <i class="fas fa-clock"></i> <%= tournament.status || 'Pending' %>
+                                        </span>
+                                    <% } %>
+                                </td>
+                                <td>
+                                    <% if (!tournament.status || tournament.status === 'Pending') { %>
+                                        <div class="action-buttons">
                                             <form action="/organizer/approve-tournament" method="POST" style="display:inline;">
                                                 <input type="hidden" name="tournamentId" value="<%= tournament.id %>">
-                                                <button type="submit" class="approve-btn">Approve</button>
+                                                <button type="submit" class="approve-btn">
+                                                    <i class="fas fa-check"></i> Approve
+                                                </button>
                                             </form>
                                             <form action="/organizer/reject-tournament" method="POST" style="display:inline;">
                                                 <input type="hidden" name="tournamentId" value="<%= tournament.id %>">
-                                                <button type="submit" class="reject-btn">Reject</button>
+                                                <button type="submit" class="reject-btn">
+                                                    <i class="fas fa-times"></i> Reject
+                                                </button>
                                             </form>
-                                        <% } else { %>
-                                            <span><%= tournament.status %></span>
-                                        <% } %>
-                                    </td>
-                                </tr>
-                            <% }); %>
-                        </tbody>
-                    </table>
-                <% } else { %>
-                    <p>No tournaments available for review.</p>
-                <% } %>
-            </div>
+                                        </div>
+                                    <% } else { %>
+                                        <span><%= tournament.status %></span>
+                                    <% } %>
+                                </td>
+                            </tr>
+                        <% }); %>
+                    <% } else { %>
+                        <tr>
+                            <td colspan="7" style="text-align: center; padding: 2rem;">
+                                <i class="fas fa-info-circle"></i> No tournaments available for review.
+                            </td>
+                        </tr>
+                    <% } %>
+                </tbody>
+            </table>
+
             <div class="back-container">
-                <a href="/organizer/organizer_dashboard" class="back">Back to Dashboard</a>
+                <a href="/organizer/organizer_dashboard" class="back">
+                    <i class="fas fa-arrow-left"></i> Back to Dashboard
+                </a>
             </div>
         </div>
     </div>
