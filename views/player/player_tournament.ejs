@@ -260,6 +260,7 @@
             <div class="subscription-message">
                 YOU MUST BE SUBSCRIBED TO JOIN TOURNAMENTS. 
                 <a href="/player/subscription">Subscribe Now</a>
+                <a href="/player/subscription">Subscribe Now</a>
             </div>
         <% } %>
 
@@ -319,6 +320,7 @@
                                     <div id="details-<%= tournament.id %>" class="tournament-details">
                                         <p><strong>Time:</strong> <%= tournament.time || 'N/A' %></p>
                                         <p><strong>No. of Rounds:</strong> <%= tournament.no_of_rounds || 'N/A' %></p>
+                                        <p><strong>No. of Rounds:</strong> <%= tournament.no_of_rounds || 'N/A' %></p>
                                     </div>
                                 </td>
                                 <td><%= tournament.date %></td>
@@ -326,6 +328,7 @@
                                 <td>₹<%= tournament.entry_fee %></td>
                                 <td class="<%= statusClass %>"><%= status %></td>
                                 <td>
+                                    <% const alreadyEnrolled = enrolledIndividualTournaments.some(enrolled => enrolled.id === tournament.id); %>
                                     <% const alreadyEnrolled = enrolledIndividualTournaments.some(enrolled => enrolled.id === tournament.id); %>
                                     <% if (!alreadyEnrolled) { %>
                                         <form action="/player/join-tournament" method="POST">
