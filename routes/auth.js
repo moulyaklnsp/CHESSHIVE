@@ -239,7 +239,6 @@ router.post('/tournament_management', (req, res) => {
     console.log(name);
     console.log("Received request to add tournament:", req.body);
     const { tournamentName, tournamentDate, tournamentLocation, entryFee, type, noOfRounds, tournamentTime} = req.body;
-    const { tournamentName, tournamentDate, tournamentLocation, entryFee, type, noOfRounds, tournamentTime} = req.body;
     let errors = {};
     if (!tournamentName.trim()) errors.name = "Tournament Name is required.";
     if (!tournamentDate.trim()) errors.date = "Tournament Date is required.";
@@ -331,7 +330,6 @@ router.post('/organizer/reject-tournament', (req, res) => {
 });
 
 router.post("/player/join-tournament", (req, res) => {
-    const { tournamentId, player1, player2, player3 } = req.body;
     const { tournamentId, player1, player2, player3 } = req.body;
 
     // Check if user is logged in
