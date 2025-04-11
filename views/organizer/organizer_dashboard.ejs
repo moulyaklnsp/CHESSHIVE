@@ -204,9 +204,7 @@
         }
     </style>
 </head>
-
 <body>
-    <!-- Menu button only for mobile view -->
     <button class="menu-btn" id="menuBtn" style="display: none;">
         <i class="fas fa-bars"></i>
     </button>
@@ -214,9 +212,6 @@
     <div class="sidebar" id="sidebar">
         <div class="sidebar-header">
             <h2><i class="fas fa-chess"></i> ChessHive</h2>
-            <!-- <% if (typeof organizerName !== "undefined") { %>
-                <p>Welcome, <%= organizerName %>!</p>
-            <% } %> -->
         </div>
     
         <div class="nav-section">
@@ -227,7 +222,6 @@
             <a href="/organizer/college_stats"><i class="fas fa-chart-bar"></i> College Performance Stats</a>
             <a href="/organizer/store_monitoring"><i class="fas fa-store"></i> Store Monitoring</a>
             <a href="/organizer/meetings"><i class="fas fa-calendar-alt"></i> Schedule Meetings</a>
-            <!-- <a href="/organizer/chat"><i class="fas fa-comments"></i> Chat</a> -->
         </div>
 
         <div class="logout-box">
@@ -236,11 +230,10 @@
                 <span>Log Out</span>
             </button>
         </div>
-        
     </div>
     <div class="content">
         <h1 class="greeting">
-            Welcome, <%= typeof organizerName !== "undefined" ? adminName : "Organizer" %>!
+            Welcome, <%= typeof organizerName !== "undefined" ? organizerName : "Organizer" %>!
         </h1>
 
         <div class="form-container">
@@ -250,7 +243,7 @@
                     <% meetings.forEach(meeting => { %>
                         <li>
                             <strong><%= meeting.title %></strong> - 
-                            <%= meeting.date %> at <%= meeting.time %> 
+                            <%= new Date(meeting.date).toLocaleDateString() %> at <%= meeting.time %> 
                             <a href="<%= meeting.link %>" target="_blank" class="join-link">
                                 <i class="fas fa-video"></i> Join
                             </a>
@@ -263,63 +256,33 @@
         </div>
     </div>
     
-    
     <script>
-        // Check if the device is mobile
-        function isMobile() {
-            return window.innerWidth <= 768;
-        }
-
-        // Show/hide menu button based on screen size
+        function isMobile() { return window.innerWidth <= 768; }
         function updateMenuButtonVisibility() {
             const menuBtn = document.getElementById("menuBtn");
             const sidebar = document.getElementById("sidebar");
-            
             if (isMobile()) {
                 menuBtn.style.display = "block";
-                // Ensure sidebar is hidden on mobile by default
                 sidebar.style.left = "-100%";
             } else {
                 menuBtn.style.display = "none";
-                // Ensure sidebar is visible on desktop
                 sidebar.style.left = "0";
             }
         }
-
-        // Toggle sidebar function (only used on mobile)
         function toggleSidebar() {
             const sidebar = document.getElementById("sidebar");
-            
-            if (sidebar.style.left === "0px") {
-                sidebar.style.left = "-100%";
-            } else {
-                sidebar.style.left = "0px";
-            }
+            sidebar.style.left = sidebar.style.left === "0px" ? "-100%" : "0px";
         }
-    
-        // Logout function
-        function handleLogout() {
-                window.location.href = '/login';
-        }
-    
-        // Add click event listeners to all nav items
+        function handleLogout() { window.location.href = '/login'; }
         document.querySelectorAll('.nav-item').forEach(item => {
             item.addEventListener('click', function(e) {
-                // Add loading state if needed
                 this.style.opacity = '0.7';
-                
-                // Navigate to the href
                 window.location.href = this.getAttribute('href');
             });
         });
-
-        // Add event listener for menu button
         document.getElementById("menuBtn").addEventListener("click", toggleSidebar);
-
-        // Run on page load and resize
         window.addEventListener("load", updateMenuButtonVisibility);
         window.addEventListener("resize", updateMenuButtonVisibility);
     </script>
 </body>
-
 </html>

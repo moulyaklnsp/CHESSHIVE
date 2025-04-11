@@ -256,7 +256,7 @@
                         <% organizermeetings.forEach(meeting => { %>
                             <tr>
                                 <td><%= meeting.title %></td>
-                                <td><%= meeting.date %></td>
+                                <td><%= new Date(meeting.date).toLocaleDateString() %></td>
                                 <td><%= meeting.time %></td>
                                 <td>
                                     <a href="<%= meeting.link %>" target="_blank" class="join-link">
@@ -287,7 +287,7 @@
                     <% upcomingMeetings.forEach(meeting => { %>
                         <tr>
                             <td><%= meeting.title %></td>
-                            <td><%= meeting.date %></td>
+                            <td><%= new Date(meeting.date).toLocaleDateString() %></td>
                             <td><%= meeting.time %></td>
                             <td> <a href="<%= meeting.link %>" target="_blank" class="join-link">
                                 <i class="fas fa-video"></i> Join
@@ -305,7 +305,6 @@
                 </a>
             </div>
         </div>
-        
     </div>
 </body>
 </html>

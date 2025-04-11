@@ -1,142 +1,124 @@
 const express = require('express');
 const router = express.Router();
-const db = require('./routes/databasecongi');
+const { connectDB } = require('./routes/databasecongi');
 const moment = require('moment');
 const utils = require('./utils');
 
-// Single route handler with if-else statements
-router.get('/:subpage?', (req, res) => {
+router.get('/:subpage?', async (req, res) => {
   const subpage = req.params.subpage || 'admin_dashboard';
   const adminName = req.session.username || "Admin";
 
+  const db = await connectDB();
   if (subpage === 'admin_dashboard') {
-    const threeDaysLater = moment().add(3, 'days').format('YYYY-MM-DD');
-    db.all("SELECT * FROM meetingsdb WHERE role = 'admin' AND date <= ?", [threeDaysLater], (err1, meetings) => {
-      if (err1) {
-        console.error("❌ Error fetching meetings:", err1);
-        return res.status(500).send("Internal Server Error");
-      }
-      db.all("SELECT * FROM contact ORDER BY submission_date DESC", [], (err2, contactMessages) => {
-        if (err2) {
-          console.error("❌ Error fetching contact messages:", err2);
-          return utils.renderDashboard('admin/admin_dashboard', req, res, {
-            adminName,
-            meetings,
-            contactMessages: [],
-            errorMessage: "Error fetching contact messages"
-          });
+    const threeDaysLater = moment().add(3, 'days').toDate();
+    const meetings = await db.collection('meetingsdb').find({ role: 'admin', date: { $lte: threeDaysLater } }).toArray();
+    const contactMessages = await db.collection('contact').find().sort({ submission_date: -1 }).toArray();
+    console.log('Admin dashboard loaded:', { meetingsCount: meetings.length, messagesCount: contactMessages.length });
+    utils.renderDashboard('admin/admin_dashboard', req, res, { adminName, meetings, contactMessages });
+  } else if (subpage === 'admin_tournament_management') {
+    const tournaments = await db.collection('tournaments').aggregate([
+      {
+        $match: {
+          status: "Approved" // Filters for tournaments with status "approved"
         }
-        utils.renderDashboard('admin/admin_dashboard', req, res, {
-          adminName,
-          meetings,
-          contactMessages
-        });
-      });
-    });
-  }
-  else if (subpage === 'admin_tournament_management') {
-    db.all(
-      `SELECT 
-          t.id, 
-          t.name, 
-          t.date, 
-          t.location, 
-          t.entry_fee, 
-          t.type,
-          CASE 
-              WHEN date(t.date) < date('now') THEN 'Completed'
-              WHEN date(t.date) = date('now') THEN 'Running'
-              ELSE 'Yet to Start'
-          END AS status,
-          CASE 
-              WHEN t.type = 'Individual' THEN COUNT(tp.id)
-              WHEN t.type = 'Team' THEN (
-                  SELECT COUNT(*) * 4 
-                  FROM enrolledtournaments_team et 
-                  WHERE et.tournament_id = t.id 
-                  AND et.approved = 1
-              )
-              ELSE 0
-          END AS player_count
-       FROM tournaments t 
-       LEFT JOIN tournament_players tp ON t.id = tp.tournament_id AND t.type = 'Individual'
-       GROUP BY t.id, t.name, t.date, t.location, t.entry_fee, t.type`,
-      [],
-      (err, tournaments) => {
-        if (err) {
-          return res.redirect("/admin/admin_dashboard?error-message=Database Error");
+      },
+      {
+        $lookup: {
+          from: 'tournament_players',
+          localField: '_id',
+          foreignField: 'tournament_id',
+          as: 'players'
         }
-        utils.renderDashboard("admin/admin_tournament_management", req, res, { tournaments: tournaments || [] });
-      }
-    );
-}
-  else if (subpage === 'organizer_management') {
-    db.all(
-      "SELECT name, email, college FROM users WHERE role = 'organizer' AND isDeleted = 0",
-      [],
-      (err, rows) => {
-        if (err) {
-          return res.redirect("/admin/admin_dashboard?error-message=Database Error");
+      },
+      {
+        $lookup: {
+          from: 'enrolledtournaments_team',
+          localField: '_id',
+          foreignField: 'tournament_id',
+          as: 'enrolledTeams'
         }
-        utils.renderDashboard('admin/organizer_management', req, res, { organizers: rows });
-      }
-    );
-  }
-  else if (subpage === 'coordinator_management') {
-    db.all(
-      "SELECT name, email, college FROM users WHERE role = 'coordinator' AND isDeleted = 0",
-      [],
-      (err, rows) => {
-        if (err) {
-          return res.redirect("/admin/admin_dashboard?error-message=Database Error");
+      },
+      {
+        $project: {
+          name: 1,
+          date: 1,
+          location: 1,
+          entry_fee: 1,
+          type: 1,
+          status: 1, // Preserve the original status (e.g., "approved")
+          current_state: { // New field for date-based status
+            $cond: {
+              if: { $lt: ['$date', new Date()] },
+              then: 'Completed',
+              else: {
+                $cond: {
+                  if: { $eq: ['$date', new Date()] },
+                  then: 'Running',
+                  else: 'Yet to Start'
+                }
+              }
+            }
+          },
+          player_count: {
+            $cond: {
+              if: { $eq: ['$type', 'Individual'] },
+              then: { $size: { $ifNull: ['$players', []] } },
+              else: {
+                $multiply: [
+                  4,
+                  {
+                    $size: {
+                      $filter: {
+                        input: { $ifNull: ['$enrolledTeams', []] },
+                        as: 'team',
+                        cond: { $eq: ['$$team.approved', 1] }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
         }
-        utils.renderDashboard('admin/coordinator_management', req, res, { coordinators: rows });
       }
-    );
-  }
-  else if (subpage === 'admin_meetings') {
-    db.all(
-      "SELECT * FROM meetingsdb WHERE role='admin' ORDER BY date, time",
-      [],
-      (err, results) => {
-        if (err) {
-          return res.status(500).send("Database error");
-        }
-        utils.renderDashboard('admin/admin_meetings', req, res, { adminmeetings: results });
-      }
-    );
-  }
-  else if (subpage === 'payments') {
-    const sql = `
-      SELECT u.name AS name, s.plan, s.start_date
-      FROM subscriptionstable s
-      INNER JOIN users u ON s.username = u.email
-      WHERE u.isDeleted = 0;
-    `;
-    db.all(sql, [], (err, players) => {
-      if (err) {
-        return utils.renderDashboard('admin/payments', req, res, { players: [] });
-      }
-      utils.renderDashboard('admin/payments', req, res, { players });
-    });
-  }
-  else if (subpage === 'admin_profile') {
+    ]).toArray();    
+    console.log('Tournament management loaded:', { tournamentCount: tournaments.length });
+    utils.renderDashboard('admin/admin_tournament_management', req, res, { tournaments: tournaments || [] });
+  } else if (subpage === 'organizer_management') {
+    const organizers = await db.collection('users').find({ role: 'organizer', isDeleted: 0 }).project({ name: 1, email: 1, college: 1 }).toArray();
+    console.log('Organizer management loaded:', { organizerCount: organizers.length });
+    utils.renderDashboard('admin/organizer_management', req, res, { organizers });
+  } else if (subpage === 'coordinator_management') {
+    const coordinators = await db.collection('users').find({ role: 'coordinator', isDeleted: 0 }).project({ name: 1, email: 1, college: 1 }).toArray();
+    console.log('Coordinator management loaded:', { coordinatorCount: coordinators.length });
+    utils.renderDashboard('admin/coordinator_management', req, res, { coordinators });
+  } else if (subpage === 'admin_meetings') {
+    const adminmeetings = await db.collection('meetingsdb').find({ role: 'admin' }).sort({ date: 1, time: 1 }).toArray();
+    console.log('Admin meetings loaded:', { meetingCount: adminmeetings.length });
+    utils.renderDashboard('admin/admin_meetings', req, res, { adminmeetings });
+  } else if (subpage === 'payments') {
+    const players = await db.collection('subscriptionstable').aggregate([
+      { $lookup: { from: 'users', localField: 'username', foreignField: 'email', as: 'user' } },
+      { $unwind: '$user' },
+      { $match: { 'user.isDeleted': 0 } },
+      { $project: { name: '$user.name', plan: 1, start_date: 1 } }
+    ]).toArray();
+    console.log('Payments loaded:', { playerCount: players.length });
+    utils.renderDashboard('admin/payments', req, res, { players });
+  } else if (subpage === 'admin_profile') {
     if (!req.session.userEmail) {
+      console.log('Admin profile failed: User not logged in');
       return res.redirect("/?error-message=Please log in");
     }
-    const query = "SELECT name, email, college FROM users WHERE email = ? AND role = 'admin'";
-    db.get(query, [req.session.userEmail], (err, row) => {
-      if (err) {
-        return res.redirect("/admin/admin_dashboard?error-message=Database Error");
-      }
-      if (!row) {
-        return res.redirect("/admin/admin_dashboard?error-message=Admin not found");
-      }
-      utils.renderDashboard('admin/admin_profile', req, res, { admin: row });
-    });
-  }
-  else {
-    // Handle unknown subpages
+    const admin = await db.collection('users').findOne({ email: req.session.userEmail, role: 'admin' });
+    if (!admin) {
+      console.log('Admin profile failed: Admin not found:', req.session.userEmail);
+      return res.redirect("/admin/admin_dashboard?error-message=Admin not found");
+    }
+    console.log('Admin profile loaded for:', admin.email);
+    utils.renderDashboard('admin/admin_profile', req, res, { admin });
+  } else {
+    console.log('Admin subpage not found:', subpage);
     res.redirect('/admin/admin_dashboard?error-message=Page not found');
   }
 });

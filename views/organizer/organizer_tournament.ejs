@@ -1,274 +1,364 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tournament Management - ChessHive</title>
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <style>
-        :root {
-            --sea-green: #2E8B57;
-            --cream: #FFFDD0;
-            --sky-blue: #87CEEB;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tournament Management - ChessHive</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <style>
+    :root {
+      --sea-green: #2E8B57;
+      --cream: #FFFDD0;
+      --sky-blue: #87CEEB;
+    }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
 
-        body {
-            font-family: 'Playfair Display', serif;
-            background-color: var(--cream);
-            min-height: 100vh;
-            padding: 2rem;
-        }
+    body {
+      font-family: 'Playfair Display', serif;
+      background-color: var(--cream);
+      min-height: 100vh;
+      padding: 2rem;
+    }
 
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
 
-        h2, h3 {
-            font-family: 'Cinzel', serif;
-            color: var(--sea-green);
-            text-align: center;
-            margin-bottom: 1.5rem;
-        }
+    h2, h3 {
+      font-family: 'Cinzel', serif;
+      color: var(--sea-green);
+      text-align: center;
+      margin-bottom: 1.5rem;
+    }
 
-        h2 {
-            font-size: 2.5rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 1rem;
-        }
+    h2 {
+      font-size: 2.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+    }
 
-        h2::before {
-            content: '🏆';
-            font-size: 2.5rem;
-        }
+    h2::before {
+      content: '🏆';
+      font-size: 2.5rem;
+    }
 
-        .message {
-            padding: 1rem;
-            border-radius: 8px;
-            margin-bottom: 1.5rem;
-            text-align: center;
-        }
+    .message {
+      padding: 1rem;
+      border-radius: 8px;
+      margin-bottom: 1.5rem;
+      text-align: center;
+    }
 
-        .success { 
-            background-color: rgba(46, 139, 87, 0.1);
-            color: var(--sea-green);
-        }
+    .success {
+      background-color: rgba(46, 139, 87, 0.1);
+      color: var(--sea-green);
+    }
 
-        .error {
-            background-color: #ffebee;
-            color: #c62828;
-        }
+    .error {
+      background-color: #ffebee;
+      color: #c62828;
+    }
 
-        .table-div {
-            background: white;
-            border-radius: 15px;
-            padding: 2rem;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            margin-bottom: 2rem;
-            overflow-x: auto;
-        }
+    .controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 1rem;
-        }
+    .search-box {
+      flex: 1;
+      max-width: 300px;
+      position: relative;
+    }
 
-        th {
-            background-color: var(--sea-green);
-            color: var(--cream);
-            padding: 1rem;
-            text-align: left;
-            font-family: 'Cinzel', serif;
-        }
+    .search-box input {
+      width: 100%;
+      padding: 0.8rem 1rem 0.8rem 2.5rem;
+      border: 2px solid var(--sea-green);
+      border-radius: 8px;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+    }
 
-        td {
-            padding: 1rem;
-            border-bottom: 1px solid rgba(46, 139, 87, 0.2);
-        }
+    .search-box i {
+      position: absolute;
+      left: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--sea-green);
+    }
 
-        tr:hover {
-            background-color: rgba(135, 206, 235, 0.1);
-        }
+    .table-div {
+      background: white;
+      border-radius: 15px;
+      padding: 2rem;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      margin-bottom: 2rem;
+      overflow-x: auto;
+    }
 
-        .approved-by {
-            font-style: italic;
-            color: var(--sea-green);
-            font-size: 0.9rem;
-        }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 1rem;
+    }
 
-        .action-buttons {
-            display: flex;
-            gap: 0.5rem;
-        }
+    th {
+      background-color: var(--sea-green);
+      color: var(--cream);
+      padding: 1rem;
+      text-align: left;
+      font-family: 'Cinzel', serif;
+    }
 
-        .approve-btn, .reject-btn {
-            padding: 0.6rem 1rem;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-family: 'Cinzel', serif;
-            font-weight: bold;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
+    td {
+      padding: 1rem;
+      border-bottom: 1px solid rgba(46, 139, 87, 0.2);
+    }
 
-        .approve-btn {
-            background-color: var(--sea-green);
-            color: var(--cream);
-        }
+    tr:hover {
+      background-color: rgba(135, 206, 235, 0.1);
+    }
 
-        .reject-btn {
-            background-color: #dc3545;
-            color: white;
-        }
+    .approved-by {
+      font-style: italic;
+      color: var(--sea-green);
+      font-size: 0.9rem;
+    }
 
-        .approve-btn:hover, .reject-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-        }
+    .action-buttons {
+      display: flex;
+      gap: 0.5rem;
+    }
 
-        .back-container {
-            text-align: right;
-        }
+    .approve-btn, .reject-btn {
+      padding: 0.6rem 1rem;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-family: 'Cinzel', serif;
+      font-weight: bold;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
 
-        .back {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            background-color: var(--sea-green);
-            color: var(--cream);
-            text-decoration: none;
-            padding: 0.8rem 1.5rem;
-            border-radius: 8px;
-            transition: all 0.3s ease;
-            font-family: 'Cinzel', serif;
-            font-weight: bold;
-        }
+    .approve-btn {
+      background-color: var(--sea-green);
+      color: var(--cream);
+    }
 
-        .back:hover {
-            background-color: #236B43;
-            transform: translateY(-2px);
-        }
+    .reject-btn {
+      background-color: #dc3545;
+      color: white;
+    }
 
-        @media (max-width: 768px) {
-            body {
-                padding: 1rem;
-            }
+    .approve-btn:hover, .reject-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
 
-            .table-div {
-                padding: 1rem;
-            }
+    .status-badge {
+      padding: 0.5rem 1rem;
+      border-radius: 20px;
+      font-size: 0.9rem;
+      font-weight: bold;
+      text-align: center;
+      display: inline-block;
+    }
 
-            td, th {
-                padding: 0.8rem;
-            }
+    .status-active {
+      background-color: rgba(46, 139, 87, 0.1);
+      color: var(--sea-green);
+    }
 
-            .action-buttons {
-                flex-direction: column;
-            }
-        }
-    </style>
+    .status-pending {
+      background-color: rgba(255, 193, 7, 0.1);
+      color: #ffc107;
+    }
+
+    .back-container {
+      text-align: right;
+    }
+
+    .back {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background-color: var(--sea-green);
+      color: var(--cream);
+      text-decoration: none;
+      padding: 0.8rem 1.5rem;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+      font-family: 'Cinzel', serif;
+      font-weight: bold;
+    }
+
+    .back:hover {
+      background-color: #236B43;
+      transform: translateY(-2px);
+    }
+
+    @media (max-width: 768px) {
+      body {
+        padding: 1rem;
+      }
+
+      .table-div {
+        padding: 1rem;
+      }
+
+      td, th {
+        padding: 0.8rem;
+      }
+
+      .action-buttons {
+        flex-direction: column;
+      }
+
+      .controls {
+        flex-direction: column;
+      }
+
+      .search-box {
+        max-width: 100%;
+      }
+
+      .back-container {
+        text-align: center;
+      }
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <h2>Tournament Management</h2>
+  <div class="container">
+    <h2>Tournament Management</h2>
 
-        <% if (successMessage) { %>
-            <div class="message success">
-                <i class="fas fa-check-circle"></i> <%= successMessage %>
-            </div>
-        <% } %>
-        <% if (errorMessage) { %>
-            <div class="message error">
-                <i class="fas fa-exclamation-circle"></i> <%= errorMessage %>
-            </div>
-        <% } %>
+    <% if (successMessage) { %>
+      <div class="message success">
+        <i class="fas fa-check-circle"></i> <%= successMessage %>
+      </div>
+    <% } %>
+    <% if (errorMessage) { %>
+      <div class="message error">
+        <i class="fas fa-exclamation-circle"></i> <%= errorMessage %>
+      </div>
+    <% } %>
 
-        <div class="table-div">
-            <h3>Tournament Approval & Management</h3>
-            <table>
-                <thead>
-                    <tr>
-                        <th><i class="fas fa-trophy"></i> Name</th>
-                        <th><i class="fas fa-calendar"></i> Date</th>
-                        <th><i class="fas fa-map-marker-alt"></i> Location</th>
-                        <th><i class="fas fa-coins"></i> Entry Fee</th>
-                        <th><i class="fas fa-user"></i> Added By</th>
-                        <th><i class="fas fa-info-circle"></i> Status</th>
-                        <th><i class="fas fa-cogs"></i> Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <% if (Array.isArray(tournaments) && tournaments.length > 0) { %>
-                        <% tournaments.forEach(tournament => { %>
-                            <tr>
-                                <td><%= tournament.name %></td>
-                                <td><%= tournament.date %></td>
-                                <td><%= tournament.location %></td>
-                                <td>₹<%= tournament.entry_fee %></td>
-                                <td><%= tournament.added_by %></td>
-                                <td>
-                                    <% if (tournament.status === 'Approved') { %>
-                                        <span style="color: var(--sea-green);">
-                                            <i class="fas fa-check-circle"></i> Approved
-                                        </span>
-                                        <div class="approved-by">by <%= tournament.approved_by %></div>
-                                    <% } else { %>
-                                        <span style="color: #f39c12;">
-                                            <i class="fas fa-clock"></i> <%= tournament.status || 'Pending' %>
-                                        </span>
-                                    <% } %>
-                                </td>
-                                <td>
-                                    <% if (!tournament.status || tournament.status === 'Pending') { %>
-                                        <div class="action-buttons">
-                                            <form action="/organizer/approve-tournament" method="POST" style="display:inline;">
-                                                <input type="hidden" name="tournamentId" value="<%= tournament.id %>">
-                                                <button type="submit" class="approve-btn">
-                                                    <i class="fas fa-check"></i> Approve
-                                                </button>
-                                            </form>
-                                            <form action="/organizer/reject-tournament" method="POST" style="display:inline;">
-                                                <input type="hidden" name="tournamentId" value="<%= tournament.id %>">
-                                                <button type="submit" class="reject-btn">
-                                                    <i class="fas fa-times"></i> Reject
-                                                </button>
-                                            </form>
-                                        </div>
-                                    <% } else { %>
-                                        <span><%= tournament.status %></span>
-                                    <% } %>
-                                </td>
-                            </tr>
-                        <% }); %>
-                    <% } else { %>
-                        <tr>
-                            <td colspan="7" style="text-align: center; padding: 2rem;">
-                                <i class="fas fa-info-circle"></i> No tournaments available for review.
-                            </td>
-                        </tr>
-                    <% } %>
-                </tbody>
-            </table>
-
-            <div class="back-container">
-                <a href="/organizer/organizer_dashboard" class="back">
-                    <i class="fas fa-arrow-left"></i> Back to Dashboard
-                </a>
-            </div>
+    <div class="table-div">
+      <div class="controls">
+        <div class="search-box">
+          <i class="fas fa-search"></i>
+          <input type="text" placeholder="Search tournaments..." id="searchInput">
         </div>
+      </div>
+
+      <h3>Tournament Approval & Management</h3>
+      <table>
+        <thead>
+          <tr>
+            <th><i class="fas fa-trophy"></i> Name</th>
+            <th><i class="fas fa-calendar"></i> Date</th>
+            <th><i class="fas fa-map-marker-alt"></i> Location</th>
+            <th><i class="fas fa-coins"></i> Entry Fee</th>
+            <th><i class="fas fa-users"></i> Type</th>
+            <th><i class="fas fa-user"></i> Added By</th>
+            <th><i class="fas fa-info-circle"></i> Status</th>
+            <th><i class="fas fa-cogs"></i> Actions</th>
+          </tr>
+        </thead>
+        <tbody id="tournamentTable">
+          <% if (Array.isArray(tournaments) && tournaments.length > 0) { %>
+            <% tournaments.forEach(tournament => { %>
+              <tr>
+                <td><%= tournament.name %></td>
+                <td><%= tournament.date.toLocaleDateString() %></td>
+                <td><%= tournament.location %></td>
+                <td>₹<%= tournament.entry_fee %></td>
+                <td><%= tournament.type %></td>
+                <td><%= tournament.added_by %></td>
+                <td>
+                  <% if (tournament.status === 'Approved') { %>
+                    <span class="status-badge status-active">
+                      <i class="fas fa-check-circle"></i> Approved
+                    </span>
+                    <div class="approved-by">by <%= tournament.approved_by %></div>
+                  <% } else { %>
+                    <span class="status-badge status-pending">
+                      <i class="fas fa-clock"></i> <%= tournament.status || 'Pending' %>
+                    </span>
+                  <% } %>
+                </td>
+                <td>
+                  <% if (!tournament.status || tournament.status === 'Pending') { %>
+                    <div class="action-buttons">
+                      <form action="/organizer/approve-tournament" method="POST" style="display:inline;">
+                        <input type="hidden" name="tournamentId" value="<%= tournament._id.toString() %>">
+                        <button type="submit" class="approve-btn">
+                          <i class="fas fa-check"></i> Approve
+                        </button>
+                      </form>
+                      <form action="/organizer/reject-tournament" method="POST" style="display:inline;">
+                        <input type="hidden" name="tournamentId" value="<%= tournament._id.toString() %>">
+                        <button type="submit" class="reject-btn">
+                          <i class="fas fa-times"></i> Reject
+                        </button>
+                      </form>
+                    </div>
+                  <% } else { %>
+                    <span><%= tournament.status %></span>
+                  <% } %>
+                </td>
+              </tr>
+            <% }); %>
+          <% } else { %>
+            <tr>
+              <td colspan="8" style="text-align: center; padding: 2rem;">
+                <i class="fas fa-info-circle"></i> No tournaments available for review.
+              </td>
+            </tr>
+          <% } %>
+        </tbody>
+      </table>
+
+      <div class="back-container">
+        <a href="/organizer/organizer_dashboard" class="back">
+          <i class="fas fa-arrow-left"></i> Back to Dashboard
+        </a>
+      </div>
     </div>
+  </div>
+
+  <script>
+    // Search filtering functionality
+    document.getElementById('searchInput').addEventListener('keyup', function () {
+      let filter = this.value.toLowerCase();
+      let rows = document.querySelectorAll('#tournamentTable tr');
+
+      rows.forEach(row => {
+        let visible = false;
+        row.querySelectorAll('td').forEach(cell => {
+          if (cell.textContent.toLowerCase().includes(filter)) {
+            visible = true;
+          }
+        });
+        row.style.display = visible ? '' : 'none';
+      });
+    });
+  </script>
 </body>
 </html>

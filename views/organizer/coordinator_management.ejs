@@ -1,254 +1,288 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Coordinator Management - ChessHive</title>
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <style>
-        :root {
-            --sea-green: #2E8B57;
-            --cream: #FFFDD0;
-            --sky-blue: #87CEEB;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Coordinator Management - ChessHive</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <style>
+    :root {
+      --sea-green: #2E8B57;
+      --cream: #FFFDD0;
+      --sky-blue: #87CEEB;
+    }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
 
-        body {
-            font-family: 'Playfair Display', serif;
-            background-color: var(--cream);
-            color: var(--sea-green);
-            min-height: 100vh;
-            padding: 2rem;
-        }
+    body {
+      font-family: 'Playfair Display', serif;
+      background-color: var(--cream);
+      color: var(--sea-green);
+      min-height: 100vh;
+      padding: 2rem;
+    }
 
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
 
-        h2 {
-            font-family: 'Cinzel', serif;
-            font-size: 2.5rem;
-            color: var(--sea-green);
-            margin-bottom: 2rem;
-            text-align: center;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 1rem;
-        }
+    h2 {
+      font-family: 'Cinzel', serif;
+      font-size: 2.5rem;
+      color: var(--sea-green);
+      margin-bottom: 2rem;
+      text-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+    }
 
-        h2::before {
-            content: '👥';
-            font-size: 2.5rem;
-        }
+    h2::before {
+      content: '👥';
+      font-size: 2.5rem;
+    }
 
-        .controls {
-            display: flex;
-            flex-direction: column;
+    .controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
 
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 2rem;
-            gap: 1rem;
-        }
+    .search-box {
+      flex: 1;
+      max-width: 300px;
+      position: relative;
+    }
 
-        .search-box {
-            flex: 1;
-            max-width: 300px;
-            position: relative;
-            /* max-width: 100%; */
+    .search-box input {
+      width: 100%;
+      padding: 0.8rem 1rem 0.8rem 2.5rem;
+      border: 2px solid var(--sea-green);
+      border-radius: 8px;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+    }
 
-        }
+    .search-box i {
+      position: absolute;
+      left: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--sea-green);
+    }
 
-        .search-box input {
-            width: 100%;
-            padding: 0.8rem 1rem 0.8rem 2.5rem;
-            border: 2px solid var(--sea-green);
-            border-radius: 8px;
-            font-size: 1rem;
-            transition: all 0.3s ease;
-        }
+    .search-box input:focus {
+      outline: none;
+      border-color: var(--sky-blue);
+      box-shadow: 0 0 0 3px rgba(135, 206, 235, 0.2);
+    }
 
-        .search-box i {
-            position: absolute;
-            left: 1rem;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--sea-green);
-        }
+    .table-div {
+      background: white;
+      border-radius: 15px;
+      padding: 2rem;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      overflow-x: auto;
+    }
 
-        .table-div {
-            background: white;
-            border-radius: 15px;
-            padding: 2rem;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            overflow-x: auto;
-        }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 2rem;
+    }
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 2rem;
-        }
+    th {
+      background-color: var(--sea-green);
+      color: var(--cream);
+      padding: 1.2rem;
+      text-align: left;
+      font-family: 'Cinzel', serif;
+    }
 
-        th {
-            background-color: var(--sea-green);
-            color: var(--cream);
-            padding: 1.2rem;
-            text-align: left;
-            font-family: 'Cinzel', serif;
+    td {
+      padding: 1rem;
+      border-bottom: 1px solid rgba(46, 139, 87, 0.2);
+    }
 
-        }
+    tr:hover {
+      background-color: rgba(135, 206, 235, 0.1);
+    }
 
-        td {
-            padding: 1rem;
-            border-bottom: 1px solid rgba(46, 139, 87, 0.2);
+    .action-buttons {
+      display: flex;
+      gap: 0.5rem;
+    }
 
-        }
+    button {
+      background-color: #ff6b6b;
+      color: white;
+      border: none;
+      padding: 0.6rem 1rem;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-family: 'Cinzel', serif;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
 
-        tr:hover {
-            background-color: rgba(135, 206, 235, 0.1);
-        }
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
 
-        .action-buttons {
-            display: flex;
-            gap: 0.5rem;
-            /* flex-direction: column; */
+    .add-btn {
+      background-color: var(--sea-green);
+    }
 
-        }
+    .export-btn {
+      background-color: var(--sky-blue);
+      color: var(--sea-green);
+    }
 
-        button {
-            background-color: #ff6b6b;
-            color: white;
-            border: none;
-            padding: 0.6rem 1rem;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-family: 'Cinzel', serif;
-            font-weight: bold;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
+    .back-container {
+      margin-top: 2rem;
+      text-align: right;
+    }
 
-        button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-        }
+    .back {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background-color: var(--sea-green);
+      color: var(--cream);
+      text-decoration: none;
+      padding: 0.8rem 1.5rem;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+      font-family: 'Cinzel', serif;
+      font-weight: bold;
+    }
 
-        .add-btn {
-            background-color: var(--sea-green);
-        }
+    .back:hover {
+      background-color: #236B43;
+      transform: translateY(-2px);
+    }
 
-        .export-btn {
-            background-color: var(--sky-blue);
-            color: var(--sea-green);
-        }
+    .empty-message {
+      text-align: center;
+      padding: 2rem;
+      color: var(--sea-green);
+      font-style: italic;
+    }
 
-        .back-container {
-            margin-top: 2rem;
-            text-align: right;
-        }
+    @media (max-width: 768px) {
+      .controls {
+        flex-direction: column;
+      }
 
-        .back {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            background-color: var(--sea-green);
-            color: var(--cream);
-            text-decoration: none;
-            padding: 0.8rem 1.5rem;
-            border-radius: 8px;
-            transition: all 0.3s ease;
-            font-family: 'Cinzel', serif;
-            font-weight: bold;
-        }
+      .search-box {
+        max-width: 100%;
+      }
 
-        .back:hover {
-            background-color: #236B43;
-            transform: translateY(-2px);
-        }
+      td, th {
+        padding: 0.8rem;
+      }
 
-        .empty-message {
-            text-align: center;
-            padding: 2rem;
-            color: var(--sea-green);
-            font-style: italic;
-        }
+      .action-buttons {
+        flex-direction: column;
+      }
 
-        @media (max-width: 768px) {
-
-            .search-box {
-                max-width: 100%;
-            }
-
-            td, th {
-                padding: 0.8rem;
-            }
-
-            .action-buttons {
-                flex-direction: column;
-            }
-        }
-    </style>
+      .back-container {
+        text-align: center;
+      }
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <h2>Coordinator Management</h2>
-        
-        <div class="table-div">
-            <div class="controls">
-            <table>
-                <thead>
-                    <tr>
-                        <th><i class="fas fa-user"></i> Name</th>
-                        <th><i class="fas fa-envelope"></i> Email</th>
-                        <th><i class="fas fa-university"></i> Assigned College</th>
-                        <th><i class="fas fa-cogs"></i> Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <% if (typeof coordinators !== "undefined" && coordinators.length > 0) { %>
-                        <% coordinators.forEach(coordinator => { %>
-                            <tr>
-                                <td><%= coordinator.name %></td>
-                                <td><%= coordinator.email %></td>
-                                <td><%= coordinator.college %></td>
-                                <td>
-                                    <div class="action-buttons">
-                                        <button onclick="removeCoordinator('<%= coordinator.email %>', this)">
-                                            <i class="fas fa-user-minus"></i> Remove
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                        <% }); %>
-                    <% } else { %>
-                        <tr>
-                            <td colspan="4" class="empty-message">
-                                <i class="fas fa-info-circle"></i> No coordinators available.
-                            </td>
-                        </tr>
-                    <% } %>
-                </tbody>
-            </table>
+  <div class="container">
+    <h2>Coordinator Management</h2>
 
-            <div class="back-container">
-                <a href="/organizer/organizer_dashboard" class="back">
-                    <i class="fas fa-arrow-left"></i> Back to Dashboard
-                </a>
-            </div>
+    <div class="table-div">
+
+      <!-- Controls: Search Box -->
+      <div class="controls">
+        <div class="search-box">
+          <i class="fas fa-search"></i>
+          <input type="text" placeholder="Search coordinators..." id="searchInput">
         </div>
-    </div>
+      </div>
 
-    <script src="/js/coordinator_management.js"> </script>
+      <!-- Coordinator Table -->
+      <table>
+        <thead>
+          <tr>
+            <th><i class="fas fa-user"></i> Name</th>
+            <th><i class="fas fa-envelope"></i> Email</th>
+            <th><i class="fas fa-university"></i> Assigned College</th>
+            <th><i class="fas fa-cogs"></i> Actions</th>
+          </tr>
+        </thead>
+        <tbody id="coordinatorTable">
+          <% if (typeof coordinators !== "undefined" && coordinators.length > 0) { %>
+            <% coordinators.forEach(coordinator => { %>
+              <tr>
+                <td><%= coordinator.name %></td>
+                <td><%= coordinator.email %></td>
+                <td><%= coordinator.college %></td>
+                <td>
+                  <div class="action-buttons">
+                    <button onclick="removeCoordinator('<%= coordinator.email %>', this)">
+                      <i class="fas fa-user-minus"></i> Remove
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            <% }); %>
+          <% } else { %>
+            <tr>
+              <td colspan="4" class="empty-message">
+                <i class="fas fa-info-circle"></i> No coordinators available.
+              </td>
+            </tr>
+          <% } %>
+        </tbody>
+      </table>
+
+      <!-- Back Button -->
+      <div class="back-container">
+        <a href="/organizer/organizer_dashboard" class="back">
+          <i class="fas fa-arrow-left"></i> Back to Dashboard
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Search Functionality Script -->
+  <script>
+    document.getElementById('searchInput').addEventListener('keyup', function () {
+      const filter = this.value.toLowerCase();
+      const rows = document.querySelectorAll('#coordinatorTable tr');
+
+      rows.forEach(row => {
+        let visible = false;
+        row.querySelectorAll('td').forEach(cell => {
+          if (cell.textContent.toLowerCase().includes(filter)) {
+            visible = true;
+          }
+        });
+        row.style.display = visible ? '' : 'none';
+      });
+    });
+  </script>
+
+  <script src="/js/coordinator_management.js"></script>
 </body>
 </html>

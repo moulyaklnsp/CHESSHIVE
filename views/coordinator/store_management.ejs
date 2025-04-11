@@ -235,20 +235,27 @@
         <h2>Products List</h2>
         <div class="product-grid">
             <% if (typeof products !== "undefined" && products.length > 0) { %>
-                <% products.forEach(product => { %>
-                    <div class="product-card">
-                        <div class="product-image">
-                            <img src="<%= product.image_url %>" alt="<%= product.name %>">
+                <% const filteredProducts = products.filter(product => product.availability > 1); %>
+                <% if (filteredProducts.length > 0) { %>
+                    <% filteredProducts.forEach(product => { %>
+                        <div class="product-card">
+                            <div class="product-image">
+                                <img src="<%= product.image_url %>" alt="<%= product.name %>">
+                            </div>
+                            <div class="product-info">
+                                <h4><%= product.name %></h4>
+                                <p class="price"><i class="fas fa-rupee-sign"></i> <%= product.price %></p>
+                                <p class="available">
+                                    <i class="fas fa-box"></i> Available: <%= product.availability %>
+                                </p>
+                            </div>
                         </div>
-                        <div class="product-info">
-                            <h4><%= product.name %></h4>
-                            <p class="price"><i class="fas fa-rupee-sign"></i> <%= product.price %></p>
-                            <p class="available">
-                                <i class="fas fa-box"></i> Available: <%= product.availability %>
-                            </p>
-                        </div>
+                    <% }); %>
+                <% } else { %>
+                    <div class="form-container" style="text-align: center;">
+                        <i class="fas fa-box-open"></i> No products available with availability > 1.
                     </div>
-                <% }); %>
+                <% } %>
             <% } else { %>
                 <div class="form-container" style="text-align: center;">
                     <i class="fas fa-box-open"></i> No products available.

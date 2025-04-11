@@ -146,6 +146,12 @@
             background-color: var(--sea-green);
             color: var(--cream);
         }
+                .approve-btn.reject {
+            background-color: #ff4d4d; /* Red for reject */
+        }
+        .approve-btn.reject:hover {
+            background-color: #cc0000;
+        }
         .updates-section ul {
             list-style: none;
         }
@@ -338,38 +344,40 @@
         <% } %>
 
          <!-- New Team Requests Section -->
-         <div class="updates-section team-requests">
-            <h3>Pending Team Tournament Requests</h3>
-            <ul>
-                <% if (typeof teamRequests !== "undefined" && teamRequests.length > 0) { %>
-                <% teamRequests.forEach(request => { %>
+<div class="updates-section team-requests">
+    <h3>Pending Team Tournament Requests</h3>
+    <ul>
+        <% if (typeof teamRequests !== "undefined" && teamRequests.length > 0) { %>
+            <% 
+                const currentUser = playerName; 
+                const pendingRequests = teamRequests.filter(request => {
+                    return !(
+                        (request.player1_name === currentUser && request.player1_approved) ||
+                        (request.player2_name === currentUser && request.player2_approved) ||
+                        (request.player3_name === currentUser && request.player3_approved)
+                    );
+                });
+            %>
+            <% if (pendingRequests.length > 0) { %>
+                <% pendingRequests.forEach(request => { %>
                     <li>
                         <strong><%= request.tournamentName %></strong> - 
                         Captain: <%= request.captainName %> | 
                         Team: <%= request.player1_name %>, <%= request.player2_name %>, <%= request.player3_name %>
-                        <% 
-                            // Check if the current user has approved this request
-                            // Adjust this condition based on your actual data structure
-                            const currentUser = playerName; 
-                            const isApproved = (request.player1_name === currentUser && request.player1_approved === 1) ||
-                                            (request.player2_name === currentUser && request.player2_approved === 1) ||
-                                            (request.player3_name === currentUser && request.player3_approved === 1);
-                        %>
-                        <% if (!isApproved) { %>
-                            <form action="/player/approve-team-request" method="POST" style="display: inline;">
-                                <input type="hidden" name="requestId" value="<%= request.id %>">
-                                <button type="submit" class="approve-btn">Approve</button>
-                            </form>
-                        <% } else { %>
-                            <button class="approve-btn" disabled>Approved</button>
-                        <% } %>
+                        <form action="/player/approve-team-request" method="POST" style="display: inline;">
+                            <input type="hidden" name="requestId" value="<%= request._id.toString() %>">
+                            <button type="submit" class="approve-btn">Approve</button>
+                        </form>
                     </li>
                 <% }); %>
-                <% } else { %>
-                    <p>No pending team requests.</p>
-                <% } %>
-            </ul>
-        </div>
+            <% } else { %>
+                <p>No pending team requests requiring your approval.</p>
+            <% } %>
+        <% } else { %>
+            <p>No pending team requests.</p>
+        <% } %>
+    </ul>
+</div>
 
         <div class="updates-section">
             <h3><i class="fas fa-trophy"></i> Latest Tournaments</h3>

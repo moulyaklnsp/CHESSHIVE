@@ -1,8 +1,9 @@
 const express = require('express');
 const router = express.Router();
-const db = require('./routes/databasecongi');
+const { connectDB } = require('./routes/databasecongi');
 const moment = require('moment');
 const utils = require('./utils');
+const { ObjectId } = require('mongodb');
 
 class Player {
   constructor(id, username, college, gender) {
@@ -78,188 +79,229 @@ function swissPairing(players, totalRounds) {
   return allRounds;
 }
 
-// Single route handler with if-else statements
-router.get('/:subpage?', (req, res) => {
+router.get('/:subpage?', async (req, res) => {
   const subpage = req.params.subpage || 'coordinator_dashboard';
 
+  const db = await connectDB();
   if (subpage === 'coordinator_dashboard') {
-    const threeDaysLater = moment().add(3, 'days').format('YYYY-MM-DD');
-    db.all("SELECT * FROM meetingsdb WHERE date <= ?", [threeDaysLater], (err, meetings) => {
-      if (err) {
-        console.error("❌ Error fetching meetings:", err);
-        return res.status(500).send("Internal Server Error");
-      }
-      utils.renderDashboard('coordinator/coordinator_dashboard', req, res, { meetings });
+    const threeDaysLater = moment().add(3, 'days').toDate();
+    const meetings = await db.collection('meetingsdb').find({ date: { $lte: threeDaysLater } }).toArray();
+    console.log('Coordinator dashboard loaded:', { meetingCount: meetings.length });
+    utils.renderDashboard('coordinator/coordinator_dashboard', req, res, { meetings });
+  } else if (subpage === 'tournament_management') {
+    const tournaments = await db.collection('tournaments').find().toArray();
+    console.log('Tournament management loaded:', { tournamentCount: tournaments.length });
+    utils.renderDashboard('coordinator/tournament_management', req, res, { 
+      tournaments, 
+      tournamentName: "", 
+      tournamentDate: "", 
+      tournamentLocation: "", 
+      entryFee: "" 
     });
-  }
-  else if (subpage === 'tournament_management') {
-    db.all("SELECT * FROM tournaments", [], (err, tournaments) => {
-      if (err) {
-        return res.redirect("/coordinator/coordinator_dashboard?error-message=Database Error");
-      }
-      utils.renderDashboard('coordinator/tournament_management', req, res, {
-        tournaments,
-        tournamentName: "",
-        tournamentDate: "",
-        tournamentLocation: "",
-        entryFee: ""
-      });
-    });
-  }
-  else if (subpage === 'store_management') {
-    const query = "SELECT * FROM products WHERE college = ?";
-    db.all(query, [req.session.userCollege], (err, products) => {
-      if (err) {
-        return res.status(500).send("Could not retrieve products.");
-      }
-      utils.renderDashboard('coordinator/store_management', req, res, { products });
-    });
-  }
-  else if (subpage === 'coordinator_meetings') {
-    db.all(
-      "SELECT * FROM meetingsdb WHERE role='coordinator' ORDER BY date, time",
-      [],
-      (err, yetToHost) => {
-        if (err) {
-          return res.status(500).send("Database error");
-        }
-        db.all(
-          "SELECT * FROM meetingsdb WHERE name!=? ORDER BY date, time",
-          [req.session.username],
-          (err, upcoming) => {
-            if (err) {
-              return res.status(500).send("Database error");
-            }
-            utils.renderDashboard('coordinator/coordinator_meetings', req, res, {
-              meetings: yetToHost,
-              upcomingMeetings: upcoming
-            });
-          }
-        );
-      }
-    );
-  }
-  else if (subpage === 'player_stats') {
-    const sql = `
-      SELECT u.name, ps.gamesPlayed, ps.wins, ps.losses, ps.draws, ps.rating 
-      FROM player_stats ps
-      INNER JOIN users u ON ps.player_id = u.id
-      WHERE u.isDeleted = 0 AND u.college = ?
-      ORDER BY ps.rating DESC;
-    `;
-    db.all(sql, [req.session.collegeName], (err, players) => {
-      if (err) {
-        return utils.renderDashboard('coordinator/player_stats', req, res, { players: [] });
-      }
-      utils.renderDashboard('coordinator/player_stats', req, res, { players });
-    });
-  }
-  else if (subpage === 'enrolled_players') {
+  } else if (subpage === 'store_management') {
+    const products = await db.collection('products').find({ college: req.session.userCollege }).toArray();
+    console.log('Store management loaded:', { productCount: products.length });
+    utils.renderDashboard('coordinator/store_management', req, res, { products });
+  } else if (subpage === 'coordinator_meetings') {
+    const yetToHost = await db.collection('meetingsdb').find({ role: 'coordinator' }).sort({ date: 1, time: 1 }).toArray();
+    const upcoming = await db.collection('meetingsdb').find({ name: { $ne: req.session.username } }).sort({ date: 1, time: 1 }).toArray();
+    console.log('Coordinator meetings loaded:', { yetToHostCount: yetToHost.length, upcomingCount: upcoming.length });
+    utils.renderDashboard('coordinator/coordinator_meetings', req, res, { meetings: yetToHost, upcomingMeetings: upcoming });
+  } else if (subpage === 'player_stats') {
+    const players = await db.collection('player_stats').aggregate([
+      { $lookup: { from: 'users', localField: 'player_id', foreignField: '_id', as: 'user' } },
+      { $unwind: '$user' },
+      { $match: { 'user.isDeleted': 0, 'user.college': req.session.collegeName } },
+      { $project: { name: '$user.name', gamesPlayed: 1, wins: 1, losses: 1, draws: 1, rating: 1 } }
+    ]).sort({ rating: -1 }).toArray();
+    console.log('Player stats loaded:', { playerCount: players.length });
+    utils.renderDashboard('coordinator/player_stats', req, res, { players });
+  } else if (subpage === 'enrolled_players') {
     const tournamentId = req.query.tournament_id;
     if (!tournamentId) {
+      console.log('Enrolled players failed: No tournament specified');
       return res.redirect("/coordinator/coordinator_dashboard?error-message=No tournament specified");
     }
-    db.get("SELECT name, type FROM tournaments WHERE id = ?", [tournamentId], (err, tournament) => {
-      if (err) {
-        return res.redirect("/coordinator/coordinator_dashboard?error-message=Database Error");
-      }
-      if (!tournament) {
-        return res.redirect("/coordinator/coordinator_dashboard?error-message=Tournament not found");
-      }
-      db.all(
-        "SELECT username, college, gender FROM tournament_players WHERE tournament_id = ?",
-        [tournamentId],
-        (err, individualPlayers) => {
-          if (err) {
-            return res.redirect("/coordinator/coordinator_dashboard?error-message=Database Error");
-          }
-          db.all(
-            `SELECT et.player1_name, et.player2_name, et.player3_name, 
-                    et.player1_approved, et.player2_approved, et.player3_approved, 
-                    u.name AS captain_name 
-             FROM enrolledtournaments_team et 
-             JOIN users u ON et.captain_id = u.id 
-             WHERE et.tournament_id = ?`,
-            [tournamentId],
-            (err, teamEnrollments) => {
-              if (err) {
-                return res.redirect("/coordinator/coordinator_dashboard?error-message=Database Error");
-              }
-              utils.renderDashboard('coordinator/enrolled_players', req, res, {
-                tournamentName: tournament.name,
-                tournamentType: tournament.type,
-                individualPlayers: individualPlayers || [],
-                teamEnrollments: teamEnrollments || []
-              });
-            }
-          );
-        }
-      );
+    const tournament = await db.collection('tournaments').findOne({ _id: new ObjectId(tournamentId) });
+    if (!tournament) {
+      console.log('Enrolled players failed: Tournament not found:', tournamentId);
+      return res.redirect("/coordinator/coordinator_dashboard?error-message=Tournament not found");
+    }
+    const individualPlayers = await db.collection('tournament_players').find({ tournament_id: tournament._id }).toArray();
+    const teamEnrollments = await db.collection('enrolledtournaments_team').aggregate([
+      { $match: { tournament_id: tournament._id } },
+      { $lookup: { from: 'users', localField: 'captain_id', foreignField: '_id', as: 'captain' } },
+      { $unwind: '$captain' },
+      { $project: { player1_name: 1, player2_name: 1, player3_name: 1, player1_approved: 1, player2_approved: 1, player3_approved: 1, captain_name: '$captain.name' } }
+    ]).toArray();
+    console.log('Enrolled players loaded for tournament:', tournamentId);
+    utils.renderDashboard('coordinator/enrolled_players', req, res, { 
+      tournamentName: tournament.name, 
+      tournamentType: tournament.type, 
+      individualPlayers: individualPlayers || [], 
+      teamEnrollments: teamEnrollments || [] 
     });
-  }
-  else if (subpage === 'pairings') {
+  } else if (subpage === 'pairings') {
     const tournamentId = req.query.tournament_id;
     const totalRounds = parseInt(req.query.rounds) || 5;
-    console.log(`Fetching pairings for tournamentId: ${tournamentId}`);
     if (!tournamentId) {
-      return res.status(400).send("Tournament ID is required.");
+        console.log('Pairings failed: No tournament ID provided');
+        return res.status(400).send("Tournament ID is required.");
     }
-    db.all(
-      `SELECT id, username, college, gender FROM tournament_players WHERE tournament_id = ?`,
-      [tournamentId],
-      (err, rows) => {
-        if (err) {
-          return res.status(500).send("Database error: " + err.message);
-        }
-        console.log(`Players fetched for tournamentId ${tournamentId}: ${rows.map(row => row.username).join(", ")}`);
-        if (rows.length === 0) {
-          return utils.renderDashboard('coordinator/pairings', req, res, { roundNumber: 1, pairings: [] });
-        }
-        let players = rows.map(row => new Player(row.id, row.username, row.college, row.gender));
-        let allRounds = swissPairing(players, totalRounds);
-        utils.renderDashboard('coordinator/pairings', req, res, { roundNumber: totalRounds, allRounds });
+
+    const rows = await db.collection('tournament_players').find({ tournament_id: new ObjectId(tournamentId) }).toArray();
+    if (rows.length === 0) {
+        console.log('Pairings failed: No players found for tournament:', tournamentId);
+        return utils.renderDashboard('coordinator/pairings', req, res, { roundNumber: 1, allRounds: [] });
+    }
+
+    let storedPairings = await db.collection('tournament_pairings').findOne({ tournament_id: new ObjectId(tournamentId) });
+    let allRounds = []; // Default to empty array
+
+    if (!storedPairings) {
+        let players = rows.map(row => new Player(row._id, row.username, row.college, row.gender));
+        allRounds = swissPairing(players, totalRounds);
+
+        await db.collection('tournament_pairings').insertOne({
+            tournament_id: new ObjectId(tournamentId),
+            totalRounds: totalRounds,
+            rounds: allRounds.map(round => ({
+                round: round.round,
+                pairings: round.pairings.map(pairing => ({
+                    player1: {
+                        id: pairing.player1.id,
+                        username: pairing.player1.username,
+                        score: pairing.player1.score
+                    },
+                    player2: {
+                        id: pairing.player2.id,
+                        username: pairing.player2.username,
+                        score: pairing.player2.score
+                    },
+                    result: pairing.result
+                })),
+                byePlayer: round.byePlayer ? {
+                    id: round.byePlayer.id,
+                    username: round.byePlayer.username,
+                    score: round.byePlayer.score
+                } : null
+            }))
+        });
+    } else {
+        allRounds = storedPairings.rounds.map(round => {
+            const pairings = round.pairings.map(pairing => {
+                const player1 = new Player(pairing.player1.id, pairing.player1.username);
+                player1.score = pairing.player1.score;
+                const player2 = new Player(pairing.player2.id, pairing.player2.username);
+                player2.score = pairing.player2.score;
+                return { player1, player2, result: pairing.result };
+            });
+            const byePlayer = round.byePlayer ? new Player(round.byePlayer.id, round.byePlayer.username) : null;
+            if (byePlayer) byePlayer.score = round.byePlayer.score;
+            return { round: round.round, pairings, byePlayer };
+        });
+    }
+
+    console.log('allRounds before rendering:', allRounds); // Debug log
+    utils.renderDashboard('coordinator/pairings', req, res, { 
+        roundNumber: totalRounds, 
+        allRounds: allRounds // Explicitly pass as array
+    });
+}else if (subpage === 'rankings') {
+      const tournamentId = req.query.tournament_id;
+      if (!tournamentId) {
+          console.log('Rankings failed: No tournament ID provided');
+          return res.status(400).send("Tournament ID is required.");
       }
-    );
-  }
-  else if (subpage === 'rankings') {
-    const tournamentId = req.query.tournament_id;
-    if (!tournamentId) {
-      return res.status(400).send("Tournament ID is required.");
-    }
-    db.all(
-      `SELECT id, username, college, gender FROM tournament_players WHERE tournament_id = ?`,
-      [tournamentId],
-      (err, rows) => {
-        if (err) {
-          return res.status(500).send("Database error: " + err.message);
-        }
-        let rankings = [];
-        if (rows && rows.length > 0) {
-          let players = rows.map(row => new Player(row.id, row.username, row.college, row.gender));
-          const totalRounds = 5;
-          swissPairing(players, totalRounds);
+  
+      const rows = await db.collection('tournament_players').find({ tournament_id: new ObjectId(tournamentId) }).toArray();
+      if (rows.length === 0) {
+          console.log('No players found for rankings:', tournamentId);
+          return utils.renderDashboard('coordinator/rankings', req, res, { rankings: [], tournamentId });
+      }
+  
+      // Check if pairings exist in the database
+      let storedPairings = await db.collection('tournament_pairings').findOne({ tournament_id: new ObjectId(tournamentId) });
+      let rankings = [];
+  
+      if (!storedPairings) {
+          // If no pairings exist, generate and store them
+          const totalRounds = 5; // Default to 5 rounds, adjust if needed
+          let players = rows.map(row => new Player(row._id, row.username, row.college, row.gender));
+          const allRounds = swissPairing(players, totalRounds);
+  
+          // Store the pairings
+          await db.collection('tournament_pairings').insertOne({
+              tournament_id: new ObjectId(tournamentId),
+              totalRounds: totalRounds,
+              rounds: allRounds.map(round => ({
+                  round: round.round,
+                  pairings: round.pairings.map(pairing => ({
+                      player1: {
+                          id: pairing.player1.id,
+                          username: pairing.player1.username,
+                          score: pairing.player1.score
+                      },
+                      player2: {
+                          id: pairing.player2.id,
+                          username: pairing.player2.username,
+                          score: pairing.player2.score
+                      },
+                      result: pairing.result
+                  })),
+                  byePlayer: round.byePlayer ? {
+                      id: round.byePlayer.id,
+                      username: round.byePlayer.username,
+                      score: round.byePlayer.score
+                  } : null
+              }))
+          });
+  
+          // Use the generated players for rankings
           rankings = players.sort((a, b) => b.score - a.score);
-        }
-        utils.renderDashboard('coordinator/rankings', req, res, { rankings: rankings || [], tournamentId });
+      } else {
+          // Use stored pairings to calculate rankings
+          let playersMap = new Map(); // Map to store players by ID
+  
+          // Initialize players from tournament_players
+          rows.forEach(row => {
+              playersMap.set(row._id.toString(), new Player(row._id, row.username, row.college, row.gender));
+          });
+  
+          // Update scores based on stored pairings
+          storedPairings.rounds.forEach(round => {
+              round.pairings.forEach(pairing => {
+                  const player1 = playersMap.get(pairing.player1.id.toString());
+                  const player2 = playersMap.get(pairing.player2.id.toString());
+                  player1.score = pairing.player1.score;
+                  player2.score = pairing.player2.score;
+              });
+              if (round.byePlayer) {
+                  const byePlayer = playersMap.get(round.byePlayer.id.toString());
+                  byePlayer.score = round.byePlayer.score;
+              }
+          });
+  
+          // Convert map to array and sort by score
+          rankings = Array.from(playersMap.values()).sort((a, b) => b.score - a.score);
       }
-    );
-  }
-  else if (subpage === 'coordinator_profile') {
+  
+      console.log('Rankings loaded for tournament:', tournamentId);
+      utils.renderDashboard('coordinator/rankings', req, res, { rankings, tournamentId });
+  } else if (subpage === 'coordinator_profile') {
     if (!req.session.userEmail) {
+      console.log('Coordinator profile failed: User not logged in');
       return res.redirect("/?error-message=Please log in");
     }
-    const query = "SELECT name, email, college FROM users WHERE email = ? AND role = 'coordinator'";
-    db.get(query, [req.session.userEmail], (err, row) => {
-      if (err) {
-        return res.redirect("/coordinator/coordinator_dashboard?error-message=Database Error");
-      }
-      if (!row) {
-        return res.redirect("/coordinator/coordinator_dashboard?error-message=Coordinator not found");
-      }
-      utils.renderDashboard('coordinator/coordinator_profile', req, res, { coordinator: row });
-    });
-  }
-  else {
+    const coordinator = await db.collection('users').findOne({ email: req.session.userEmail, role: 'coordinator' });
+    if (!coordinator) {
+      console.log('Coordinator profile failed: Coordinator not found:', req.session.userEmail);
+      return res.redirect("/coordinator/coordinator_dashboard?error-message=Coordinator not found");
+    }
+    console.log('Coordinator profile loaded for:', coordinator.email);
+    utils.renderDashboard('coordinator/coordinator_profile', req, res, { coordinator });
+  } else {
+    console.log('Coordinator subpage not found:', subpage);
     res.redirect('/coordinator/coordinator_dashboard?error-message=Page not found');
   }
 });

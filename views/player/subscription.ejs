@@ -58,14 +58,34 @@
             padding: 20px;
             border-radius: 10px;
             text-align: center;
+            margin-bottom: 1.5rem;
+            overflow: hidden;
         }
 
         .wallet-section h3 {
             color: white;
             margin-top: 0;
+            margin-bottom: 1rem;
         }
 
-        button, .back {
+        .wallet-section form {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-width: 300px;
+            margin: 0 auto;
+        }
+
+        .wallet-section input[type="number"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid var(--sea-green);
+            border-radius: 5px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+
+        .wallet-section button {
             background-color: var(--sky-blue);
             color: var(--sea-green);
             border: none;
@@ -74,26 +94,35 @@
             cursor: pointer;
             font-weight: bold;
             transition: all 0.3s ease;
-            width: 100%;
-            margin-top: 15px;
             font-family: 'Cinzel', serif;
-            text-decoration: none;
-            display: inline-block;
             text-align: center;
+            width: 100%;
+            box-sizing: border-box;
         }
 
-        button:hover, .back:hover {
+        .wallet-section button:hover {
             background-color: #6CB4D4;
             transform: translateY(-2px);
         }
 
-        input[type="number"] {
-            width: 100%;
-            padding: 12px;
-            margin: 10px 0;
-            border: 2px solid var(--sea-green);
+        .table-div button {
+            background-color: var(--sky-blue);
+            color: var(--sea-green);
+            border: none;
+            padding: 12px 24px;
             border-radius: 5px;
-            font-size: 16px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            font-family: 'Cinzel', serif;
+            text-align: center;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .table-div button:hover {
+            background-color: #6CB4D4;
+            transform: translateY(-2px);
         }
 
         .success-message {
@@ -136,6 +165,32 @@
             margin: 15px 0;
         }
 
+        .back-container {
+            text-align: center;
+            margin-top: 2rem;
+        }
+
+        .back {
+            background-color: var(--sky-blue);
+            color: var(--sea-green);
+            border: none;
+            padding: 12px 24px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            width: auto;
+            font-family: 'Cinzel', serif;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .back:hover {
+            background-color: #6CB4D4;
+            transform: translateY(-2px);
+        }
+
         @media (max-width: 768px) {
             .container {
                 padding: 10px;
@@ -144,6 +199,16 @@
             .form-container {
                 grid-template-columns: 1fr;
             }
+
+            .wallet-section form {
+                max-width: 100%;
+            }
+
+            .wallet-section input[type="number"],
+            .wallet-section button,
+            .table-div button {
+                width: 100%;
+            }
         }
     </style>
 </head>
@@ -151,7 +216,6 @@
     <div class="container">
         <h2>Manage Subscription</h2>
         
-        <!-- Success/Error Messages -->
         <% if (successMessage) { %>
             <div class="success-message"><%= successMessage %></div>
         <% } %>
@@ -159,10 +223,9 @@
             <div class="error-message"><%= errorMessage %></div>
         <% } %>
         
-        <!-- Wallet Section -->
         <div class="wallet-section">
             <span class="wallet-icon">💰</span>
-            <h3>Wallet Balance: &#8377;<span id="walletBalance"><%= walletBalance %></span></h3>
+            <h3>Wallet Balance: ₹<span id="walletBalance"><%= walletBalance %></span></h3>
             <form action="/player/add-funds" method="POST">
                 <input type="number" name="amount" placeholder="Enter amount" min="1" required>
                 <input type="hidden" name="redirectTo" value="/player/subscription">
@@ -170,7 +233,6 @@
             </form>
         </div>
 
-        <!-- Subscription Plans -->
         <div class="form-container">
             <div class="table-div">
                 <h3>Basic Plan</h3>
@@ -178,7 +240,7 @@
                     <li>Access to tournaments</li>
                     <li>10% discount on store products</li>
                 </ul>
-                <div class="price">&#8377;15/month</div>
+                <div class="price">₹15/month</div>
                 <form action="/player/subscribe" method="POST">
                     <input type="hidden" name="plan" value="Basic">
                     <input type="hidden" name="price" value="15">
@@ -191,7 +253,7 @@
                     <li>Access to tournaments</li>
                     <li>20% discount on store products</li>
                 </ul>
-                <div class="price">&#8377;30/month</div>
+                <div class="price">₹30/month</div>
                 <form action="/player/subscribe" method="POST">
                     <input type="hidden" name="plan" value="Premium">
                     <input type="hidden" name="price" value="30">
@@ -200,18 +262,17 @@
             </div>
         </div>
 
-        <!-- Current Subscription -->
         <% if (currentSubscription) { %>
             <div class="table-div">
                 <h3>Current Subscription</h3>
                 <h4>Plan: <%= currentSubscription.plan %></h4>
-                <h4>Start Date: <%= currentSubscription.start_date %></h4>
-                <h4>Price: &#8377;<%= currentSubscription.price %>/month</h4>
+                <h4>Start Date: <%= new Date(currentSubscription.start_date).toLocaleDateString() %></h4>
+                <h4>Price: ₹<%= currentSubscription.price %>/month</h4>
             </div>
         <% } %>
 
         <div class="form-container back-container">
-            <a href="/player_dashboard" class="back">Back to Dashboard</a>
+            <a href="/player/player_dashboard" class="back">Back to Dashboard</a>
         </div>
     </div>
 </body>

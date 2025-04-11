@@ -284,7 +284,7 @@
                                 <td><%= sale.coordinator || "N/A" %></td>
                                 <td><%= sale.buyer || "N/A" %></td>
                                 <td><%= sale.college || "N/A" %></td>
-                                <td><%= sale.purchase_date %></td>
+                                <td><%= new Date(sale.purchase_date).toLocaleDateString() %></td>
                             </tr>
                         <% }); %>
                     <% } else { %>

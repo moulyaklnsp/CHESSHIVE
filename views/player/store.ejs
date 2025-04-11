@@ -260,7 +260,7 @@
             <h3>Wallet Balance: &#8377;<span id="walletBalance"><%= walletBalance %></span></h3>
             <form action="/player/add-funds" method="POST">
                 <input type="number" name="amount" placeholder="Enter amount" min="1" required>
-                <input type="hidden" name="redirectTo" value="/player/subscription">
+                <input type="hidden" name="redirectTo" value="/player/store">
                 <button type="submit">Add Funds</button>
             </form>
         </div>
@@ -283,11 +283,11 @@
                                 <% } %>
                             </div>
                             <form action="/buy" method="POST">
-                                <input type="hidden" name="productId" value="<%= product.id %>">
+                                <input type="hidden" name="productId" value="<%= product._id.toString() %>">
                                 <input type="hidden" name="price" value="<%= product.price %>">
                                 <input type="hidden" name="buyer" value="<%= playerName %>"> 
                                 <input type="hidden" name="college" value="<%= playerCollege %>">
-                                <button type="submit" class="buy-button"> Buy </button>
+                                <button type="submit" class="buy-button">Buy</button>
                             </form>
                         </div>
                     <% } %> 

@@ -256,7 +256,7 @@
                         <% meetings.forEach(meeting => { %>
                             <tr>
                                 <td><%= meeting.title %></td>
-                                <td><%= meeting.date %></td>
+                                <td><%= new Date(meeting.date).toLocaleDateString() %></td>
                                 <td><%= meeting.time %></td>
                                 <td>
                                     <a href="<%= meeting.link %>" target="_blank" class="join-link">
@@ -284,16 +284,16 @@
                     <th>Link</th>
                 </tr>
                 <% if (typeof upcomingMeetings !== "undefined" && upcomingMeetings.length > 0) { %>
-                <% upcomingMeetings.forEach(meeting => { %>
-                    <tr>
-                        <td><%= meeting.title %></td>
-                        <td><%= meeting.date %></td>
-                        <td><%= meeting.time %></td>
-                        <td><a href="<%= meeting.link %>" target="_blank" class="join-link">
-                            <i class="fas fa-video"></i> Join
-                        </a></td>
-                    </tr>
-                <% }); %>
+                    <% upcomingMeetings.forEach(meeting => { %>
+                        <tr>
+                            <td><%= meeting.title %></td>
+                            <td><%= new Date(meeting.date).toLocaleDateString() %></td>
+                            <td><%= meeting.time %></td>
+                            <td><a href="<%= meeting.link %>" target="_blank" class="join-link">
+                                <i class="fas fa-video"></i> Join
+                            </a></td>
+                        </tr>
+                    <% }); %>
                 <% } else { %>
                     <p>No Upcoming meetings.</p>
                 <% } %>
@@ -305,7 +305,6 @@
                 </a>
             </div>
         </div>
-        
     </div>
 </body>
 </html>

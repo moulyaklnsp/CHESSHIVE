@@ -304,9 +304,9 @@
                 </select>
 
                 <label for="noOfRounds">No of Rounds:</label>
-                <input type="nadd-tournament-btnumber" id="noOfRounds" name="noOfRounds" value="<%= typeof no_of_rounds !== 'undefined' ? no_of_rounds : '' %>" required>
-                <div class = "add-tournament-btn">
-                <button type="submit" id="submitButton">Add Tournament</button>
+                <input type="number" id="noOfRounds" name="noOfRounds" value="<%= typeof no_of_rounds !== 'undefined' ? no_of_rounds : '' %>" required>
+                <div class="add-tournament-btn">
+                    <button type="submit" id="submitButton">Add Tournament</button>
                 </div>
             </form>
         </div>
@@ -334,12 +334,12 @@
                     <% if (Array.isArray(tournaments) && tournaments.length > 0) { %>
                         <% tournaments.forEach(tournament => { %>
                             <% 
-                                const today = new Date('2025-03-27');
+                                const today = new Date();
                                 const tournamentDate = new Date(tournament.date);
                                 let status = tournament.status || 'Pending';
                                 let statusClass = 'status-pending';
                                 if (status === 'Approved') {
-                                    if (tournamentDate < today) {
+                                    if (tournamentDate.toDateString() < today.toDateString()) {
                                         status = 'Completed';
                                         statusClass = 'status-completed';
                                     } else if (tournamentDate.toDateString() === today.toDateString()) {
@@ -353,7 +353,7 @@
                             %>
                             <tr>
                                 <td><%= tournament.name %></td>
-                                <td><%= tournament.date %></td>
+                                <td><%= new Date(tournament.date).toLocaleDateString() %></td>
                                 <td><%= tournament.time %></td>
                                 <td><%= tournament.location %></td>
                                 <td>₹<%= tournament.entry_fee %></td>
@@ -364,14 +364,14 @@
                                 </td>
                                 <td>
                                     <% if (tournament.status === 'Approved') { %>
-                                        <a href="/coordinator/enrolled_players?tournament_id=<%= tournament.id %>" class="btn">
+                                        <a href="/coordinator/enrolled_players?tournament_id=<%= tournament._id.toString() %>" class="btn">
                                             <i class="fas fa-users"></i> Players
                                         </a>
                                     <%  if(tournament.type === 'Individual') { %>
-                                        <a href="/coordinator/pairings?tournament_id=<%= tournament.id %>&rounds=5" class="btn">
+                                        <a href="/coordinator/pairings?tournament_id=<%= tournament._id.toString() %>&rounds=5" class="btn">
                                             <i class="fas fa-chess-board"></i> Pairings
                                         </a>
-                                        <a href="/coordinator/rankings?tournament_id=<%= tournament.id %>" class="btn">
+                                        <a href="/coordinator/rankings?tournament_id=<%= tournament._id.toString() %>" class="btn">
                                             <i class="fas fa-medal"></i> Rankings
                                         </a>
                                     <% } %>
@@ -396,6 +396,6 @@
             </div>
         </div>
     </div>
-    <script src="/js/organizer_management.js"> </script>
+    <script src="/js/organizer_management.js"></script>
 </body>
 </html>
