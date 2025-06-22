@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Subscription - ChessHive</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --sea-green: #2E8B57;
+            --cream: #FFFDD0;
+            --sky-blue: #87CEEB;
+        }
+
+        body {
+            background-color: var(--cream);
+            font-family: 'Playfair Display', serif;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        h2, h3, h4 {
+            font-family: 'Cinzel', serif;
+            color: var(--sea-green);
+            text-align: center;
+        }
+
+        .table-div {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            margin: 20px 0;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .table-div:hover {
+            transform: translateY(-5px);
+        }
+
+        .form-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .wallet-section {
+            background-color: var(--sea-green);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            margin-bottom: 1.5rem;
+            overflow: hidden;
+        }
+
+        .wallet-section h3 {
+            color: white;
+            margin-top: 0;
+            margin-bottom: 1rem;
+        }
+
+        .wallet-section form {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-width: 300px;
+            margin: 0 auto;
+        }
+
+        .wallet-section input[type="number"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid var(--sea-green);
+            border-radius: 5px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+
+        .wallet-section button {
+            background-color: var(--sky-blue);
+            color: var(--sea-green);
+            border: none;
+            padding: 12px 24px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            font-family: 'Cinzel', serif;
+            text-align: center;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .wallet-section button:hover {
+            background-color: #6CB4D4;
+            transform: translateY(-2px);
+        }
+
+        .table-div button {
+            background-color: var(--sky-blue);
+            color: var(--sea-green);
+            border: none;
+            padding: 12px 24px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            font-family: 'Cinzel', serif;
+            text-align: center;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .table-div button:hover {
+            background-color: #6CB4D4;
+            transform: translateY(-2px);
+        }
+
+        .success-message {
+            background-color: var(--sea-green);
+            color: white;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .error-message {
+            background-color: #ff6b6b;
+            color: white;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .plan-features {
+            list-style: none;
+            padding: 0;
+            margin: 15px 0;
+        }
+
+        .plan-features li {
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(46, 139, 87, 0.2);
+        }
+
+        .plan-features li:last-child {
+            border-bottom: none;
+        }
+
+        .price {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--sea-green);
+            margin: 15px 0;
+        }
+
+        .back-container {
+            text-align: center;
+            margin-top: 2rem;
+        }
+
+        .back {
+            background-color: var(--sky-blue);
+            color: var(--sea-green);
+            border: none;
+            padding: 12px 24px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            width: auto;
+            font-family: 'Cinzel', serif;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .back:hover {
+            background-color: #6CB4D4;
+            transform: translateY(-2px);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .form-container {
+                grid-template-columns: 1fr;
+            }
+
+            .wallet-section form {
+                max-width: 100%;
+            }
+
+            .wallet-section input[type="number"],
+            .wallet-section button,
+            .table-div button {
+                width: 100%;
+            }
+        }
+
+        .subscribed {
+    background-color: #e0e0e0;
+    pointer-events: none;
+    opacity: 0.6;
+}
+
+.highlight-plan {
+    border: 2px solid #2E8B57;
+    background-color: #e6ffee;
+}
+
+.subscription-note {
+    color: #2E8B57;
+    font-weight: bold;
+    text-align: center;
+    margin-top: 10px;
+}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Manage Subscription</h2>
+        
+        <% if (successMessage) { %>
+            <div class="success-message"><%= successMessage %></div>
+        <% } %>
+        <% if (errorMessage) { %>
+            <div class="error-message"><%= errorMessage %></div>
+        <% } %>
+        
+        <div class="wallet-section">
+            <span class="wallet-icon">💰</span>
+            <h3>Wallet Balance: ₹<span id="walletBalance"><%= walletBalance %></span></h3>
+            <form action="/player/add-funds" method="POST">
+                <input type="number" name="amount" placeholder="Enter amount" min="1" required>
+                <input type="hidden" name="redirectTo" value="/player/subscription">
+                <button type="submit">Add Funds</button>
+            </form>
+        </div>
+
+     <div class="form-container">
+        
+    <div class="table-div 
+        <% if (currentSubscription) { %>
+            subscribed 
+            <% if (currentSubscription.plan === 'Basic') { %> highlight-plan <% } %>
+        <% } %>">
+                <h3>Basic Plan</h3>
+                <ul class="plan-features">
+                    <li>Access to tournaments</li>
+                    <li>10% discount on store products</li>
+                </ul>
+                <div class="price">₹15/month</div>
+                <form action="/player/subscribe" method="POST">
+                    <input type="hidden" name="plan" value="Basic">
+                    <input type="hidden" name="price" value="15">
+                    <button type="submit">Subscribe</button>
+                </form>
+            </div>
+
+            <div class="table-div 
+        <% if (currentSubscription) { %>
+            subscribed 
+            <% if (currentSubscription.plan === 'Premium') { %> highlight-plan <% } %>
+        <% } %>">
+                <h3>Premium Plan</h3>
+                <ul class="plan-features">
+                    <li>Access to tournaments</li>
+                    <li>20% discount on store products</li>
+                </ul>
+                <div class="price">₹30/month</div>
+                <form action="/player/subscribe" method="POST">
+                    <input type="hidden" name="plan" value="Premium">
+                    <input type="hidden" name="price" value="30">
+                    <button type="submit">Subscribe</button>
+                </form>
+            </div>
+        </div>
+
+        <% if (currentSubscription) { %>
+            <div class="table-div">
+                <h3>Current Subscription</h3>
+                <h4>Plan: <%= currentSubscription.plan %></h4>
+                <h4>Start Date: <%= new Date(currentSubscription.start_date).toLocaleDateString() %></h4>
+                <h4>Price: ₹<%= currentSubscription.price %>/month</h4>
+            </div>
+        <% } %>
+
+        <div class="form-container back-container">
+            <a href="/player/player_dashboard" class="back">Back to Dashboard</a>
+        </div>
+    </div>
+</body>
+
+</html>

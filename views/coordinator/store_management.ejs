@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Store Management - ChessHive</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --sea-green: #2E8B57;
+            --cream: #FFFDD0;
+            --sky-blue: #87CEEB;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Playfair Display', serif;
+            background-color: var(--cream);
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h2 {
+            font-family: 'Cinzel', serif;
+            font-size: 2.5rem;
+            color: var(--sea-green);
+            margin-bottom: 2rem;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        h2::before {
+            content: '🛍️';
+            font-size: 2.5rem;
+        }
+
+        .form-container {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+
+        form {
+            display: grid;
+            gap: 1.5rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        label {
+            font-family: 'Cinzel', serif;
+            color: var(--sea-green);
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+
+        input {
+            width: 100%;
+            padding: 0.8rem;
+            border: 2px solid var(--sea-green);
+            border-radius: 8px;
+            font-family: 'Playfair Display', serif;
+            transition: all 0.3s ease;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--sky-blue);
+            box-shadow: 0 0 0 3px rgba(135, 206, 235, 0.3);
+        }
+
+        button {
+            background: var(--sea-green);
+            color: white;
+            border: none;
+            padding: 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: 'Cinzel', serif;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        button:hover {
+            background: #236B43;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .product-card {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+
+        .product-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .product-image {
+            width: 100%;
+            height: 200px;
+            overflow: hidden;
+        }
+
+        .product-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .product-card:hover .product-image img {
+            transform: scale(1.1);
+        }
+
+        .product-info {
+            padding: 1.5rem;
+        }
+
+        h4 {
+            font-family: 'Cinzel', serif;
+            color: var(--sea-green);
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+        }
+
+        .price {
+            color: var(--sea-green);
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .available {
+            color: #666;
+        }
+
+        .back-container {
+            text-align: right;
+            margin-top: 2rem;
+        }
+
+        .back {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: var(--sea-green);
+            color: white;
+            text-decoration: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            font-family: 'Cinzel', serif;
+            font-weight: bold;
+        }
+
+        .back:hover {
+            background: #236B43;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .more-container {
+            text-align: center;
+            margin: 2rem 0;
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        .more, .hide {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background-color: var(--sky-blue);
+            color: var(--sea-green);
+            text-decoration: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            font-family: 'Cinzel', serif;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .more:hover, .hide:hover {
+            background-color: #5f9ece;
+            transform: translateY(-2px);
+        }
+
+        .empty-message {
+            text-align: center;
+            padding: 2rem;
+            color: var(--sea-green);
+            font-style: italic;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            margin-top: 2rem;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 1rem;
+            }
+
+            .form-container {
+                padding: 1.5rem;
+            }
+
+            .product-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .more-container {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+        }
+    </style> 
+</head>
+<body>
+    <div class="container">
+        <h2>Store Management</h2>
+        
+        <div class="form-container">
+            <form action="/coordinator/add-product" method="POST">
+                <div>
+                    <label><i class="fas fa-tag"></i> Product Name:</label>
+                    <input type="text" name="productName" required>
+                </div>
+                <div>
+                    <label><i class="fas fa-tag"></i> Product Category:</label>
+                    <input type="text" name="productCategory" required>
+                </div>
+                <div>
+                    <label><i class="fas fa-rupee-sign"></i> Price:</label>
+                    <input type="number" name="productPrice" required>
+                </div>
+                <div>
+                    <label><i class="fas fa-image"></i> Image URL:</label>
+                    <input type="text" name="productImage" required>
+                </div>
+                <div>
+                    <label><i class="fas fa-boxes"></i> Availability:</label>
+                    <input type="number" name="availability" required>
+                </div>
+                <button type="submit">
+                    <i class="fas fa-plus-circle"></i> Add Product
+                </button>
+            </form>
+        </div>
+
+        <h2>Products List</h2>
+        <div class="product-grid" id="productsGrid">
+            <% if (typeof products !== "undefined" && products.length > 0) { %>
+                <% const filteredProducts = products.filter(product => product.availability > 1); %>
+                <% if (filteredProducts.length > 0) { %>
+                    <% filteredProducts.forEach((product, index) => { %>
+                        <div class="product-card" <%= index >= 8 ? 'style="display: none;"' : '' %>>
+                            <div class="product-image">
+                                <img src="<%= product.image_url %>" alt="<%= product.name %>">
+                            </div>
+                            <div class="product-info">
+                                <h4><%= product.name %></h4>
+                                <h4><%= product.category %></h4>
+                                <p class="price"><i class="fas fa-rupee-sign"></i> <%= product.price %></p>
+                                <p class="available">
+                                    <i class="fas fa-box"></i> Available: <%= product.availability %>
+                                </p>
+                            </div>
+                        </div>
+                    <% }); %>
+                <% } else { %>
+                    <div class="empty-message">
+                        <i class="fas fa-box-open"></i> No products available with availability > 1.
+                    </div>
+                <% } %>
+            <% } else { %>
+                <div class="empty-message">
+                    <i class="fas fa-box-open"></i> No products available.
+                </div>
+            <% } %>
+        </div>
+
+        <% if (typeof products !== "undefined" && products.length > 0 && products.filter(product => product.availability > 1).length > 0) { %>
+            <div class="more-container">
+                <% if (products.filter(product => product.availability > 1).length > 8) { %>
+                    <a href="#" class="more" id="productsMoreLink">
+                        <i class="fas fa-chevron-down"></i> More
+                    </a>
+                <% } %>
+                <a href="#" class="hide" id="productsHideLink" style="display: none;">
+                    <i class="fas fa-chevron-up"></i> Hide
+                </a>
+            </div>
+        <% } %>
+
+        <div class="back-container">
+            <a href="/coordinator/coordinator_dashboard" class="back">
+                <i class="fas fa-arrow-left"></i> Back to Dashboard
+            </a>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Configuration for the products grid
+            const config = {
+                gridId: 'productsGrid',
+                cardClass: 'product-card',
+                moreLinkId: 'productsMoreLink',
+                hideLinkId: 'productsHideLink',
+                visibleCards: 8,
+                cardsPerPage: 8
+            };
+
+            const grid = document.getElementById(config.gridId);
+            const moreLink = document.getElementById(config.moreLinkId);
+            const hideLink = document.getElementById(config.hideLinkId);
+            let visibleCards = config.visibleCards;
+            const cardsPerPage = config.cardsPerPage;
+
+            // Ensure only first 8 cards are visible initially
+            const allCards = grid.querySelectorAll(`.${config.cardClass}`);
+            allCards.forEach((card, index) => {
+                card.style.display = index < visibleCards ? '' : 'none';
+            });
+
+            // Store original cards
+            const originalCards = Array.from(allCards).map(card => card.cloneNode(true));
+
+            // Function to update link visibility
+            const updateLinkVisibility = () => {
+                if (moreLink) {
+                    moreLink.style.display = visibleCards < originalCards.length ? '' : 'none';
+                }
+                if (hideLink) {
+                    hideLink.style.display = visibleCards > 8 ? '' : 'none';
+                }
+            };
+
+            // Initial link visibility
+            updateLinkVisibility();
+
+            // More link functionality
+            if (moreLink) {
+                moreLink.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    
+                    // Show next set of cards
+                    const cards = grid.querySelectorAll(`.${config.cardClass}`);
+                    for (let i = visibleCards; i < Math.min(visibleCards + cardsPerPage, cards.length); i++) {
+                        cards[i].style.display = '';
+                    }
+                    
+                    visibleCards += cardsPerPage;
+                    updateLinkVisibility();
+                });
+            }
+
+            // Hide link functionality
+            if (hideLink) {
+                hideLink.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    
+                    // Hide the last set of cards
+                    const cards = grid.querySelectorAll(`.${config.cardClass}`);
+                    const newVisibleCards = Math.max(8, visibleCards - cardsPerPage);
+                    for (let i = newVisibleCards; i < cards.length; i++) {
+                        cards[i].style.display = 'none';
+                    }
+                    
+                    visibleCards = newVisibleCards;
+                    updateLinkVisibility();
+                });
+            }
+        });
+    </script>
+</body>
+</html>

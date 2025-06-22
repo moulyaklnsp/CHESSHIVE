@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pairings & Results - ChessHive</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --sea-green: #2E8B57;
+            --cream: #FFFDD0;
+            --sky-blue: #87CEEB;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Playfair Display', serif;
+            background-color: var(--cream);
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        h2 {
+            font-family: 'Cinzel', serif;
+            font-size: 2.5rem;
+            color: var(--sea-green);
+            margin-bottom: 2rem;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        h2::before {
+            content: '⚔️';
+            font-size: 2.5rem;
+        }
+
+        .pairings-container {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 2rem;
+        }
+
+        th {
+            background-color: var(--sea-green);
+            color: white;
+            padding: 1rem;
+            text-align: left;
+            font-family: 'Cinzel', serif;
+        }
+
+        td {
+            padding: 1rem;
+            border-bottom: 1px solid rgba(46, 139, 87, 0.2);
+        }
+
+        tr:hover {
+            background-color: rgba(135, 206, 235, 0.1);
+        }
+
+        .score {
+            color: var(--sea-green);
+            font-weight: bold;
+        }
+
+        .bye {
+            color: #666;
+            font-style: italic;
+        }
+
+        form {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        select {
+            padding: 0.5rem;
+            border: 2px solid var(--sea-green);
+            border-radius: 8px;
+            font-family: 'Playfair Display', serif;
+            background: white;
+        }
+
+        button {
+            background: var(--sea-green);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: 'Cinzel', serif;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            background: #236B43;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .navigation {
+            text-align: right;
+        }
+
+        .nav-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: var(--sea-green);
+            color: white;
+            text-decoration: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            font-family: 'Cinzel', serif;
+            font-weight: bold;
+        }
+
+        .nav-link:hover {
+            background: #236B43;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 1rem;
+            }
+
+            h2 {
+                font-size: 2rem;
+            }
+
+            .pairings-container {
+                padding: 1rem;
+            }
+
+            form {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Pairings & Results</h1>
+
+    <% if (allRounds.length === 0) { %>
+        <p>No pairings available.</p>
+    <% } else { %>
+        <% allRounds.forEach(roundData => { %>
+            <h2>Round <%= roundData.round %></h2>
+            <table border="1">
+                <tr>
+                    <th>Player 1</th>
+                    <th>Player 2</th>
+                    <th>Result</th>
+                </tr>
+                <% roundData.pairings.forEach(pair => { %>
+                    <tr>
+                        <td><%= pair.player1.username %> (Score: <%= pair.player1.score %>)</td>
+                        <td><%= pair.player2 ? pair.player2.username : 'BYE' %></td>
+                        <td><%= pair.result %></td>
+                    </tr>
+                <% }); %>
+            </table>
+            
+            <% if (roundData.byePlayer) { %>
+                <p><strong>BYE:</strong> <%= roundData.byePlayer.username %> (Score: <%= roundData.byePlayer.score %>)</p>
+            <% } %>
+        <% }); %>
+    <% } %>
+    </div>
+    <div class="navigation">
+        <a href="/player/player_tournament" class="nav-link">
+            <i class="fas fa-users"></i> Back to Player tournament
+        </a>
+    </div>
+</body>
+</html>

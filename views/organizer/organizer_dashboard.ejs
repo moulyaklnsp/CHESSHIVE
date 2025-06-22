@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Organizer Dashboard - ChessHive</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --sea-green: #2E8B57;
+            --cream: #FFFDD0;
+            --sky-blue: #87CEEB;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Playfair Display', serif;
+            background-color: var(--cream);
+            min-height: 100vh;
+            display: flex;
+        }
+
+        .sidebar {
+            width: 280px;
+            background-color: var(--sea-green);
+            color: white;
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            padding-top: 1rem;
+            z-index: 1000;
+            box-shadow: 4px 0 10px rgba(0,0,0,0.1);
+        }
+
+        .sidebar-header {
+            text-align: center;
+            padding: 1rem;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 1rem;
+        }
+
+        .nav-section {
+            margin-bottom: 1rem;
+            padding: 0 1rem;
+        }
+
+        .nav-section-title {
+            color: var(--cream);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            padding: 0.5rem 1rem;
+            opacity: 0.7;
+        }
+
+        .sidebar a {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            color: white;
+            text-decoration: none;
+            padding: 0.8rem 1.5rem;
+            transition: all 0.3s ease;
+            font-family: 'Playfair Display', serif;
+            border-radius: 5px;
+            margin: 0.2rem 0;
+        }
+
+        .sidebar a:hover {
+            background: rgba(135, 206, 235, 0.2);
+            color: var(--cream);
+            transform: translateX(5px);
+        }
+
+        .sidebar a i {
+            width: 20px;
+            text-align: center;
+        }
+
+        .content {
+            flex-grow: 1;
+            margin-left: 280px;
+            padding: 2rem;
+        }
+
+        h1 {
+            font-family: 'Cinzel', serif;
+            color: var(--sea-green);
+            margin-bottom: 2rem;
+            font-size: 2.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .logout-box {
+            position: absolute;
+            bottom: 2rem;
+            width: 100%;
+            padding: 0 2rem;
+        }
+
+        .logout-box button {
+            width: 100%;
+            background: var(--sky-blue);
+            color: var(--sea-green);
+            border: none;
+            padding: 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: 'Cinzel', serif;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .logout-box button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            background: #6CB4D4;
+        }
+
+        .join-link {
+            background-color: var(--sky-blue);
+            color: var(--sea-green);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .join-link:hover {
+            background-color: #6CB4D1;
+            transform: translateY(-2px);
+        }
+
+        .form-container {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+
+        .more-container {
+            text-align: center;
+            margin: 1rem 0;
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        .more, .hide {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background-color: var(--sky-blue);
+            color: var(--sea-green);
+            text-decoration: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            font-family: 'Cinzel', serif;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .more:hover, .hide:hover {
+            background-color: #5f9ece;
+            transform: translateY(-2px);
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                left: -100%;
+                transition: 0.3s;
+            }
+
+            .sidebar.open {
+                left: 0;
+            }
+
+            .content {
+                margin-left: 0;
+                padding: 1rem;
+            }
+
+            h1 {
+                font-size: 1.8rem;
+                flex-direction: column;
+                text-align: center;
+                gap: 0.5rem;
+            }
+
+            .menu-btn {
+                display: block;
+                position: fixed;
+                left: 1rem;
+                top: 1rem;
+                background: var(--sea-green);
+                color: white;
+                border: none;
+                padding: 0.8rem;
+                border-radius: 8px;
+                cursor: pointer;
+                z-index: 1001;
+                transition: all 0.3s ease;
+            }
+
+            .menu-btn:hover {
+                background: #236B43;
+                transform: scale(1.05);
+            }
+
+            .more-container {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <button class="menu-btn" id="menuBtn" style="display: none;">
+        <i class="fas fa-bars"></i>
+    </button>
+    
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h2><i class="fas fa-chess"></i> ChessHive</h2>
+        </div>
+    
+        <div class="nav-section">
+            <div class="nav-section-title">Main Menu</div>
+            <a href="/organizer/organizer_profile"><i class="fas fa-user"></i> Profile Page</a>
+            <a href="/organizer/coordinator_management"><i class="fas fa-users-cog"></i> Manage Coordinators</a>
+            <a href="/organizer/organizer_tournament"><i class="fas fa-trophy"></i> Tournament Oversight</a>
+            <a href="/organizer/college_stats"><i class="fas fa-chart-bar"></i> College Performance Stats</a>
+            <a href="/organizer/store_monitoring"><i class="fas fa-store"></i> Store Monitoring</a>
+            <a href="/organizer/meetings"><i class="fas fa-calendar-alt"></i> Schedule Meetings</a>
+        </div>
+
+        <div class="logout-box">
+            <button onclick="handleLogout()">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Log Out</span>
+            </button>
+        </div>
+    </div>
+    
+    <div class="content">
+        <h1 class="greeting">
+            Welcome, <%= typeof organizerName !== "undefined" ? organizerName : "Organizer" %>!
+        </h1>
+
+        <div class="form-container">
+            <h2>Upcoming Meetings (Next 3 Days)</h2>
+            <% if (typeof meetings !== "undefined" && meetings.length > 0) { %>
+                <ul id="meetingsList">
+                    <% meetings.forEach((meeting, index) => { %>
+                        <li class="meeting-row" <%= index >= 5 ? 'style="display: none;"' : '' %>>
+                            <strong><%= meeting.title %></strong> - 
+                            <%= new Date(meeting.date).toLocaleDateString() %> at <%= meeting.time %> 
+                            <a href="<%= meeting.link %>" target="_blank" class="join-link">
+                                <i class="fas fa-video"></i> Join
+                            </a>
+                        </li>
+                    <% }) %>
+                </ul>
+                <% if (meetings.length > 5) { %>
+                    <div class="more-container">
+                        <a href="#" class="more" id="meetingsMoreLink">
+                            <i class="fas fa-chevron-down"></i> More
+                        </a>
+                        <a href="#" class="hide" id="meetingsHideLink" style="display: none;">
+                            <i class="fas fa-chevron-up"></i> Hide
+                        </a>
+                    </div>
+                <% } %>
+            <% } else { %>
+                <p>No upcoming meetings.</p>
+            <% } %>
+        </div>
+    </div>
+    
+    <script>
+        function isMobile() { return window.innerWidth <= 768; }
+        function updateMenuButtonVisibility() {
+            const menuBtn = document.getElementById("menuBtn");
+            const sidebar = document.getElementById("sidebar");
+            if (isMobile()) {
+                menuBtn.style.display = "block";
+                sidebar.style.left = "-100%";
+            } else {
+                menuBtn.style.display = "none";
+                sidebar.style.left = "0";
+            }
+        }
+        function toggleSidebar() {
+            const sidebar = document.getElementById("sidebar");
+            sidebar.style.left = sidebar.style.left === "0px" ? "-100%" : "0px";
+        }
+        function handleLogout() { window.location.href = '/login'; }
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', function(e) {
+                this.style.opacity = '0.7';
+                window.location.href = this.getAttribute('href');
+            });
+        });
+        document.getElementById("menuBtn").addEventListener("click", toggleSidebar);
+
+        // Meetings pagination
+        document.addEventListener('DOMContentLoaded', () => {
+            const meetingsConfig = {
+                listId: 'meetingsList',
+                rowClass: 'meeting-row',
+                moreLinkId: 'meetingsMoreLink',
+                hideLinkId: 'meetingsHideLink',
+                visibleRows: 5,
+                rowsPerPage: 5
+            };
+
+            const list = document.getElementById(meetingsConfig.listId);
+            const moreLink = document.getElementById(meetingsConfig.moreLinkId);
+            const hideLink = document.getElementById(meetingsConfig.hideLinkId);
+            let visibleRows = meetingsConfig.visibleRows;
+            const rowsPerPage = meetingsConfig.rowsPerPage;
+
+            // Ensure only first 5 meetings are visible initially
+            const allRows = list ? list.querySelectorAll(`.${meetingsConfig.rowClass}`) : [];
+            allRows.forEach((row, index) => {
+                row.style.display = index < visibleRows ? '' : 'none';
+            });
+
+            // Store original rows
+            const originalRows = Array.from(allRows).map(row => row.cloneNode(true));
+
+            // Function to update link visibility
+            const updateLinkVisibility = () => {
+                if (moreLink) {
+                    moreLink.style.display = visibleRows < originalRows.length ? '' : 'none';
+                }
+                if (hideLink) {
+                    hideLink.style.display = visibleRows > 5 ? '' : 'none';
+                }
+            };
+
+            // Initial link visibility
+            updateLinkVisibility();
+
+            // More link functionality
+            if (moreLink) {
+                moreLink.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    
+                    // Show next set of rows
+                    const rows = list.querySelectorAll(`.${meetingsConfig.rowClass}`);
+                    for (let i = visibleRows; i < Math.min(visibleRows + rowsPerPage, rows.length); i++) {
+                        rows[i].style.display = '';
+                    }
+                    
+                    visibleRows += rowsPerPage;
+                    updateLinkVisibility();
+                });
+            }
+
+            // Hide link functionality
+            if (hideLink) {
+                hideLink.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    
+                    // Hide the last set of rows
+                    const rows = list.querySelectorAll(`.${meetingsConfig.rowClass}`);
+                    const newVisibleRows = Math.max(5, visibleRows - rowsPerPage);
+                    for (let i = newVisibleRows; i < rows.length; i++) {
+                        rows[i].style.display = 'none';
+                    }
+                    
+                    visibleRows = newVisibleRows;
+                    updateLinkVisibility();
+                });
+            }
+        });
+
+        window.addEventListener("load", updateMenuButtonVisibility);
+        window.addEventListener("resize", updateMenuButtonVisibility);
+    </script>
+</body>
+</html>

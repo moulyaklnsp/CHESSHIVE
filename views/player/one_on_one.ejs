@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>One-on-One Matches - ChessHive</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --sea-green: #2E8B57;
+            --cream: #FFFDD0;
+            --sky-blue: #87CEEB;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Playfair Display', serif;
+            background-color: var(--cream);
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        h2 {
+            font-family: 'Cinzel', serif;
+            font-size: 2.5rem;
+            color: var(--sea-green);
+            margin-bottom: 2rem;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        h2::before {
+            content: '♟️';
+            font-size: 2.5rem;
+        }
+
+        h3 {
+            font-family: 'Cinzel', serif;
+            color: var(--sea-green);
+            margin: 1.5rem 0;
+            font-size: 1.8rem;
+        }
+
+        .form-container-login {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .search-player {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        input {
+            flex: 1;
+            padding: 0.8rem;
+            border: 2px solid var(--sea-green);
+            border-radius: 8px;
+            font-family: 'Playfair Display', serif;
+            transition: all 0.3s ease;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--sky-blue);
+            box-shadow: 0 0 0 3px rgba(135, 206, 235, 0.3);
+        }
+
+        select {
+            width: 100%;
+            padding: 0.8rem;
+            margin-bottom: 1rem;
+            border: 2px solid var(--sea-green);
+            border-radius: 8px;
+            font-family: 'Playfair Display', serif;
+            background: white;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--sea-green);
+            font-weight: bold;
+            font-family: 'Cinzel', serif;
+        }
+
+        button {
+            background: var(--sea-green);
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: 'Cinzel', serif;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        button:hover {
+            background: #236B43;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        #playerInfo {
+            background: var(--cream);
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+        }
+
+        #gameArea {
+            margin-top: 2rem;
+        }
+
+        #chessBoard {
+            max-width: 600px;
+            margin: 0 auto;
+            border: 2px solid var(--sea-green);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .back-container {
+            text-align: right;
+            margin-top: 2rem;
+        }
+
+        .back {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: var(--sea-green);
+            color: white;
+            text-decoration: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            font-family: 'Cinzel', serif;
+            font-weight: bold;
+        }
+
+        .back:hover {
+            background: #236B43;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 1rem;
+            }
+
+            .search-player {
+                flex-direction: column;
+            }
+
+            button {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Challenge a Player</h2>
+        
+        <div class="form-container-login">
+            <div class="search-player">
+                <input type="text" id="searchInput" placeholder="Enter player's Fullname">
+                <button onclick="searchPlayer()">
+                    <i class="fas fa-search"></i> Search
+                </button>
+            </div>
+
+            <div id="playerInfo" class="hidden">
+                <h3 id="playerName"></h3>
+                
+                <label>Choose Color:</label>
+                <select id="colorChoice">
+                    <option value="white">White</option>
+                    <option value="black">Black</option>
+                    <option value="random">Random</option>
+                </select>
+
+                <label>Time Control:</label>
+                <select id="timeControl">
+                    <option value="1+0">Bullet (1+0)</option>
+                    <option value="3+2">Blitz (3+2)</option>
+                    <option value="10+0">Rapid (10+0)</option>
+                </select>
+
+                <button onclick="sendChallenge()">
+                    <i class="fas fa-chess-knight"></i> Send Challenge
+                </button>
+            </div>
+
+            <div id="gameArea" class="hidden">
+                <h3>Live Chess Game</h3>
+                <div id="chessBoard"></div>
+            </div>
+            
+            <div class="back-container">
+                <a href="/player/player_dashboard" class="back">
+                    <i class="fas fa-arrow-left"></i> Back to Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/chessboard-js/1.0.0/chessboard.min.js"></script>
+    <script src="/js/one_on_one.js" defer></script>
+</body>
+</html>

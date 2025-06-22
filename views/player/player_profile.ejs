@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Player Profile - ChessHive</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --sea-green: #2E8B57;
+            --cream: #FFFDD0;
+            --sky-blue: #87CEEB;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Playfair Display', serif;
+            background-color: var(--cream);
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .container-player-profile {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1, h2 {
+            font-family: 'Cinzel', serif;
+            color: var(--sea-green);
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        h1::before {
+            content: '👤';
+            font-size: 2.5rem;
+        }
+
+        .message {
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        .success {
+            background-color: rgba(46, 139, 87, 0.1);
+            color: var(--sea-green);
+        }
+
+        .error {
+            background-color: #ffebee;
+            color: #c62828;
+        }
+
+        .form-container {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+
+        .profile-info {
+            display: grid;
+            gap: 1.5rem;
+        }
+
+        .info-section {
+            background: var(--cream);
+            padding: 1.5rem;
+            border-radius: 8px;
+        }
+
+        .info-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            border-bottom: 1px solid rgba(46, 139, 87, 0.2);
+        }
+
+        .info-item:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            font-family: 'Cinzel', serif;
+            color: var(--sea-green);
+            font-weight: bold;
+            min-width: 150px;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .wallet {
+            background: var(--sea-green);
+            color: white;
+            padding: 2rem;
+            border-radius: 8px;
+            text-align: center;
+            margin: 2rem 0;
+        }
+
+        .wallet h2 {
+            color: white;
+            margin-bottom: 1rem;
+        }
+
+        .wallet-balance {
+            font-size: 2rem;
+            font-weight: bold;
+        }
+
+        .purchases {
+            margin-top: 2rem;
+        }
+
+        .purchases ul {
+            list-style: none;
+        }
+
+        .purchases li {
+            padding: 1rem;
+            border-bottom: 1px solid rgba(46, 139, 87, 0.2);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .back {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: var(--sea-green);
+            color: white;
+            text-decoration: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            font-family: 'Cinzel', serif;
+            font-weight: bold;
+        }
+
+        .delete-btn {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: 'Cinzel', serif;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .back:hover, .delete-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 1rem;
+            }
+
+            .form-container {
+                padding: 1.5rem;
+            }
+
+            .info-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.5rem;
+            }
+
+            .info-label {
+                min-width: auto;
+            }
+
+            .actions {
+                flex-direction: column;
+            }
+
+            .back, .delete-btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container-player-profile">
+        <h1>Player Profile</h1>
+
+        <% if (successMessage) { %>
+            <div class="message success">
+                <i class="fas fa-check-circle"></i> <%= successMessage %>
+            </div>
+        <% } %>
+        <% if (errorMessage) { %>
+            <div class="message error">
+                <i class="fas fa-exclamation-circle"></i> <%= errorMessage %>
+            </div>
+        <% } %>
+
+        <div class="form-container">
+            <section class="profile-info">
+                <% if (typeof player !== "undefined") { %>
+                    <div class="info-section">
+                        <div class="info-item">
+                            <span class="info-label"><i class="fas fa-user"></i> Name:</span>
+                            <span><%= player.name %></span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label"><i class="fas fa-envelope"></i> Email:</span>
+                            <span><%= player.email %></span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label"><i class="fas fa-phone"></i> Phone:</span>
+                            <span><%= player.phone %></span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label"><i class="fas fa-id-card"></i> FIDE ID:</span>
+                            <span><%= player.FIDE_ID || 'N/A' %></span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label"><i class="fas fa-id-badge"></i> AICF ID:</span>
+                            <span><%= player.AICF_ID || 'N/A' %></span>
+                        </div>
+                    </div>
+
+                    <div class="info-section">
+                        <h2><i class="fas fa-chess"></i> Player Stats</h2>
+                        <div class="info-item">
+                            <span class="info-label"><i class="fas fa-gamepad"></i> Games Played:</span>
+                            <span><%= player.gamesPlayed %></span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label"><i class="fas fa-trophy"></i> Wins:</span>
+                            <span><%= player.wins %></span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label"><i class="fas fa-times"></i> Losses:</span>
+                            <span><%= player.losses %></span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label"><i class="fas fa-handshake"></i> Draws:</span>
+                            <span><%= player.draws %></span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label"><i class="fas fa-percentage"></i> Win Rate:</span>
+                            <span><%= player.winRate %>%</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label"><i class="fas fa-star"></i> Rating:</span>
+                            <span><%= player.rating %></span>
+                        </div>
+                    </div>
+
+                    <div class="wallet">
+                        <h2><i class="fas fa-wallet"></i> Wallet</h2>
+                        <div class="wallet-balance">
+                            ₹<%= player.walletBalance %>
+                        </div>
+                    </div>
+
+                    <div class="purchases">
+                        <h2><i class="fas fa-shopping-bag"></i> Items Purchased</h2>
+                        <% if (player.sales && player.sales.length > 0) { %>
+                            <ul>
+                                <% player.sales.forEach(item => { %>
+                                    <li><i class="fas fa-chess-pawn"></i> <%= item %></li>
+                                <% }); %>
+                            </ul>
+                        <% } else { %>
+                            <p>No items purchased yet.</p>
+                        <% } %>
+                    </div>
+                <% } %>
+            </section>
+        </div>
+
+        <div class="form-container actions">
+            <a href="/player/player_dashboard" class="back">
+                <i class="fas fa-arrow-left"></i> Back to Dashboard
+            </a>
+        </div>
+    </div>
+</body>
+</html>

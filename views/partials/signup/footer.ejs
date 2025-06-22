@@ -1,0 +1,143 @@
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<footer class="main-footer">
+    <div class="footer-content">
+        <div class="copyright">
+            <i class="fas fa-chess"></i>
+            <p>&copy; <%= new Date().getFullYear() %> Chess Hive - Elevate Your Game</p>
+        </div>
+        <nav class="social-links">
+            <a href="https://www.facebook.com/profile.php?id=61574446242704" class="social-link" target="_blank">
+                <i class="fab fa-facebook"></i>
+                <span>Facebook</span>
+            </a>
+            <a href="https://x.com/Chess_Hive_Comm" class="social-link" target="_blank">
+                <i class="fab fa-x-twitter"></i>
+                <span>Twitter</span>
+            </a>
+            <a href="https://www.instagram.com/chess_hive_community/profilecard/?igsh=dDRkNTRqcTA0ZXJo" class="social-link" target="_blank">
+                <i class="fab fa-instagram"></i>
+                <span>Instagram</span>
+            </a>
+        </nav>
+    </div>
+</footer>
+
+<style>
+    :root {
+    --sea-green: #2E8B57;
+    --cream: #FFFDD0;
+    --sky-blue: #87CEEB;
+}
+    .main-footer {
+        background-color: var(--sea-green);
+        color: var(--cream);
+        padding: 2rem 0;
+        margin-top: auto;
+        font-family: 'Playfair Display', serif;
+    }
+
+    .footer-content {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 2rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .copyright {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .copyright i {
+        font-size: 1.5rem;
+        color: var(--sky-blue);
+    }
+
+    .copyright p {
+        margin: 0;
+        font-size: 1.1rem;
+    }
+
+    .social-links {
+        display: flex;
+        gap: 1.5rem;
+        align-items: center;
+    }
+
+    .social-link {
+        color: var(--cream);
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+        border-radius: 25px;
+        transition: all 0.3s ease;
+        background-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .social-link i {
+        font-size: 1.2rem;
+    }
+
+    .social-link:hover {
+        background-color: var(--sky-blue);
+        color: var(--sea-green);
+        transform: translateY(-3px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Hover effects for each social platform */
+    .social-link:hover i.fa-facebook {
+        color: #1877f2;
+    }
+
+    .social-link:hover i.fa-x-twitter {
+        color: #000000;
+    }
+
+    .social-link:hover i.fa-instagram {
+        color: #e4405f;
+    }
+
+    @media (max-width: 768px) {
+        .footer-content {
+            flex-direction: column;
+            text-align: center;
+            gap: 1.5rem;
+        }
+
+        .copyright {
+            justify-content: center;
+        }
+
+        .social-links {
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .social-link {
+            padding: 0.4rem 0.8rem;
+            font-size: 0.9rem;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .social-link span {
+            display: none;
+        }
+
+        .social-link {
+            padding: 0.5rem;
+        }
+
+        .social-link i {
+            font-size: 1.5rem;
+        }
+    }
+</style>

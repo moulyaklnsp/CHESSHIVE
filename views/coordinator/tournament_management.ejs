@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tournament Management - ChessHive</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --sea-green: #2E8B57;
+            --cream: #FFFDD0;
+            --sky-blue: #87CEEB;
+            --dark-green: #236B43;
+            --light-gray: #f9f9f9;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Playfair Display', serif;
+            background-color: var(--cream);
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h2, h3, h4 {
+            font-family: 'Cinzel', serif;
+            color: var(--sea-green);
+        }
+
+        h2 {
+            font-size: 2.5rem;
+            margin-bottom: 2rem;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        h2::before {
+            content: '♟️';
+            font-size: 2.5rem;
+        }
+
+        h3 {
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+        }
+
+        h4 {
+            font-size: 1.2rem;
+            margin-bottom: 1.5rem;
+            color: #666;
+        }
+
+        .message {
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .success {
+            background-color: rgba(46, 139, 87, 0.1);
+            color: var(--sea-green);
+        }
+
+        .error {
+            background-color: #ffebee;
+            color: #c62828;
+        }
+
+        .table-div {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 1.5rem;
+        }
+
+        th {
+            background-color: var(--sea-green);
+            color: white;
+            padding: 1rem;
+            text-align: left;
+            font-family: 'Cinzel', serif;
+        }
+
+        td {
+            padding: 1rem;
+            border-bottom: 1px solid rgba(46, 139, 87, 0.2);
+        }
+
+        tr:hover {
+            background-color: rgba(135, 206, 235, 0.1);
+        }
+
+        .status-completed { 
+            color: var(--sea-green);
+            font-weight: bold;
+        }
+
+        .status-ongoing { 
+            color: var(--sky-blue);
+            font-weight: bold;
+        }
+
+        .status-yet-to-start { 
+            color: #666;
+            font-weight: bold;
+        }
+
+        .status-pending { 
+            color: #c62828;
+            font-weight: bold;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: var(--sky-blue);
+            color: var(--sea-green);
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-family: 'Cinzel', serif;
+            font-weight: bold;
+            margin: 0.2rem;
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .btn-remove {
+            background: #c62828;
+            color: var(--cream);
+        }
+
+        .btn-remove:hover {
+            background: #a12020;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .back-container {
+            text-align: right;
+            margin-top: 2rem;
+        }
+
+        .back {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: var(--sea-green);
+            color: white;
+            text-decoration: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            font-family: 'Cinzel', serif;
+            font-weight: bold;
+        }
+
+        .back:hover {
+            background: var(--dark-green);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .form-container {
+            width: 100%;
+            padding: 2rem 0;
+        }
+
+        form {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--sea-green);
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+
+        input {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid var(--sea-green);
+            border-radius: 8px;
+            font-size: 1.2rem;
+            min-height: 50px;
+            background-color: rgba(255, 255, 255, 0.9);
+            transition: all 0.3s ease;
+            font-family: 'Playfair Display', serif;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--sky-blue);
+            box-shadow: 0 0 0 3px rgba(135, 206, 235, 0.2);
+        }
+
+        select {
+            width: 100%;
+            padding: 0.6rem 1rem;
+            border: 2px solid var(--sea-green);
+            border-radius: 8px;
+            font-size: 1rem;
+            background-color: rgba(255, 255, 255, 0.9);
+            transition: all 0.3s ease;
+            font-family: 'Cinzel', serif;
+            cursor: pointer;
+            color: var(--sea-green);
+        }
+
+        select:focus {
+            outline: none;
+            border-color: var(--dark-green);
+            box-shadow: 0 0 5px rgba(46, 139, 87, 0.3);
+        }
+
+        select:hover {
+            background-color: var(--light-gray);
+        }
+
+        .add-tournament-button {
+            grid-column: 1 / -1;
+        }
+
+        button {
+            background-color: var(--sea-green);
+            color: var(--cream);
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Cinzel', serif;
+            font-weight: bold;
+            width: 100%;
+        }
+
+        button:hover {
+            background-color: var(--dark-green);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .searchBarContainer {
+            margin-bottom: 1rem;
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        .searchBarContainer input {
+            padding: 0.4rem 0.8rem;
+            width: 100%;
+            max-width: 200px;
+            border: 2px solid var(--sea-green);
+            border-radius: 8px;
+            font-size: 0.9rem;
+            min-height: 36px;
+            transition: all 0.3s ease;
+            font-family: 'Playfair Display', serif;
+        }
+
+        .searchBarContainer input:focus {
+            outline: none;
+            border-color: var(--dark-green);
+            box-shadow: 0 0 5px rgba(46, 139, 87, 0.3);
+        }
+
+        .searchBarContainer select {
+            padding: 0.4rem 0.8rem;
+            border: 2px solid var(--sea-green);
+            border-radius: 8px;
+            font-size: 0.9rem;
+            min-height: 36px;
+            background-color: white;
+            color: var(--sea-green);
+            font-family: 'Cinzel', serif;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .searchBarContainer select:focus {
+            outline: none;
+            border-color: var(--dark-green);
+            box-shadow: 0 0 5px rgba(46, 139, 87, 0.3);
+        }
+
+        .searchBarContainer select:hover {
+            background-color: var(--light-gray);
+        }
+
+        .more-container {
+            text-align: center;
+            margin: 1rem 0;
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        .more, .hide {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background-color: var(--sky-blue);
+            color: var(--sea-green);
+            text-decoration: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            font-family: 'Cinzel', serif;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .more:hover, .hide:hover {
+            background-color: #5f9ece;
+            transform: translateY(-2px);
+        }
+
+        .empty-message {
+            text-align: center;
+            padding: 2rem;
+            color: var(--sea-green);
+            font-style: italic;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 1rem;
+            }
+
+            .table-div {
+                padding: 1rem;
+            }
+
+            td, th {
+                padding: 0.8rem;
+            }
+
+            .btn {
+                display: block;
+                margin: 0.5rem 0;
+                text-align: center;
+            }
+
+            .more-container {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+
+            form {
+                grid-template-columns: 1fr;
+            }
+
+            input {
+                font-size: 0.9rem;
+                min-height: 40px;
+            }
+
+            select {
+                font-size: 0.8rem;
+                min-height: 40px;
+            }
+
+            .searchBarContainer {
+                display: flex;
+                flex-direction: column;
+                align-items: stretch;
+                gap: 0.5rem;
+            }
+
+            .searchBarContainer input,
+            .searchBarContainer select {
+                max-width: 100%;
+                font-size: 0.8rem;
+                padding: 0.4rem 0.8rem;
+                min-height: 36px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Tournament Management</h2>
+
+        <% if (successMessage) { %>
+            <div class="message success">
+                <i class="fas fa-check-circle"></i> <%= successMessage %>
+            </div>
+        <% } %>
+        <% if (errorMessage) { %>
+            <div class="message error">
+                <i class="fas fa-exclamation-circle"></i> <%= errorMessage %>
+            </div>
+        <% } %>
+
+        <div class="form-container" id="tournamentFormSection">
+            <h3 id="formTitle">Add New Tournament</h3>
+            <form class="form-container" id="tournamentForm" action="/tournament_management" method="POST">
+                <input type="hidden" id="tournamentId" name="tournamentId">
+                
+                <div>
+                    <label for="tournamentName">Tournament Name:</label>
+                    <input type="text" id="tournamentName" name="tournamentName" value="<%= typeof tournamentName !== 'undefined' ? tournamentName : '' %>" required>
+                </div>
+
+                <div>
+                    <label for="tournamentDate">Date:</label>
+                    <input type="date" id="tournamentDate" name="tournamentDate" value="<%= typeof tournamentDate !== 'undefined' ? tournamentDate : '' %>" required>
+                </div>
+
+                <div>
+                    <label for="tournamentTime">Time:</label>
+                    <input type="time" name="tournamentTime" required>
+                </div>
+
+                <div>
+                    <label for="tournamentLocation">Location:</label>
+                    <input type="text" id="tournamentLocation" name="tournamentLocation" value="<%= typeof tournamentLocation !== 'undefined' ? tournamentLocation : '' %>" required>
+                </div>
+
+                <div>
+                    <label for="entryFee">Entry Fee (₹):</label>
+                    <input type="number" id="entryFee" name="entryFee" min="0" step="0.01" value="<%= typeof entryFee !== 'undefined' ? entryFee : '' %>" required>
+                </div>
+
+                <div>
+                    <label for="type">Type:</label>
+                    <select id="type" name="type" required>
+                        <option value="" disabled selected>Select Type</option>
+                        <option value="Individual" <%= (typeof type !== 'undefined' && type === 'Individual') ? 'selected' : '' %>>Individual</option>
+                        <option value="Team" <%= (typeof type !== 'undefined' && type === 'Team') ? 'selected' : '' %>>Team</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label for="noOfRounds">No of Rounds:</label>
+                    <input type="number" id="noOfRounds" name="noOfRounds" value="<%= typeof no_of_rounds !== 'undefined' ? no_of_rounds : '' %>" required>
+                </div>
+
+                <div class="add-tournament-button">
+                    <button type="submit" id="submitButton">Add Tournament</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="table-div">
+            <h3>Your Tournaments</h3>
+            <h4>Tournaments you've submitted will appear here with their approval status</h4>
+            <div class="searchBarContainer"></div>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th><i class="fas fa-trophy"></i> Name</th>
+                        <th><i class="fas fa-calendar"></i> Date</th>
+                        <th>Time</th>
+                        <th><i class="fas fa-map-marker-alt"></i> Location</th>
+                        <th><i class="fas fa-rupee-sign"></i> Entry Fee</th>
+                        <th>Type</th>
+                        <th>No Of Rounds</th>
+                        <th><i class="fas fa-info-circle"></i> Status</th>
+                        <th><i class="fas fa-cogs"></i> Actions</th>
+                        <th><i class="fas fa-cogs"></i> Remove</th>
+                    </tr>
+                </thead>
+                <tbody id="tournamentsTable">
+                    <% if (Array.isArray(tournaments) && tournaments.length > 0) { %>
+                        <% tournaments.forEach((tournament, index) => { %>
+                            <% 
+                                const today = new Date();
+                                const tournamentDate = new Date(tournament.date);
+                                let status = tournament.status || 'Pending';
+                                let statusClass = 'status-pending';
+                                if (status === 'Approved') {
+                                    if (tournamentDate.toDateString() < today.toDateString()) {
+                                        status = 'Completed';
+                                        statusClass = 'status-completed';
+                                    } else if (tournamentDate.toDateString() === today.toDateString()) {
+                                        status = 'Ongoing';
+                                        statusClass = 'status-ongoing';
+                                    } else {
+                                        status = 'Yet to Start';
+                                        statusClass = 'status-yet-to-start';
+                                    }
+                                }
+                            %>
+                            <tr class="tournament-row" <%= index >= 5 ? 'style="display: none;"' : '' %>>
+                                <td><%= tournament.name %></td>
+                                <td><%= new Date(tournament.date).toLocaleDateString() %></td>
+                                <td><%= tournament.time %></td>
+                                <td><%= tournament.location %></td>
+                                <td>₹<%= tournament.entry_fee %></td>
+                                <td><%= tournament.type %></td>
+                                <td><%= tournament.no_of_rounds %></td>
+                                <td class="<%= statusClass %>">
+                                    <i class="fas fa-circle"></i> <%= status %>
+                                </td>
+                                <td>
+                                    <% if (tournament.status === 'Approved') { %>
+                                        <a href="/coordinator/enrolled_players?tournament_id=<%= tournament._id.toString() %>" class="btn">
+                                            <i class="fas fa-users"></i> Players
+                                        </a>
+                                    <%  if(tournament.type === 'Individual') { %>
+                                        <a href="/coordinator/pairings?tournament_id=<%= tournament._id.toString() %>&rounds=5" class="btn">
+                                            <i class="fas fa-chess-board"></i> Pairings
+                                        </a>
+                                        <a href="/coordinator/rankings?tournament_id=<%= tournament._id.toString() %>" class="btn">
+                                            <i class="fas fa-medal"></i> Rankings
+                                        </a>
+                                    <% } %>
+                                    <% } %>
+                                </td>
+                                <td>
+                                    <button class="btn btn-remove" onclick="removeTournament('<%= tournament._id %>', this)">
+                                        <i class="fas fa-trash"></i> Remove
+                                    </button>
+                                </td>
+                            </tr>
+                        <% }); %>
+                    <% } else { %>
+                        <tr>
+                            <td colspan="10" class="empty-message">
+                                <i class="fas fa-info-circle"></i> No tournaments available.
+                            </td>
+                        </tr>
+                    <% } %>
+                </tbody>
+            </table>
+
+            <% if (Array.isArray(tournaments) && tournaments.length > 5) { %>
+                <div class="more-container">
+                    <a href="#" class="more" id="tournamentsMoreLink">
+                        <i class="fas fa-trophy"></i> More
+                    </a>
+                    <a href="#" class="hide" id="tournamentsHideLink" style="display: none;">
+                        <i class="fas fa-chevron-up"></i> Hide
+                    </a>
+                </div>
+            <% } %>
+
+            <div class="back-container">
+                <a href="/coordinator/coordinator_dashboard" class="back">
+                    <i class="fas fa-arrow-left"></i> Back to Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/tournament_management.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const config = {
+                tableId: 'tournamentsTable',
+                rowClass: 'tournament-row',
+                moreLinkId: 'tournamentsMoreLink',
+                hideLinkId: 'tournamentsHideLink',
+                visibleRows: 5,
+                rowsPerPage: 5
+            };
+
+            const table = document.getElementById(config.tableId);
+            const moreLink = document.getElementById(config.moreLinkId);
+            const hideLink = document.getElementById(config.hideLinkId);
+            let visibleRows = config.visibleRows;
+            const rowsPerPage = config.rowsPerPage;
+
+            const allRows = table ? table.querySelectorAll(`.${config.rowClass}`) : [];
+            const originalRows = Array.from(allRows).map(row => row.cloneNode(true));
+
+            const updateLinkVisibility = () => {
+                if (moreLink) {
+                    moreLink.style.display = visibleRows < originalRows.length ? '' : 'none';
+                }
+                if (hideLink) {
+                    hideLink.style.display = visibleRows > 5 ? '' : 'none';
+                }
+            };
+
+            if (table) {
+                allRows.forEach((row, index) => {
+                    row.style.display = index < visibleRows ? '' : 'none';
+                });
+                updateLinkVisibility();
+            }
+
+            if (moreLink) {
+                moreLink.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const rows = table.querySelectorAll(`.${config.rowClass}`);
+                    for (let i = visibleRows; i < Math.min(visibleRows + rowsPerPage, rows.length); i++) {
+                        rows[i].style.display = '';
+                    }
+                    visibleRows += rowsPerPage;
+                    updateLinkVisibility();
+                });
+            }
+
+            if (hideLink) {
+                hideLink.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const rows = table.querySelectorAll(`.${config.rowClass}`);
+                    const newVisibleRows = Math.max(5, visibleRows - rowsPerPage);
+                    for (let i = newVisibleRows; i < rows.length; i++) {
+                        rows[i].style.display = 'none';
+                    }
+                    visibleRows = newVisibleRows;
+                    updateLinkVisibility();
+                });
+            }
+        });
+    </script>
+    <script src="/js/searchbar.js"></script>
+</body>
+</html>

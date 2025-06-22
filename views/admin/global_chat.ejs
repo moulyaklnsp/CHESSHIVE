@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Global Chat - ChessHive</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --sea-green: #2E8B57;
+            --cream: #FFFDD0;
+            --sky-blue: #87CEEB;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Playfair Display', serif;
+            background-color: var(--cream);
+            color: var(--sea-green);
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .container2 {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        h2 {
+            font-family: 'Cinzel', serif;
+            font-size: 2.5rem;
+            color: var(--sea-green);
+            margin-bottom: 2rem;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        h2::before {
+            content: '💬';
+            font-size: 2.5rem;
+        }
+
+        .chat-container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            height: 70vh;
+        }
+
+        .chat-header {
+            background-color: var(--sea-green);
+            color: var(--cream);
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .chat-header i {
+            font-size: 1.5rem;
+        }
+
+        .chat-box {
+            flex-grow: 1;
+            padding: 1.5rem;
+            overflow-y: auto;
+            background: rgba(255, 253, 208, 0.3);
+        }
+
+        .message {
+            margin-bottom: 1rem;
+            padding: 0.8rem 1rem;
+            border-radius: 10px;
+            max-width: 80%;
+        }
+
+        .message.sent {
+            background-color: var(--sea-green);
+            color: var(--cream);
+            margin-left: auto;
+            border-bottom-right-radius: 0;
+        }
+
+        .message.received {
+            background-color: var(--sky-blue);
+            color: var(--sea-green);
+            margin-right: auto;
+            border-bottom-left-radius: 0;
+        }
+
+        .sender {
+            font-weight: bold;
+            margin-bottom: 0.3rem;
+            font-size: 0.9rem;
+        }
+
+        .timestamp {
+            font-size: 0.8rem;
+            opacity: 0.8;
+            margin-top: 0.3rem;
+            text-align: right;
+        }
+
+        .chat-form {
+            display: flex;
+            gap: 1rem;
+            padding: 1rem;
+            background-color: white;
+            border-top: 1px solid rgba(46, 139, 87, 0.2);
+        }
+
+        .chat-input {
+            flex-grow: 1;
+            padding: 0.8rem;
+            border: 2px solid var(--sea-green);
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .chat-input:focus {
+            outline: none;
+            border-color: var(--sky-blue);
+            box-shadow: 0 0 0 3px rgba(135, 206, 235, 0.2);
+        }
+
+        .send-btn {
+            background-color: var(--sea-green);
+            color: var(--cream);
+            border: none;
+            padding: 0 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Cinzel', serif;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .send-btn:hover {
+            background-color: #236B43;
+            transform: translateY(-2px);
+        }
+
+        .back-container {
+            margin-top: 2rem;
+            text-align: right;
+        }
+
+        .back {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background-color: var(--sea-green);
+            color: var(--cream);
+            text-decoration: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            font-family: 'Cinzel', serif;
+            font-weight: bold;
+        }
+
+        .back:hover {
+            background-color: #236B43;
+            transform: translateY(-2px);
+        }
+
+        /* Scrollbar Styling */
+        .chat-box::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .chat-box::-webkit-scrollbar-track {
+            background: rgba(46, 139, 87, 0.1);
+        }
+
+        .chat-box::-webkit-scrollbar-thumb {
+            background-color: var(--sea-green);
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container2">
+        <h2>Global Chat</h2>
+        
+        <div class="chat-container">
+            <div class="chat-header">
+                <i class="fas fa-globe"></i>
+                <span>Chess Community Chat</span>
+            </div>
+
+            <div class="chat-box">
+                <% messages.forEach(message => { %>
+                    <div class="message <%= message.sender === currentUser ? 'sent' : 'received' %>">
+                        <div class="sender"><%= message.sender %></div>
+                        <div class="text"><%= message.text %></div>
+                        <div class="timestamp">
+                            <%= new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) %>
+                        </div>
+                    </div>
+                <% }); %>
+            </div>
+
+            <form action="/admin/global_chat" method="POST" class="chat-form">
+                <input 
+                    type="text" 
+                    name="message" 
+                    placeholder="Type your message here..." 
+                    class="chat-input"
+                    required
+                    autocomplete="off"
+                >
+                <button type="submit" class="send-btn">
+                    <i class="fas fa-paper-plane"></i>
+                    Send
+                </button>
+            </form>
+        </div>
+
+        <div class="back-container">
+            <a href="/admin/admin_dashboard" class="back">
+                <i class="fas fa-arrow-left"></i> Back to Dashboard
+            </a>
+        </div>
+    </div>
+
+    <script>
+        // Auto-scroll to bottom of chat
+        const chatBox = document.querySelector('.chat-box');
+        chatBox.scrollTop = chatBox.scrollHeight;
+
+        // Optional: Scroll to bottom when new message is sent
+        const form = document.querySelector('form');
+        form.addEventListener('submit', () => {
+            setTimeout(() => {
+                chatBox.scrollTop = chatBox.scrollHeight;
+            }, 100);
+        });
+    </script>
+</body>
+</html>

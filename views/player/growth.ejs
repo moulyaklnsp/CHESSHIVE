@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Growth Analytics - ChessHive</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --sea-green: #2E8B57;
+            --cream: #FFFDD0;
+            --sky-blue: #87CEEB;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Playfair Display', serif;
+            background-color: var(--cream);
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h2 {
+            font-family: 'Cinzel', serif;
+            font-size: 2.5rem;
+            color: var(--sea-green);
+            margin-bottom: 2rem;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        h2::before {
+            content: '📈';
+            font-size: 2.5rem;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--sea-green);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: #666;
+            font-family: 'Cinzel', serif;
+        }
+
+        .chart-container {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+            height: 400px;
+        }
+
+        .back-container {
+            text-align: right;
+        }
+
+        .back {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: var(--sea-green);
+            color: white;
+            text-decoration: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            font-family: 'Cinzel', serif;
+            font-weight: bold;
+        }
+
+        .back:hover {
+            background: #236B43;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 1rem;
+            }
+
+            .stats {
+                grid-template-columns: 1fr;
+            }
+
+            .chart-container {
+                height: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Player Growth Analytics</h2>
+
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-value">
+                    <i class="fas fa-chess"></i>
+                    <%= player.gamesPlayed || 0 %>
+                </div>
+                <div class="stat-label">Recent Matches</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">
+                    <i class="fas fa-percentage"></i>
+                    <%= player.winRate || 0 %>%
+                </div>
+                <div class="stat-label">Win Rate</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">
+                    <i class="fas fa-chart-line"></i>
+                    <%= player.rating || 400 %>
+                </div>
+                <div class="stat-label">Current Rating</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">
+                    <i class="fas fa-trophy"></i>
+                    <%= ratingHistory && ratingHistory.length > 0 ? Math.max(...ratingHistory) : 400 %>
+                </div>
+                <div class="stat-label">Peak Rating</div>
+            </div>
+        </div>
+
+        <div class="chart-container">
+            <canvas id="growthChart"></canvas>
+        </div>
+
+        <div class="back-container">
+            <a href="/player/player_dashboard" class="back">
+                <i class="fas fa-arrow-left"></i> Back to Dashboard
+            </a>
+        </div>
+    </div>
+
+    <script>
+        function applyMediaQueries() {
+            let width = window.innerWidth;
+            let statsContainer = document.querySelector('.stats');
+            if (width <= 768) {
+                statsContainer.style.flexDirection = 'column';
+                statsContainer.style.alignItems = 'center';
+            } else {
+                statsContainer.style.flexDirection = 'row';
+                statsContainer.style.alignItems = 'stretch';
+            }
+        }
+        
+        window.addEventListener('resize', applyMediaQueries);
+        window.addEventListener('DOMContentLoaded', applyMediaQueries);
+        
+        var ctx = document.getElementById('growthChart').getContext('2d');
+
+        // Create gradient for the fill
+        const gradientFill = ctx.createLinearGradient(0, 0, 0, 400);
+        gradientFill.addColorStop(0, '#2E8B57'); // Yellow at the top
+        gradientFill.addColorStop(1, '#2E8B57'); // Transparent at the bottom
+
+        // Ensure ratingHistory has valid data
+        const rawRatingData = `<%- JSON.stringify(ratingHistory) %>`;
+        const ratingData = Array.isArray(rawRatingData) && rawRatingData.length === 6 
+            ? rawRatingData.map(val => (val && !isNaN(val) ? val : 400))
+            : [400, 400, 400, 400, 400, 400];
+
+        // Log ratingData to debug
+        console.log("Raw Rating Data:", `<%- JSON.stringify(ratingHistory) %>`);
+        console.log("Processed Rating Data:", ratingData);
+
+        const minRating = ratingData && ratingData.length > 0 ? Math.min(...ratingData) - 100 : 300;
+        const maxRating = ratingData && ratingData.length > 0 ? Math.max(...ratingData) + 100 : 500;
+
+        // Log min and max ratings to debug
+        console.log("Min Rating:", minRating, "Max Rating:", maxRating);
+
+        var growthChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+        labels: `<%- JSON.stringify(chartLabels) %>`,
+        datasets: [{
+            label: 'Rating Progress',
+            data: ratingData,
+            borderColor: '#87CEEB', // Green line
+            backgroundColor: gradientFill, // Gradient fill
+            borderWidth: 2,
+            fill: true,
+            tension: 0, // Straight lines (no curve)
+            pointBackgroundColor: "#2E8B57", // Green points
+            pointBorderColor: '#87CEEB', // Blue border around points
+            pointBorderWidth: 2,
+            pointRadius: 5,
+            pointHoverRadius: 7
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+            y: {
+                beginAtZero: false,
+                min: minRating,
+                max: maxRating,
+                ticks: {
+                    color: '#2E8B57', // Green labels
+                    stepSize: 100, 
+                    font: {
+                        size: 12
+                    }
+                },
+                grid: {
+                    color: 'rgba(46, 139, 87, 0.2)', // Light green grid lines
+                    borderColor: '#2E8B57', // Green border
+                    borderWidth: 1
+                }
+            },
+            x: {
+                ticks: {
+                    color: '#87CEEB', // Blue labels
+                    font: {
+                        size: 12
+                    }
+                },
+                grid: {
+                    color: '#87CEEB', // Light blue grid lines
+                    borderColor: '#2E8B57', // Green border
+                    borderWidth: 1
+                }
+            }
+        },
+        plugins: {
+            legend: {
+                labels: {
+                    color: '#2E8B57', // Green legend text
+                    font: {
+                        size: 14
+                    },
+                    boxWidth: 20,
+                    boxHeight: 10,
+                    padding: 10
+                }
+            }
+        },
+        layout: {
+            padding: {
+                top: 10,
+                bottom: 10,
+                left: 10,
+                right: 10
+            }
+        }
+    }
+});
+    </script>
+</body>
+</html>

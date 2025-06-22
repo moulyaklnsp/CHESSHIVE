@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Player Statistics - ChessHive</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --sea-green: #2E8B57;
+            --cream: #FFFDD0;
+            --sky-blue: #87CEEB;
+            --dark-green: #236B43;
+            --light-gray: #f9f9f9;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Playfair Display', serif;
+            background-color: var(--cream);
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h2 {
+            font-family: 'Cinzel', serif;
+            font-size: 2.5rem;
+            color: var(--sea-green);
+            margin-bottom: 2rem;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        h2::before {
+            content: '📊';
+            font-size: 2.5rem;
+        }
+
+        .stats-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--sea-green);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: #666;
+            font-family: 'Cinzel', serif;
+        }
+
+        .table-div {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 1.5rem;
+        }
+
+        th {
+            background-color: var(--sea-green);
+            color: white;
+            padding: 1rem;
+            text-align: left;
+            font-family: 'Cinzel', serif;
+        }
+
+        td {
+            padding: 1rem;
+            border-bottom: 1px solid rgba(46, 139, 87, 0.2);
+        }
+
+        tr:hover {
+            background-color: rgba(135, 206, 235, 0.1);
+        }
+
+        .rating-cell {
+            font-weight: bold;
+            color: var(--sea-green);
+        }
+
+        .searchBarContainer {
+            margin-bottom: 1rem;
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        .searchBarContainer input {
+            padding: 0.6rem 1rem;
+            width: 100%;
+            max-width: 300px;
+            border: 2px solid var(--sea-green);
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            font-family: 'Playfair Display', serif;
+        }
+
+        .searchBarContainer input:focus {
+            outline: none;
+            border-color: var(--dark-green);
+            box-shadow: 0 0 5px rgba(46, 139, 87, 0.3);
+        }
+
+        .searchBarContainer select {
+            padding: 0.6rem 1rem;
+            border: 2px solid var(--sea-green);
+            border-radius: 8px;
+            font-size: 1rem;
+            background-color: white;
+            color: var(--sea-green);
+            font-family: 'Cinzel', serif;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            max-width: 300px;
+        }
+
+        .searchBarContainer select:focus {
+            outline: none;
+            border-color: var(--dark-green);
+            box-shadow: 0 0 5px rgba(46, 139, 87, 0.3);
+        }
+
+        .searchBarContainer select:hover {
+            background-color: var(--light-gray);
+        }
+
+        .back-container {
+            text-align: right;
+            margin-top: 2rem;
+        }
+
+        .back {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: var(--sea-green);
+            color: white;
+            text-decoration: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            font-family: 'Cinzel', serif;
+            font-weight: bold;
+        }
+
+        .back:hover {
+            background: var(--dark-green);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 1rem;
+            }
+
+            .table-div {
+                padding: 1rem;
+            }
+
+            .stats-summary {
+                grid-template-columns: 1fr;
+            }
+
+            .searchBarContainer {
+                display: flex;
+                flex-direction: column;
+                align-items: stretch;
+                gap: 0.5rem;
+            }
+
+            .searchBarContainer input,
+            .searchBarContainer select {
+                max-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Player Statistics</h2>
+
+        <div class="stats-summary">
+            <div class="stat-card">
+                <div class="stat-value">
+                    <%= players.length %>
+                </div>
+                <div class="stat-label">Total Players</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">
+                    <%= players.reduce((sum, p) => sum + p.gamesPlayed, 0) %>
+                </div>
+                <div class="stat-label">Total Games</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">
+                    <%= Math.round(players.reduce((sum, p) => sum + p.rating, 0) / players.length) %>
+                </div>
+                <div class="stat-label">Average Rating</div>
+            </div>
+        </div>
+
+        <div class="table-div">
+            <div class="searchBarContainer"></div>
+            <table id="playerStatsTable">
+                <thead>
+                    <tr>
+                        <th><i class="fas fa-user"></i> Player Name</th>
+                        <th><i class="fas fa-chess"></i> Games Played</th>
+                        <th><i class="fas fa-trophy"></i> Wins</th>
+                        <th><i class="fas fa-times"></i> Losses</th>
+                        <th><i class="fas fa-handshake"></i> Draws</th>
+                        <th><i class="fas fa-star"></i> Rating</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% if (typeof players !== "undefined" && players.length > 0 ) { %>
+                        <% players.forEach(player => { %>
+                            <tr>
+                                <td><%= player.name %></td>
+                                <td><%= player.gamesPlayed %></td>
+                                <td><%= player.wins %></td>
+                                <td><%= player.losses %></td>
+                                <td><%= player.draws %></td>
+                                <td class="rating-cell"><%= player.rating %></td>
+                            </tr>
+                        <% }); %>
+                    <% } else { %>
+                        <tr>
+                            <td colspan="6" style="text-align: center;">
+                                <i class="fas fa-info-circle"></i> No player statistics available.
+                            </td>
+                        </tr>
+                    <% } %>
+                </tbody>
+            </table>
+
+            <div class="back-container">
+                <a href="/coordinator/coordinator_dashboard" class="back">
+                    <i class="fas fa-arrow-left"></i> Back to Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+    <script src="/js/searchbar.js"></script>
+</body>
+</html>

@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Player Tournaments - ChessHive</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"/>
+  <style>
+    :root {
+      --sea-green: #2E8B57;
+      --cream: #FFFDD0;
+      --sky-blue: #87CEEB;
+      --dark-green: #236B43;
+      --light-gray: #f9f9f9;
+      --red: #ff4d4d;
+      --yellow: #ffcc00;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Playfair Display', serif;
+      background-color: var(--cream);
+      min-height: 100vh;
+      padding-bottom: 60px;
+    }
+
+    .content {
+      padding: 2rem;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    h1, h2 {
+      font-family: 'Cinzel', serif;
+      color: var(--sea-green);
+      margin-bottom: 1rem;
+    }
+
+    .black-h2 {
+      color: var(--sea-green);
+      font-family: 'Cinzel', serif;
+      margin-top: 2rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .form-container {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.1);
+      margin-bottom: 20px;
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+      min-width: 600px;
+    }
+
+    th {
+      background-color: var(--sea-green);
+      color: white;
+      padding: 12px;
+      text-align: left;
+    }
+
+    td {
+      padding: 12px;
+      border: 1px solid #ddd;
+    }
+
+    tr:hover {
+      background-color: var(--light-gray);
+    }
+
+    .status-ongoing {
+      color: var(--yellow);
+      font-weight: bold;
+    }
+
+    .status-yet-to-start {
+      color: var(--sea-green);
+      font-weight: bold;
+    }
+
+    .wallet-section {
+      background-color: var(--sea-green);
+      color: white;
+      padding: 20px;
+      border-radius: 10px;
+      text-align: center;
+      margin-bottom: 1.5rem;
+      overflow: hidden;
+    }
+
+    .wallet-section h3 {
+      color: white;
+      margin-top: 0;
+      margin-bottom: 1rem;
+    }
+
+    .wallet-section form {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      max-width: 300px;
+      margin: 0 auto;
+    }
+
+    .wallet-section input[type="number"] {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid var(--sea-green);
+      border-radius: 5px;
+      font-size: 16px;
+      box-sizing: border-box;
+    }
+
+    .wallet-section button {
+      background-color: var(--sky-blue);
+      color: var(--sea-green);
+      border: none;
+      padding: 12px 24px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: all 0.3s ease;
+      font-family: 'Cinzel', serif;
+      text-align: center;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    .wallet-section button:hover {
+      background-color: #6CB4D4;
+      transform: translateY(-2px);
+    }
+
+    .tournament-name {
+      cursor: pointer;
+      color: var(--sea-green);
+      font-weight: bold;
+    }
+
+    .tournament-details {
+      display: none;
+      padding: 10px;
+      background: var(--light-gray);
+      border-radius: 5px;
+      margin-top: 10px;
+    }
+
+    .back-to-dashboard {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      background-color: var(--sea-green);
+      color: white;
+      padding: 10px 20px;
+      border-radius: 5px;
+      text-decoration: none;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      font-weight: bold;
+      z-index: 1000;
+    }
+
+    button, .btn {
+      background-color: var(--sea-green);
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-family: 'Playfair Display', serif;
+      margin: 5px 2px;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn {
+      background-color: var(--sky-blue);
+      color: var(--sea-green);
+      font-family: 'Cinzel', serif;
+      font-weight: bold;
+    }
+
+    button:hover, .btn:hover, .back-to-dashboard:hover {
+      background-color: var(--dark-green);
+      transform: translateY(-2px);
+    }
+
+    button[disabled] {
+      background-color: gray;
+      cursor: not-allowed;
+      opacity: 0.7;
+    }
+
+    .subscription-message {
+      background-color: var(--sky-blue);
+      color: var(--sea-green);
+      padding: 15px;
+      border-radius: 5px;
+      margin-bottom: 20px;
+      font-weight: bold;
+    }
+
+    .subscription-message a {
+      color: var(--sea-green);
+      text-decoration: underline;
+    }
+
+    .search-box {
+      margin-bottom: 1rem;
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .search-box input {
+      padding: 0.6rem 1rem;
+      width: 100%;
+      max-width: 300px;
+      border: 2px solid var(--sea-green);
+      border-radius: 8px;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+      font-family: 'Playfair Display', serif;
+    }
+
+    .search-box input:focus {
+      outline: none;
+      border-color: var(--dark-green);
+      box-shadow: 0 0 5px rgba(46, 139, 87, 0.3);
+    }
+
+    .search-box select {
+      padding: 0.6rem 1rem;
+      border: 2px solid var(--sea-green);
+      border-radius: 8px;
+      font-size: 1rem;
+      background-color: white;
+      color: var(--sea-green);
+      font-family: 'Cinzel', serif;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .search-box select:focus {
+      outline: none;
+      border-color: var(--dark-green);
+      box-shadow: 0 0 5px rgba(46, 139, 87, 0.3);
+    }
+
+    .search-box select:hover {
+      background-color: var(--light-gray);
+    }
+
+    .join-form {
+      display: none;
+    }
+
+    .join-form.active {
+      display: block;
+    }
+
+    .more-container {
+      text-align: center;
+      margin: 1rem 0;
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+    }
+
+    .more, .hide {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background-color: var(--sky-blue);
+      color: var(--sea-green);
+      text-decoration: none;
+      padding: 0.8rem 1.5rem;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+      font-family: 'Cinzel', serif;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .more:hover, .hide:hover {
+      background-color: #6CB4D4;
+      transform: translateY(-2px);
+    }
+
+    .empty-message {
+      text-align: center;
+      padding: 2rem;
+      color: var(--sea-green);
+      font-style: italic;
+    }
+
+    @media (max-width: 768px) {
+      .content { padding: 1rem; }
+      .back-to-dashboard { bottom: 20px; right: 20px; }
+      .btn { width: 100%; justify-content: center; }
+      table { font-size: 0.9rem; }
+      .wallet-section form {
+        max-width: 100%;
+      }
+      .wallet-section input[type="number"],
+      .wallet-section button {
+        width: 100%;
+      }
+      .more-container {
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+      .search-box {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .search-box input,
+      .search-box select {
+        max-width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="content">
+    <h1><i class="fas fa-trophy"></i> Tournaments</h1>
+
+    <% if (successMessage) { %>
+      <div class="message success"><%= successMessage %></div>
+    <% } %>
+    <% if (errorMessage) { %>
+      <div class="message error"><%= errorMessage %></div>
+    <% } %>
+
+    <% if (!currentSubscription) { %>
+      <div class="subscription-message">
+        YOU MUST BE SUBSCRIBED TO JOIN TOURNAMENTS. <a href="/player/subscription">Subscribe Now</a>
+      </div>
+    <% } %>
+
+    <div class="wallet-section">
+      <span class="wallet-icon">💰</span>
+      <h3>Wallet Balance: ₹<span id="walletBalance"><%= walletBalance || 0 %></span></h3>
+      <form action="/player/add-funds" method="POST">
+        <input type="number" name="amount" placeholder="Enter amount" min="1" required>
+        <input type="hidden" name="redirectTo" value="/player/player_tournament">
+        <button type="submit">Add Funds</button>
+      </form>
+    </div>
+
+    <% const today = new Date(); %>
+
+    <!-- INDIVIDUAL TOURNAMENTS -->
+    <h2 class="black-h2">Available Individual Tournaments</h2>
+    <% const individualTournaments = tournaments.filter(t => new Date(t.date) >= today && t.type === 'Individual').sort((a, b) => new Date(a.date) - new Date(b.date)); %>
+
+    <% if (individualTournaments.length > 0) { %>
+      <div class="search-box">
+        <input type="text" placeholder="Search individual tournaments..." id="searchIndividual" type="name">
+        <select id="searchIndividualType">
+          <option value="name">Name</option>
+          <option value="location">Location</option>
+          <option value="status">Status</option>
+        </select>
+      </div>
+      <div class="form-container">
+        <table id="individualTable">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Date</th>
+              <th>Location</th>
+              <th>Entry Fee</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="individualTournamentsTable">
+            <% individualTournaments.forEach((tournament, index) => {
+              const tournamentDate = new Date(tournament.date);
+              let status = tournamentDate.toDateString() === today.toDateString() ? 'Ongoing' : 'Yet to Start';
+              let statusClass = tournamentDate.toDateString() === today.toDateString() ? 'status-ongoing' : 'status-yet-to-start';
+              const alreadyEnrolled = enrolledIndividualTournaments?.some(enrolled =>
+                enrolled.tournament._id.toString() === tournament._id.toString()
+              );
+            %>
+              <tr class="tournament-row" <%= index >= 5 ? 'style="display: none;"' : '' %>>
+                <td><%= tournament.name %></td>
+                <td><%= tournamentDate.toLocaleDateString() %></td>
+                <td><%= tournament.location %></td>
+                <td>₹<%= tournament.entry_fee %></td>
+                <td class="<%= statusClass %>"><%= status %></td>
+                <td>
+                  <% if (!alreadyEnrolled) { %>
+                    <form action="/player/join-tournament" method="POST">
+                      <input type="hidden" name="tournamentId" value="<%= tournament._id %>">
+                      <button type="submit" <%= !currentSubscription ? 'disabled' : '' %>>
+                        Join <%= !currentSubscription ? '(SUBSCRIPTION REQUIRED)' : '' %>
+                      </button>
+                    </form>
+                  <% } else { %>
+                    <span class="enrolled-text">ENROLLED</span><br/>
+                    <a href="/player/pairings?tournament_id=<%= tournament._id %>&rounds=5" class="btn">
+                      <i class="fas fa-chess-board"></i> View Pairings
+                    </a>
+                    <a href="/player/rankings?tournament_id=<%= tournament._id %>" class="btn">
+                      <i class="fas fa-medal"></i> Final Rankings
+                    </a>
+                  <% } %>
+                </td>
+              </tr>
+            <% }); %>
+          </tbody>
+        </table>
+      </div>
+      <div class="more-container">
+        <% if (individualTournaments.length > 5) { %>
+          <a href="#" class="more" id="individualMoreLink">
+            <i class="fas fa-chevron-down"></i> More
+          </a>
+        <% } %>
+        <a href="#" class="hide" id="individualHideLink" style="display: none;">
+          <i class="fas fa-chevron-up"></i> Hide
+        </a>
+      </div>
+    <% } else { %>
+      <div class="empty-message">
+        <i class="fas fa-info-circle"></i> No approved individual tournaments available.
+      </div>
+    <% } %>
+
+ <!-- TEAM TOURNAMENTS -->
+<h2 class="black-h2">Available Team Tournaments</h2>
+<% const teamTournaments = tournaments.filter(t => new Date(t.date) >= today && t.type === 'Team').sort((a, b) => new Date(a.date) - new Date(b.date)); %>
+
+<% if (teamTournaments.length > 0) { %>
+  <div class="search-box">
+    <input type="text" placeholder="Search team tournaments..." id="searchTeam" type="name">
+    <select id="searchTeamType">
+      <option value="name">Name</option>
+      <option value="location">Location</option>
+      <option value="status">Status</option>
+    </select>
+  </div>
+  <div class="form-container">
+    <table id="teamTable">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Date</th>
+          <th>Location</th>
+          <th>Entry Fee</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="teamTournamentsTable">
+        <% teamTournaments.forEach((tournament, index) => {
+          const tournamentDate = new Date(tournament.date);
+          let status = tournamentDate.toDateString() === today.toDateString() ? 'Ongoing' : 'Yet to Start';
+          let statusClass = tournamentDate.toDateString() === today.toDateString() ? 'status-ongoing' : 'status-yet-to-start';
+          const enrolledTeam = enrolledTeamTournaments?.find(et => et.tournament_id?.toString() === tournament._id.toString());
+          const alreadyJoined = !!enrolledTeam;
+        %>
+          <tr class="tournament-row" <%= index >= 5 ? 'style="display: none;"' : '' %>>
+            <td><%= tournament.name %></td>
+            <td><%= tournamentDate.toLocaleDateString() %></td>
+            <td><%= tournament.location %></td>
+            <td>₹<%= tournament.entry_fee %></td>
+            <td class="<%= statusClass %>"><%= status %></td>
+            <td>
+              <% if (!alreadyJoined) { %>
+                <button type="button" class="join-team-btn" data-form-id="join-form-<%= tournament._id %>" <%= !currentSubscription ? 'disabled' : '' %>>
+                  Join <%= !currentSubscription ? '(SUBSCRIPTION REQUIRED)' : '' %>
+                </button>
+                <div id="join-form-<%= tournament._id %>" class="join-form">
+                  <form action="/player/join-tournament" method="POST">
+                    <input type="hidden" name="tournamentId" value="<%= tournament._id %>">
+                    <label for="player1-<%= tournament._id %>">Player 1:</label>
+                    <input type="text" id="player1-<%= tournament._id %>" name="player1" required>
+                    <label for="player2-<%= tournament._id %>">Player 2:</label>
+                    <input type="text" id="player2-<%= tournament._id %>" name="player2" required>
+                    <label for="player3-<%= tournament._id %>">Player 3:</label>
+                    <input type="text" id="player3-<%= tournament._id %>" name="player3" required>
+                    <button type="submit">Submit Team</button>
+                  </form>
+                </div>
+              <% } else { %>
+                <% if (enrolledTeam.approved === 1) { %>
+                  <span class="enrolled-text">ENROLLED</span>
+                <% } else { %>
+                  <span class="enrolled-text" style="color: var(--yellow); font-weight: bold;">PENDING APPROVAL</span>
+                <% } %>
+              <% } %>
+            </td>
+          </tr>
+        <% }); %>
+      </tbody>
+    </table>
+  </div>
+  <div class="more-container">
+    <% if (teamTournaments.length > 5) { %>
+      <a href="#" class="more" id="teamMoreLink">
+        <i class="fas fa-chevron-down"></i> More
+      </a>
+    <% } %>
+    <a href="#" class="hide" id="teamHideLink" style="display: none;">
+      <i class="fas fa-chevron-up"></i> Hide
+    </a>
+  </div>
+<% } else { %>
+  <div class="empty-message">
+    <i class="fas fa-info-circle"></i> No approved team tournaments available.
+  </div>
+<% } %>
+  </div>
+
+  <a href="/player/player_dashboard" class="back-to-dashboard">
+    <i class="fas fa-arrow-left"></i> Back to Dashboard
+  </a>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+  // Existing configuration for tables (unchanged)
+  const tables = [
+    {
+      tableId: 'individualTournamentsTable',
+      rowClass: 'tournament-row',
+      moreLinkId: 'individualMoreLink',
+      hideLinkId: 'individualHideLink',
+      searchInputId: 'searchIndividual',
+      searchTypeId: 'searchIndividualType',
+      visibleRows: 5,
+      rowsPerPage: 5
+    },
+    {
+      tableId: 'teamTournamentsTable',
+      rowClass: 'tournament-row',
+      moreLinkId: 'teamMoreLink',
+      hideLinkId: 'teamHideLink',
+      searchInputId: 'searchTeam',
+      searchTypeId: 'searchTeamType',
+      visibleRows: 5,
+      rowsPerPage: 5
+    }
+  ];
+
+  tables.forEach(config => {
+    // Existing table configuration code (unchanged)
+    const table = document.getElementById(config.tableId);
+    const moreLink = document.getElementById(config.moreLinkId);
+    const hideLink = document.getElementById(config.hideLinkId);
+    const searchInput = document.getElementById(config.searchInputId);
+    const searchType = document.getElementById(config.searchTypeId);
+    let visibleRows = config.visibleRows;
+    const rowsPerPage = config.rowsPerPage;
+
+    const allRows = table ? table.querySelectorAll(`.${config.rowClass}`) : [];
+    const originalRows = Array.from(allRows).map(row => row.cloneNode(true));
+
+    const columnIndices = {
+      name: 0,
+      location: 2,
+      status: 4
+    };
+
+    const updateTable = () => {
+      const filter = searchInput ? searchInput.value.toLowerCase() : '';
+      const searchColumn = searchType ? searchType.value : (searchInput ? searchInput.getAttribute('type') : 'name');
+      const columnIndex = columnIndices[searchColumn] || 0;
+      let visibleCount = 0;
+
+      allRows.forEach((row, index) => {
+        const cellText = row.cells[columnIndex].innerText.toLowerCase();
+        const matchesFilter = cellText.includes(filter);
+        
+        if (matchesFilter && visibleCount < visibleRows) {
+          row.style.display = '';
+          visibleCount++;
+        } else {
+          row.style.display = 'none';
+        }
+      });
+
+      updateLinkVisibility(visibleCount);
+    };
+
+    const updateLinkVisibility = (visibleCount) => {
+      const filteredRows = Array.from(allRows).filter(row => {
+        const searchColumn = searchType ? searchType.value : (searchInput ? searchInput.getAttribute('type') : 'name');
+        const columnIndex = columnIndices[searchColumn] || 0;
+        return row.cells[columnIndex].innerText.toLowerCase().includes(searchInput ? searchInput.value.toLowerCase() : '');
+      });
+
+      if (moreLink) {
+        moreLink.style.display = visibleRows < filteredRows.length ? '' : 'none';
+      }
+      if (hideLink) {
+        hideLink.style.display = visibleRows > 5 ? '' : 'none';
+      }
+    };
+
+    if (table) {
+      updateTable();
+    }
+
+    if (searchInput) {
+      searchInput.addEventListener('keyup', () => {
+        visibleRows = config.visibleRows;
+        updateTable();
+      });
+    }
+
+    if (searchType) {
+      searchType.addEventListener('change', () => {
+        visibleRows = config.visibleRows;
+        updateTable();
+      });
+    }
+
+    if (moreLink) {
+      moreLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        visibleRows += rowsPerPage;
+        updateTable();
+      });
+    }
+
+    if (hideLink) {
+      hideLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        visibleRows = Math.max(5, visibleRows - rowsPerPage);
+        updateTable();
+      });
+    }
+  });
+
+  // Add event listener for join-team-btn buttons
+  const joinButtons = document.querySelectorAll('.join-team-btn');
+  joinButtons.forEach(button => {
+    button.addEventListener('click', () => {
+      const formId = button.getAttribute('data-form-id');
+      toggleJoinForm(formId);
+    });
+  });
+
+  // Existing toggleJoinForm function (unchanged)
+  function toggleJoinForm(id) {
+    const allForms = document.querySelectorAll('.join-form');
+    allForms.forEach(form => form.classList.remove('active'));
+
+    const selectedForm = document.getElementById(id);
+    if (selectedForm) {
+      selectedForm.classList.add('active');
+    }
+  }
+});
+  </script>
+</body>
+</html>

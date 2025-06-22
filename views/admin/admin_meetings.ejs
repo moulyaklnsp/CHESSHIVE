@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Meetings - ChessHive</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --sea-green: #2E8B57;
+            --cream: #FFFDD0;
+            --sky-blue: #87CEEB;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Playfair Display', serif;
+            background-color: var(--cream);
+            color: var(--sea-green);
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h2, h3 {
+            font-family: 'Cinzel', serif;
+            color: var(--sea-green);
+            text-align: center;
+        }
+
+        h2 {
+            font-size: 2.5rem;
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        h2::before {
+            content: '📅';
+            font-size: 2.5rem;
+        }
+
+        h3 {
+            font-size: 1.8rem;
+            margin: 2rem 0;
+            position: relative;
+        }
+
+        h3::after {
+            content: '';
+            display: block;
+            width: 100px;
+            height: 3px;
+            background-color: var(--sea-green);
+            margin: 1rem auto;
+        }
+
+        .form-container {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+
+        form {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .input-group label {
+            color: var(--sea-green);
+            font-weight: bold;
+        }
+
+        input {
+            padding: 1rem;
+            border: 2px solid var(--sea-green);
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--sky-blue);
+            box-shadow: 0 0 0 3px rgba(135, 206, 235, 0.2);
+        }
+
+        button {
+            background-color: var(--sea-green);
+            color: var(--cream);
+            border: none;
+            padding: 1rem;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Cinzel', serif;
+            font-weight: bold;
+            grid-column: 1 / -1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        button:hover {
+            background-color: #236B43;
+            transform: translateY(-2px);
+        }
+
+        .table-div {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 2rem;
+        }
+
+        th {
+            background-color: var(--sea-green);
+            color: var(--cream);
+            padding: 1.2rem;
+            text-align: left;
+            font-family: 'Cinzel', serif;
+        }
+
+        td {
+            padding: 1rem;
+            border-bottom: 1px solid rgba(46, 139, 87, 0.2);
+        }
+
+        tr:hover {
+            background-color: rgba(135, 206, 235, 0.1);
+        }
+
+        .join-link {
+            background-color: var(--sky-blue);
+            color: var(--sea-green);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .join-link:hover {
+            background-color: #6CB4D1;
+            transform: translateY(-2px);
+        }
+
+        .back-container {
+            margin-top: 2rem;
+            text-align: right;
+        }
+
+        .back {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background-color: var(--sea-green);
+            color: var(--cream);
+            text-decoration: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            font-family: 'Cinzel', serif;
+            font-weight: bold;
+        }
+
+        .back:hover {
+            background-color: #236B43;
+            transform: translateY(-2px);
+        }
+
+        @media (max-width: 768px) {
+            form {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Schedule a Meeting</h2>
+        
+        <div class="form-container">
+            <form action="/admin_meetings/schedule" method="POST">
+                <div class="input-group">
+                    <label><i class="fas fa-heading"></i> Meeting Title</label>
+                    <input type="text" name="title" placeholder="Enter meeting title" required>
+                </div>
+                
+                <div class="input-group">
+                    <label><i class="fas fa-calendar"></i> Date</label>
+                    <input type="date" name="date" required>
+                </div>
+                
+                <div class="input-group">
+                    <label><i class="fas fa-clock"></i> Time</label>
+                    <input type="time" name="time" required>
+                </div>
+                
+                <div class="input-group">
+                    <label><i class="fas fa-link"></i> Meeting Link</label>
+                    <input type="text" name="link" placeholder="Zoom/Google Meet link" required>
+                </div>
+
+                <button type="submit">
+                    <i class="fas fa-calendar-plus"></i> Schedule Meeting
+                </button>
+            </form>
+        </div>
+
+        <div class="table-div">
+            <h3>Organized Meetings</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th><i class="fas fa-heading"></i> Title</th>
+                        <th><i class="fas fa-calendar"></i> Date</th>
+                        <th><i class="fas fa-clock"></i> Time</th>
+                        <th><i class="fas fa-link"></i> Link</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% if (typeof adminmeetings !== "undefined" && adminmeetings.length > 0) { %>
+                        <% adminmeetings.forEach(meeting => { %>
+                            <tr>
+                                <td><%= meeting.title %></td>
+                                <td><%= meeting.date %></td>
+                                <td><%= meeting.time %></td>
+                                <td>
+                                    <a href="<%= meeting.link %>" target="_blank" class="join-link">
+                                        <i class="fas fa-video"></i> Join
+                                    </a>
+                                </td>
+                            </tr>
+                        <% }); %>
+                    <% } else { %>
+                        <tr>
+                            <td colspan="4" style="text-align: center; padding: 2rem;">
+                                <i class="fas fa-info-circle"></i> No meetings scheduled.
+                            </td>
+                        </tr>
+                    <% } %>
+                </tbody>
+            </table>
+
+            <div class="back-container">
+                <a href="/admin/admin_dashboard" class="back">
+                    <i class="fas fa-arrow-left"></i> Back to Dashboard
+                </a>
+            </div>
+        </div>
+        
+    </div>
+</body>
+</html>

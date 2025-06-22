@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>College Chess Statistics - ChessHive</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --sea-green: #2E8B57;
+            --cream: #FFFDD0;
+            --sky-blue: #87CEEB;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Playfair Display', serif;
+            background-color: var(--cream);
+            color: var(--sea-green);
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1, h2 {
+            font-family: 'Cinzel', serif;
+            color: var(--sea-green);
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 3rem;
+            position: relative;
+        }
+
+        h1::after {
+            content: '♔';
+            position: absolute;
+            font-size: 2rem;
+            margin-left: 1rem;
+            opacity: 0.5;
+        }
+
+        section {
+            margin-bottom: 3rem;
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .filter-box {
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        select {
+            padding: 0.8rem;
+            border: 2px solid var(--sea-green);
+            border-radius: 8px;
+            font-size: 1rem;
+            background-color: white;
+            color: var(--sea-green);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        select:focus {
+            outline: none;
+            border-color: var(--sky-blue);
+            box-shadow: 0 0 0 3px rgba(135, 206, 235, 0.2);
+        }
+
+        .search-box {
+            flex: 1;
+            max-width: 300px;
+            position: relative;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 0.8rem 1rem 0.8rem 2.5rem;
+            border: 2px solid var(--sea-green);
+            border-radius: 8px;
+            font-size: 1rem;
+            font-family: 'Playfair Display', serif;
+            transition: all 0.3s ease;
+            background-color: white;
+            color: var(--sea-green);
+        }
+
+        .search-box input::placeholder {
+            color: rgba(46, 139, 87, 0.6);
+            font-style: italic;
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--sea-green);
+            font-size: 1.2rem;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: var(--sky-blue);
+            box-shadow: 0 0 0 3px rgba(135, 206, 235, 0.2);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 1rem;
+        }
+
+        th {
+            background-color: var(--sea-green);
+            color: var(--cream);
+            padding: 1rem;
+            text-align: left;
+            font-family: 'Cinzel', serif;
+        }
+
+        td {
+            padding: 1rem;
+            border-bottom: 1px solid rgba(46, 139, 87, 0.2);
+        }
+
+        tr:hover {
+            background-color: rgba(135, 206, 235, 0.1);
+        }
+
+        .format-section {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            margin-bottom: 2rem;
+        }
+
+        .format-section h2 {
+            color: var(--sea-green);
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        ol {
+            list-style-position: inside;
+            padding: 0;
+        }
+
+        li {
+            padding: 0.8rem;
+            border-bottom: 1px solid rgba(46, 139, 87, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        li:hover {
+            background-color: rgba(135, 206, 235, 0.1);
+            transform: translateX(10px);
+        }
+
+        .top-three {
+            color: var(--sea-green);
+            font-weight: bold;
+        }
+
+        .top-three::before {
+            content: '🏆';
+            margin-right: 0.5rem;
+        }
+
+        .back-container {
+            text-align: right;
+            margin-top: 2rem;
+        }
+
+        .back {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background-color: var(--sea-green);
+            color: var(--cream);
+            text-decoration: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            font-family: 'Cinzel', serif;
+            font-weight: bold;
+        }
+
+        .back:hover {
+            background-color: #236B43;
+            transform: translateY(-2px);
+        }
+ .searchBarContainer {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  background: #f5f5f5;
+  border-radius: 10px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  max-width: 500px;
+  margin: 20px auto;
+}
+
+/* Dropdown styling */
+.searchBarContainer select {
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  background-color: #fff;
+  font-size: 14px;
+  transition: border-color 0.3s ease;
+}
+
+.searchBarContainer select:focus {
+  outline: none;
+  border-color: #007bff;
+}
+
+/* Input styling */
+.searchBarContainer input {
+  flex: 1;
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 14px;
+  transition: border-color 0.3s ease;
+}
+
+.searchBarContainer input:focus {
+  outline: none;
+  border-color: #007bff;
+}
+        @media (max-width: 768px) {
+            body {
+                padding: 1rem;
+            }
+
+            section {
+                padding: 1rem;
+            }
+
+            td, th {
+                padding: 0.8rem;
+            }
+
+            .filter-box {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .search-box {
+                max-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>College Chess Statistics</h1>
+
+        <section id="overall-performance">
+            <h2><i class="fas fa-chart-line"></i> Overall Performance</h2>
+            <div class="table-div">
+                 <div class="searchBarContainer"></div>
+                <table id="performance-table">
+                    <thead>
+                        <tr>
+                            <th><i class="fas fa-university"></i> College</th>
+                            <th><i class="fas fa-trophy"></i> Total Tournaments</th>
+                            <th><i class="fas fa-medal"></i> Wins</th>
+                            <th><i class="fas fa-award"></i> Runner-Ups</th>
+                            <th><i class="fas fa-star"></i> Top-5 Finishes</th>
+                            <th><i class="fas fa-percentage"></i> Win Rate</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% collegePerformance.forEach(record => { %>
+                            <tr>
+                                <td><%= record.college %></td>
+                                <td><%= record.tournaments %></td>
+                                <td><%= record.wins %></td>
+                                <td><%= record.losses %></td>
+                                <td><%= record.draws %></td>
+                                <td><%= ((record.wins / record.tournaments) * 100).toFixed(1) %>%</td>
+                            </tr>
+                        <% }); %>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section id="tournament-records">
+            <h2><i class="fas fa-chess"></i> Tournament Records</h2>
+            <div class="searchBarContainer"></div>
+            <table id="records-table">
+                <thead>
+                    <tr>
+                        <th><i class="fas fa-trophy"></i> Tournament Name</th>
+                        <th><i class="fas fa-university"></i> College</th>
+                        <th><i class="fas fa-chess-board"></i> Format</th>
+                        <th><i class="fas fa-medal"></i> Position</th>
+                        <th><i class="fas fa-calendar"></i> Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% tournamentRecords.forEach(record => { %>
+                        <tr>
+                            <td><%= record.name %></td>
+                            <td><%= record.college %></td>
+                            <td><%= record.format %></td>
+                            <td><%= record.position %></td>
+                            <td><%= new Date(record.date).toLocaleDateString() %></td>
+                        </tr>
+                    <% }); %>
+                </tbody>
+            </table>
+        </section>
+
+        <section id="top-colleges">
+            <h2><i class="fas fa-crown"></i> Top 3 Colleges by Format</h2>
+            
+            <% ['classical', 'rapid', 'blitz'].forEach(format => { %>
+                <div class="format-section">
+                    <h2><%= format.charAt(0).toUpperCase() + format.slice(1) %></h2>
+                    <ol>
+                        <% topCollegesByFormat[format].forEach((college, index) => { %>
+                            <li class="<%= index < 3 ? 'top-three' : '' %>"><%= college %></li>
+                        <% }); %>
+                    </ol>
+                </div>
+            <% }); %>
+        </section>
+
+        <div class="back-container">
+            <a href="/organizer/organizer_dashboard" class="back">
+                <i class="fas fa-arrow-left"></i> Back to Dashboard
+            </a>
+        </div>
+    </div>
+
+    <script src="/js/searchbar.js"></script>  
+</body>
+</html>

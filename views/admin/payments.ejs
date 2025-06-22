@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payments & Subscriptions - ChessHive</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --sea-green: #2E8B57;
+            --cream: #FFFDD0;
+            --sky-blue: #87CEEB;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Playfair Display', serif;
+            background-color: var(--cream);
+            color: var(--sea-green);
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h2 {
+            font-family: 'Cinzel', serif;
+            font-size: 2.5rem;
+            color: var(--sea-green);
+            margin-bottom: 2rem;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        h2::before {
+            content: '💰';
+            font-size: 2.5rem;
+        }
+
+        .table-div {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            overflow-x: auto;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            gap: 1rem;
+        }
+
+        .search-box {
+            flex: 1;
+            max-width: 300px;
+            position: relative;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 0.8rem 1rem 0.8rem 2.5rem;
+            border: 2px solid var(--sea-green);
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--sea-green);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 2rem;
+        }
+
+        th {
+            background-color: var(--sea-green);
+            color: var(--cream);
+            padding: 1.2rem;
+            text-align: left;
+            font-family: 'Cinzel', serif;
+        }
+
+        td {
+            padding: 1rem;
+            border-bottom: 1px solid rgba(46, 139, 87, 0.2);
+        }
+
+        tr:hover {
+            background-color: rgba(135, 206, 235, 0.1);
+        }
+
+        .subscription-badge {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            background-color: var(--sky-blue);
+            color: var(--sea-green);
+            display: inline-block;
+        }
+
+        .back-container {
+            margin-top: 2rem;
+            text-align: right;
+        }
+
+        .back {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background-color: var(--sea-green);
+            color: var(--cream);
+            text-decoration: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            font-family: 'Cinzel', serif;
+            font-weight: bold;
+        }
+
+        .back:hover {
+            background-color: #236B43;
+            transform: translateY(-2px);
+        }
+
+        .stats-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: var(--sea-green);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .more-container {
+            text-align: center;
+            margin: 1rem 0;
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        .more, .hide {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background-color: var(--sky-blue);
+            color: var(--sea-green);
+            text-decoration: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            font-family: 'Cinzel', serif;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .more:hover, .hide:hover {
+            background-color: #5f9ece;
+            transform: translateY(-2px);
+        }
+
+        .searchBarContainer {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            background: #f5f5f5;
+            border-radius: 10px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            max-width: 500px;
+            margin: 20px auto;
+        }
+
+        .searchBarContainer select {
+            padding: 8px 12px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            background-color: #fff;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+
+        .searchBarContainer select:focus {
+            outline: none;
+            border-color: #007bff;
+        }
+
+        .searchBarContainer input {
+            flex: 1;
+            padding: 8px 12px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+
+        .searchBarContainer input:focus {
+            outline: none;
+            border-color: #007bff;
+        }
+
+        @media (max-width: 768px) {
+            .controls {
+                flex-direction: column;
+            }
+
+            .search-box {
+                max-width: 100%;
+            }
+
+            .stats-summary {
+                grid-template-columns: 1fr;
+            }
+
+            .more-container {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Payments & Subscriptions</h2>
+
+        <div class="table-div">
+            <div class="controls">
+            </div>
+            <div class="searchBarContainer"></div>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th><i class="fas fa-user"></i> Player Name</th>
+                        <th><i class="fas fa-crown"></i> Subscription Level</th>
+                        <th><i class="fas fa-calendar"></i> Date of Subscription</th>
+                    </tr>
+                </thead>
+                <tbody id="subscriptionsTable">
+                    <% if (typeof players !== "undefined" && players.length > 0) { %>
+                        <% players.forEach((player, index) => { %>
+                            <tr class="subscription-row" <%= index >= 5 ? 'style="display: none;"' : '' %>>
+                                <td><%= player.name %></td>
+                                <td>
+                                    <span class="subscription-badge">
+                                        Level <%= player.plan %>
+                                    </span>
+                                </td>
+                                <td><%= player.start_date %></td>
+                            </tr>
+                        <% }); %>
+                    <% } else { %>
+                        <tr>
+                            <td colspan="3" style="text-align: center; padding: 2rem;">
+                                <i class="fas fa-info-circle"></i> No players available.
+                            </td>
+                        </tr>
+                    <% } %>
+                </tbody>
+            </table>
+
+            <% if (typeof players !== "undefined" && players.length > 0) { %>
+                <div class="more-container">
+                    <% if (players.length > 5) { %>
+                        <a href="#" class="more" id="subscriptionsMoreLink">
+                            <i class="fas fa-chevron-down"></i> More
+                        </a>
+                    <% } %>
+                    <a href="#" class="hide" id="subscriptionsHideLink" style="display: none;">
+                        <i class="fas fa-chevron-up"></i> Hide
+                    </a>
+                </div>
+            <% } %>
+        </div>
+    </div>
+
+    <div class="container sales">
+        <h2>Sales Report</h2>
+        
+        <div class="stats-summary">
+            <div class="stat-card">
+                <div class="stat-value">
+                    <i class="fas fa-shopping-cart"></i>
+                    <%= typeof sales !== "undefined" ? sales.length : 0 %>
+                </div>
+                <div class="stat-label">Total Sales</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">₹<%= 
+                    typeof sales !== "undefined" ? 
+                    sales.reduce((sum, sale) => sum + parseFloat(sale.price), 0).toFixed(2) : 
+                    "0.00" 
+                %></div>
+                <div class="stat-label">Total Revenue</div>
+            </div>
+        </div>
+
+        <div class="table-div">
+            <table>
+                <thead>
+                    <tr>
+                        <th><i class="fas fa-tag"></i> Product</th>
+                        <th><i class="fas fa-rupee-sign"></i> Price</th>
+                        <th><i class="fas fa-user"></i> Coordinator</th>
+                        <th><i class="fas fa-user-check"></i> Buyer</th>
+                        <th><i class="fas fa-university"></i> College</th>
+                        <th><i class="fas fa-calendar"></i> Date</th>
+                    </tr>
+                </thead>
+                <tbody id="salesTable">
+                    <% if (typeof sales !== "undefined" && sales.length > 0) { %>
+                        <% sales.forEach((sale, index) => { %>
+                            <tr class="sale-row" <%= index >= 5 ? 'style="display: none;"' : '' %>>
+                                <td><%= sale.product %></td>
+                                <td class="price">₹<%= sale.price %></td>
+                                <td><%= sale.coordinator || "N/A" %></td>
+                                <td><%= sale.buyer || "N/A" %></td>
+                                <td><%= sale.college || "N/A" %></td>
+                                <td><%= new Date(sale.purchase_date).toLocaleDateString() %></td>
+                            </tr>
+                        <% }); %>
+                    <% } else { %>
+                        <tr>
+                            <td colspan="6" class="empty-message">
+                                <i class="fas fa-shopping-cart"></i> No sales recorded.
+                            </td>
+                        </tr>
+                    <% } %>
+                </tbody>
+            </table>
+
+            <% if (typeof sales !== "undefined" && sales.length > 0) { %>
+                <div class="more-container">
+                    <% if (sales.length > 5) { %>
+                        <a href="#" class="more" id="salesMoreLink">
+                            <i class="fas fa-chevron-down"></i> More
+                        </a>
+                    <% } %>
+                    <a href="#" class="hide" id="salesHideLink" style="display: none;">
+                        <i class="fas fa-chevron-up"></i> Hide
+                    </a>
+                </div>
+            <% } %>
+        </div>
+    </div>
+
+    <div class="container tournament-sales">
+        <h2>Tournament Sales Report</h2>
+        
+        <div class="stats-summary">
+            <div class="stat-card">
+                <div class="stat-value">
+                    <i class="fas fa-trophy"></i>
+                    <%= typeof tournamentSales !== "undefined" ? tournamentSales.reduce((sum, sale) => sum + sale.total_enrollments, 0) : 0 %>
+                </div>
+                <div class="stat-label">Total Tournament Enrollments</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">₹<%= 
+                    typeof tournamentSales !== "undefined" ? 
+                    tournamentSales.reduce((sum, sale) => sum + parseFloat(sale.revenue), 0).toFixed(2) : 
+                    "0.00" 
+                %></div>
+                <div class="stat-label">Total Tournament Revenue</div>
+            </div>
+        </div>
+
+        <div class="table-div">
+            <table>
+                <thead>
+                    <tr>
+                        <th><i class="fas fa-trophy"></i> Tournament</th>
+                        <th><i class="fas fa-rupee-sign"></i> Entry Fee</th>
+                        <th><i class="fas fa-users"></i> Total Players/Teams</th>
+                        <th><i class="fas fa-rupee-sign"></i> Revenue</th>
+                        <th><i class="fas fa-calendar"></i> Enrollment Date</th>
+                    </tr>
+                </thead>
+                <tbody id="tournamentSalesTable">
+                    <% if (typeof tournamentSales !== "undefined" && tournamentSales.length > 0) { %>
+                        <% tournamentSales.forEach((sale, index) => { %>
+                            <tr class="tournament-sale-row" <%= index >= 5 ? 'style="display: none;"' : '' %>>
+                                <td><%= sale.name %></td>
+                                <td class="price">₹<%= sale.entry_fee %></td>
+                                <td><%= sale.total_enrollments %> <%= sale.type === 'Individual' ? 'Players' : 'Teams' %></td>
+                                <td class="price">₹<%= sale.revenue.toFixed(2) %></td>
+                                <td><%= new Date(sale.enrollment_date).toLocaleDateString() %></td>
+                            </tr>
+                        <% }); %>
+                    <% } else { %>
+                        <tr>
+                            <td colspan="5" class="empty-message">
+                                <i class="fas fa-trophy"></i> No tournament enrollments recorded.
+                            </td>
+                        </tr>
+                    <% } %>
+                </tbody>
+            </table>
+
+            <% if (typeof tournamentSales !== "undefined" && tournamentSales.length > 0) { %>
+                <div class="more-container">
+                    <% if (tournamentSales.length > 5) { %>
+                        <a href="#" class="more" id="tournamentSalesMoreLink">
+                            <i class="fas fa-chevron-down"></i> More
+                        </a>
+                    <% } %>
+                    <a href="#" class="hide" id="tournamentSalesHideLink" style="display: none;">
+                        <i class="fas fa-chevron-up"></i> Hide
+                    </a>
+                </div>
+            <% } %>
+        </div>
+        <div class="back-container">
+            <a href="/admin/admin_dashboard" class="back">
+                <i class="fas fa-arrow-left"></i> Back to Dashboard
+            </a>
+        </div>
+    </div>
+
+    <script src="/js/searchbar.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Configuration for all tables
+            const tables = [
+                {
+                    tableId: 'subscriptionsTable',
+                    rowClass: 'subscription-row',
+                    moreLinkId: 'subscriptionsMoreLink',
+                    hideLinkId: 'subscriptionsHideLink'
+                },
+                {
+                    tableId: 'salesTable',
+                    rowClass: 'sale-row',
+                    moreLinkId: 'salesMoreLink',
+                    hideLinkId: 'salesHideLink'
+                },
+                {
+                    tableId: 'tournamentSalesTable',
+                    rowClass: 'tournament-sale-row',
+                    moreLinkId: 'tournamentSalesMoreLink',
+                    hideLinkId: 'tournamentSalesHideLink'
+                }
+            ];
+
+            tables.forEach(config => {
+                const moreLink = document.getElementById(config.moreLinkId);
+                const hideLink = document.getElementById(config.hideLinkId);
+                const rows = document.querySelectorAll(`.${config.rowClass}`);
+                let visibleRows = 5; // Initial number of visible rows
+                const rowsPerPage = 5;
+
+                // Initialize visibility
+                rows.forEach((row, index) => {
+                    row.style.display = index < visibleRows ? '' : 'none';
+                });
+
+                // Update link visibility
+                const updateLinkVisibility = () => {
+                    if (moreLink) {
+                        moreLink.style.display = visibleRows < rows.length ? 'inline-flex' : 'none';
+                    }
+                    if (hideLink) {
+                        hideLink.style.display = visibleRows > 5 ? 'inline-flex' : 'none';
+                    }
+                };
+                updateLinkVisibility();
+
+                // More link functionality
+                if (moreLink) {
+                    moreLink.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        // Show next 5 rows
+                        for (let i = visibleRows; i < Math.min(visibleRows + rowsPerPage, rows.length); i++) {
+                            rows[i].style.display = '';
+                        }
+                        visibleRows += rowsPerPage;
+                        updateLinkVisibility();
+                    });
+                }
+
+                // Hide link functionality
+                if (hideLink) {
+                    hideLink.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        // Revert to first 5 rows
+                        rows.forEach((row, index) => {
+                            row.style.display = index < 5 ? '' : 'none';
+                        });
+                        visibleRows = 5;
+                        updateLinkVisibility();
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>

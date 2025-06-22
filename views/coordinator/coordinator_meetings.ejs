@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coordinator Meetings - ChessHive</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --sea-green: #2E8B57;
+            --cream: #FFFDD0;
+            --sky-blue: #87CEEB;
+            --dark-green: #236B43;
+            --light-gray: #f9f9f9;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Playfair Display', serif;
+            background-color: var(--cream);
+            color: var(--sea-green);
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h2, h3 {
+            font-family: 'Cinzel', serif;
+            color: var(--sea-green);
+            text-align: center;
+        }
+
+        h2 {
+            font-size: 2.5rem;
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        h2::before {
+            content: '📅';
+            font-size: 2.5rem;
+        }
+
+        h3 {
+            font-size: 1.8rem;
+            margin: 2rem 0;
+            position: relative;
+        }
+
+        h3::after {
+            content: '';
+            display: block;
+            width: 100px;
+            height: 3px;
+            background-color: var(--sea-green);
+            margin: 1rem auto;
+        }
+
+        .form-container {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+
+        form {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .input-group label {
+            color: var(--sea-green);
+            font-weight: bold;
+        }
+
+        input {
+            padding: 1rem;
+            border: 2px solid var(--sea-green);
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--sky-blue);
+            box-shadow: 0 0 0 3px rgba(135, 206, 235, 0.2);
+        }
+
+        button {
+            background-color: var(--sea-green);
+            color: var(--cream);
+            border: none;
+            padding: 1rem;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Cinzel', serif;
+            font-weight: bold;
+            grid-column: 1 / -1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        button:hover {
+            background-color: var(--dark-green);
+            transform: translateY(-2px);
+        }
+
+        .table-div {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 2rem;
+        }
+
+        th {
+            background-color: var(--sea-green);
+            color: var(--cream);
+            padding: 1.2rem;
+            text-align: left;
+            font-family: 'Cinzel', serif;
+        }
+
+        td {
+            padding: 1rem;
+            border-bottom: 1px solid rgba(46, 139, 87, 0.2);
+        }
+
+        tr:hover {
+            background-color: rgba(135, 206, 235, 0.1);
+        }
+
+        .join-link {
+            background-color: var(--sky-blue);
+            color: var(--sea-green);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .join-link:hover {
+            background-color: #6CB4D1;
+            transform: translateY(-2px);
+        }
+
+        .back-container {
+            margin-top: 2rem;
+            text-align: right;
+        }
+
+        .back {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background-color: var(--sea-green);
+            color: var(--cream);
+            text-decoration: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            font-family: 'Cinzel', serif;
+            font-weight: bold;
+        }
+
+        .back:hover {
+            background-color: var(--dark-green);
+            transform: translateY(-2px);
+        }
+
+        .more-container {
+            text-align: center;
+            margin: 1rem 0;
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        .more, .hide {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background-color: var(--sky-blue);
+            color: var(--sea-green);
+            text-decoration: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            font-family: 'Cinzel', serif;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .more:hover, .hide:hover {
+            background-color: #5f9ece;
+            transform: translateY(-2px);
+        }
+
+        .empty-message {
+            text-align: center;
+            padding: 2rem;
+            color: var(--sea-green);
+            font-style: italic;
+        }
+
+        .searchBarContainer {
+            margin-bottom: 1rem;
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        .searchBarContainer input {
+            padding: 0.6rem 1rem;
+            width: 100%;
+            max-width: 300px;
+            border: 2px solid var(--sea-green);
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            font-family: 'Playfair Display', serif;
+        }
+
+        .searchBarContainer input:focus {
+            outline: none;
+            border-color: var(--dark-green);
+            box-shadow: 0 0 5px rgba(46, 139, 87, 0.3);
+        }
+
+        .searchBarContainer select {
+            padding: 0.6rem 1rem;
+            width: 100%;
+            max-width: 300px;
+            border: 2px solid var(--sea-green);
+            border-radius: 8px;
+            font-size: 1rem;
+            background-color: white;
+            color: var(--sea-green);
+            font-family: 'Cinzel', serif;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .searchBarContainer select:focus {
+            outline: none;
+            border-color: var(--dark-green);
+            box-shadow: 0 0 5px rgba(46, 139, 87, 0.3);
+        }
+
+        .searchBarContainer select:hover {
+            background-color: var(--light-gray);
+        }
+
+        @media (max-width: 768px) {
+            form {
+                grid-template-columns: 1fr;
+            }
+
+            .more-container {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+
+            .searchBarContainer {
+                display: flex;
+                flex-direction: column;
+                align-items: stretch;
+                gap: 0.5rem;
+            }
+
+            .searchBarContainer input,
+            .searchBarContainer select {
+                max-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Schedule a Meeting</h2>
+        
+        <div class="form-container">
+            <form action="/coordinator/coordinator_meetings/schedule" method="POST">
+                <div class="input-group">
+                    <label><i class="fas fa-heading"></i> Meeting Title</label>
+                    <input type="text" name="title" placeholder="Enter meeting title" required>
+                </div>
+                
+                <div class="input-group">
+                    <label><i class="fas fa-calendar"></i> Date</label>
+                    <input type="date" name="date" required>
+                </div>
+                
+                <div class="input-group">
+                    <label><i class="fas fa-clock"></i> Time</label>
+                    <input type="time" name="time" required>
+                </div>
+                
+                <div class="input-group">
+                    <label><i class="fas fa-link"></i> Meeting Link</label>
+                    <input type="text" name="link" placeholder="Zoom/Google Meet link" required>
+                </div>
+
+                <button type="submit">
+                    <i class="fas fa-calendar-plus"></i> Schedule Meeting
+                </button>
+            </form>
+        </div>
+
+        <div class="table-div">
+            <h3>Organized Meetings</h3>
+            <div class="searchBarContainer"></div>
+            <table>
+                <thead>
+                    <tr>
+                        <th><i class="fas fa-heading"></i> Title</th>
+                        <th><i class="fas fa-calendar"></i> Date</th>
+                        <th><i class="fas fa-clock"></i> Time</th>
+                        <th><i class="fas fa-link"></i> Link</th>
+                    </tr>
+                </thead>
+                <tbody id="organizedMeetingsTable">
+                    <% if (typeof meetings !== "undefined" && meetings.length > 0) { %>
+                        <% meetings.forEach((meeting, index) => { %>
+                            <tr class="organized-meeting-row" <%= index >= 5 ? 'style="display: none;"' : '' %>>
+                                <td><%= meeting.title %></td>
+                                <td><%= new Date(meeting.date).toLocaleDateString() %></td>
+                                <td><%= meeting.time %></td>
+                                <td>
+                                    <a href="<%= meeting.link %>" target="_blank" class="join-link">
+                                        <i class="fas fa-video"></i> Join
+                                    </a>
+                                </td>
+                            </tr>
+                        <% }); %>
+                    <% } else { %>
+                        <tr>
+                            <td colspan="4" class="empty-message">
+                                <i class="fas fa-info-circle"></i> No meetings scheduled.
+                            </td>
+                        </tr>
+                    <% } %>
+                </tbody>
+            </table>
+
+            <% if (typeof meetings !== "undefined" && meetings.length > 0) { %>
+                <div class="more-container">
+                    <% if (meetings.length > 5) { %>
+                        <a href="#" class="more" id="organizedMoreLink">
+                            <i class="fas fa-chevron-down"></i> More
+                        </a>
+                    <% } %>
+                    <a href="#" class="hide" id="organizedHideLink" style="display: none;">
+                        <i class="fas fa-chevron-up"></i> Hide
+                    </a>
+                </div>
+            <% } %>
+
+            <h3>Upcoming Meetings</h3>
+            <div class="searchBarContainer"></div>
+            <table>
+                <thead>
+                    <tr>
+                        <th><i class="fas fa-heading"></i> Title</th>
+                        <th><i class="fas fa-calendar"></i> Date</th>
+                        <th><i class="fas fa-clock"></i> Time</th>
+                        <th><i class="fas fa-link"></i> Link</th>
+                    </tr>
+                </thead>
+                <tbody id="upcomingMeetingsTable">
+                    <% if (typeof upcomingMeetings !== "undefined" && upcomingMeetings.length > 0) { %>
+                        <% upcomingMeetings.forEach((meeting, index) => { %>
+                            <tr class="upcoming-meeting-row" <%= index >= 5 ? 'style="display: none;"' : '' %>>
+                                <td><%= meeting.title %></td>
+                                <td><%= new Date(meeting.date).toLocaleDateString() %></td>
+                                <td><%= meeting.time %></td>
+                                <td>
+                                    <a href="<%= meeting.link %>" target="_blank" class="join-link">
+                                        <i class="fas fa-video"></i> Join
+                                    </a>
+                                </td>
+                            </tr>
+                        <% }); %>
+                    <% } else { %>
+                        <tr>
+                            <td colspan="4" class="empty-message">
+                                <i class="fas fa-info-circle"></i> No upcoming meetings.
+                            </td>
+                        </tr>
+                    <% } %>
+                </tbody>
+            </table>
+
+            <% if (typeof upcomingMeetings !== "undefined" && upcomingMeetings.length > 0) { %>
+                <div class="more-container">
+                    <% if (upcomingMeetings.length > 5) { %>
+                        <a href="#" class="more" id="upcomingMoreLink">
+                            <i class="fas fa-chevron-down"></i> More
+                        </a>
+                    <% } %>
+                    <a href="#" class="hide" id="upcomingHideLink" style="display: none;">
+                        <i class="fas fa-chevron-up"></i> Hide
+                    </a>
+                </div>
+            <% } %>
+
+            <div class="back-container">
+                <a href="/coordinator/coordinator_dashboard" class="back">
+                    <i class="fas fa-arrow-left"></i> Back to Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Configuration for both tables
+            const tables = [
+                {
+                    tableId: 'organizedMeetingsTable',
+                    rowClass: 'organized-meeting-row',
+                    moreLinkId: 'organizedMoreLink',
+                    hideLinkId: 'organizedHideLink',
+                    visibleRows: 5,
+                    rowsPerPage: 5
+                },
+                {
+                    tableId: 'upcomingMeetingsTable',
+                    rowClass: 'upcoming-meeting-row',
+                    moreLinkId: 'upcomingMoreLink',
+                    hideLinkId: 'upcomingHideLink',
+                    visibleRows: 5,
+                    rowsPerPage: 5
+                }
+            ];
+
+            tables.forEach(config => {
+                const table = document.getElementById(config.tableId);
+                const moreLink = document.getElementById(config.moreLinkId);
+                const hideLink = document.getElementById(config.hideLinkId);
+                let visibleRows = config.visibleRows;
+                const rowsPerPage = config.rowsPerPage;
+
+                // Ensure only first 5 rows are visible initially
+                const allRows = table.querySelectorAll(`.${config.rowClass}`);
+                allRows.forEach((row, index) => {
+                    row.style.display = index < visibleRows ? '' : 'none';
+                });
+
+                // Store original rows
+                const originalRows = Array.from(allRows).map(row => row.cloneNode(true));
+
+                // Function to update link visibility
+                const updateLinkVisibility = () => {
+                    if (moreLink) {
+                        moreLink.style.display = visibleRows < originalRows.length ? '' : 'none';
+                    }
+                    if (hideLink) {
+                        hideLink.style.display = visibleRows > 5 ? '' : 'none';
+                    }
+                };
+
+                // Initial link visibility
+                updateLinkVisibility();
+
+                // More link functionality
+                if (moreLink) {
+                    moreLink.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        
+                        // Show next set of rows
+                        const rows = table.querySelectorAll(`.${config.rowClass}`);
+                        for (let i = visibleRows; i < Math.min(visibleRows + rowsPerPage, rows.length); i++) {
+                            rows[i].style.display = '';
+                        }
+                        
+                        visibleRows += rowsPerPage;
+                        updateLinkVisibility();
+                    });
+                }
+
+                // Hide link functionality
+                if (hideLink) {
+                    hideLink.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        
+                        // Hide the last set of rows
+                        const rows = table.querySelectorAll(`.${config.rowClass}`);
+                        const newVisibleRows = Math.max(5, visibleRows - rowsPerPage);
+                        for (let i = newVisibleRows; i < rows.length; i++) {
+                            rows[i].style.display = 'none';
+                        }
+                        
+                        visibleRows = newVisibleRows;
+                        updateLinkVisibility();
+                    });
+                }
+            });
+        });
+    </script>
+    <script src="/js/searchbar.js"></script>
+</body>
+</html>

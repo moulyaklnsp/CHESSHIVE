@@ -1,0 +1,32 @@
+{
+  "dependencies": {
+    "ejs": "^3.1.10",
+    "express": "^4.21.2",
+    "express-session": "^1.18.1",
+    "html": "^1.0.0",
+    "method-override": "^3.0.0",
+    "moment": "^2.30.1",
+    "mongodb": "^6.15.0",
+    "session": "^0.1.0",
+    "sqlite": "^5.1.1",
+    "sqlite3": "^5.1.7"
+  },
+  "name": "chesshive",
+  "version": "1.0.0",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/moulyaklnsp/CHESSHIVE.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/moulyaklnsp/CHESSHIVE/issues"
+  },
+  "homepage": "https://github.com/moulyaklnsp/CHESSHIVE#readme",
+  "description": ""
+}

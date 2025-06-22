@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Final Rankings - ChessHive</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --sea-green: #2E8B57;
+            --cream: #FFFDD0;
+            --sky-blue: #87CEEB;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Playfair Display', serif;
+            background-color: var(--cream);
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        h2 {
+            font-family: 'Cinzel', serif;
+            font-size: 2.5rem;
+            color: var(--sea-green);
+            margin-bottom: 2rem;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        h2::before {
+            content: '🏆';
+            font-size: 2.5rem;
+        }
+
+        .rankings-container {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 2rem;
+        }
+
+        th {
+            background-color: var(--sea-green);
+            color: white;
+            padding: 1rem;
+            text-align: left;
+            font-family: 'Cinzel', serif;
+        }
+
+        td {
+            padding: 1rem;
+            border-bottom: 1px solid rgba(46, 139, 87, 0.2);
+        }
+
+        tr:hover {
+            background-color: rgba(135, 206, 235, 0.1);
+        }
+
+        .rank {
+            font-weight: bold;
+            color: var(--sea-green);
+            font-family: 'Cinzel', serif;
+        }
+
+        .top-3 {
+            font-size: 1.1rem;
+        }
+
+        .rank-1 {
+            background-color: rgba(255, 215, 0, 0.1);
+        }
+
+        .rank-2 {
+            background-color: rgba(192, 192, 192, 0.1);
+        }
+
+        .rank-3 {
+            background-color: rgba(205, 127, 50, 0.1);
+        }
+
+        .score {
+            font-weight: bold;
+            color: var(--sea-green);
+        }
+
+        .navigation {
+            text-align: right;
+        }
+
+        .nav-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: var(--sea-green);
+            color: white;
+            text-decoration: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            font-family: 'Cinzel', serif;
+            font-weight: bold;
+        }
+
+        .nav-link:hover {
+            background: #236B43;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .medal-icon {
+            font-size: 1.2rem;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 1rem;
+            }
+
+            h2 {
+                font-size: 2rem;
+            }
+
+            .rankings-container {
+                padding: 1rem;
+            }
+
+            td, th {
+                padding: 0.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Final Rankings</h2>
+        
+        <div class="rankings-container">
+            <table>
+                <tr>
+                    <th>Rank</th>
+                    <th>Player Name</th>
+                    <th>Score</th>
+                </tr>
+                <% if (rankings && rankings.length > 0) { %>
+                    <% rankings.forEach((player, index) => { %>
+                        <tr>
+                            <td><%= index + 1 %></td>
+                            <td><%= player.username %></td>
+                            <td><%= player.score %></td>
+                        </tr>
+                    <% }); %>
+                <% } else { %>
+                    <tr>
+                        <td colspan="3">No rankings available.</td>
+                    </tr>
+                <% } %>
+            </table>
+        </div>
+        <div class="navigation">
+            <a href="/coordinator/tournament_management" class="nav-link">
+                <i class="fas fa-users"></i> Back to tournaments
+            </a>
+        </div>
+    </div>
+
+</body>
+</html>

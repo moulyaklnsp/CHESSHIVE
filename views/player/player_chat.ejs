@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Chat - ChessHive</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="/socket.io/socket.io.js"></script>
+    <style>
+        :root {
+            --sea-green: #2E8B57;
+            --cream: #FFFDD0;
+            --sky-blue: #87CEEB;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Playfair Display', serif;
+            background-color: var(--cream);
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .container2 {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .form-container {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+
+        h2 {
+            font-family: 'Cinzel', serif;
+            font-size: 2.5rem;
+            color: var(--sea-green);
+            margin-bottom: 2rem;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        h2::before {
+            content: '💬';
+            font-size: 2.5rem;
+        }
+
+        h3 {
+            font-family: 'Cinzel', serif;
+            color: var(--sea-green);
+            margin: 1.5rem 0;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--sea-green);
+            font-weight: bold;
+        }
+
+        select, input {
+            width: 100%;
+            padding: 0.8rem;
+            margin-bottom: 1rem;
+            border: 2px solid var(--sea-green);
+            border-radius: 8px;
+            font-family: 'Playfair Display', serif;
+            transition: all 0.3s ease;
+        }
+
+        select:focus, input:focus {
+            outline: none;
+            border-color: var(--sky-blue);
+            box-shadow: 0 0 0 3px rgba(135, 206, 235, 0.3);
+        }
+
+        .chat-box {
+            height: 400px;
+            border: 2px solid var(--sea-green);
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1rem 0;
+            overflow-y: auto;
+            background: var(--cream);
+        }
+
+        .message {
+            margin-bottom: 1rem;
+            padding: 0.8rem;
+            border-radius: 8px;
+            max-width: 80%;
+        }
+
+        .sent {
+            background: var(--sea-green);
+            color: white;
+            margin-left: auto;
+        }
+
+        .received {
+            background: var(--sky-blue);
+            color: var(--sea-green);
+        }
+
+        .chat-input {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .chat-input input {
+            flex: 1;
+            margin-bottom: 0;
+        }
+
+        button {
+            background: var(--sea-green);
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: 'Cinzel', serif;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        button:hover {
+            background: #236B43;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .back-container {
+            text-align: right;
+        }
+
+        .back {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: var(--sea-green);
+            color: white;
+            text-decoration: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            font-family: 'Cinzel', serif;
+            font-weight: bold;
+        }
+
+        .back:hover {
+            background: #236B43;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 1rem;
+            }
+
+            .chat-input {
+                flex-direction: column;
+            }
+
+            .message {
+                max-width: 90%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container2">
+        <div class="form-container">
+            <h2>Live Chat</h2>
+
+            <label for="userRole">
+                <i class="fas fa-user-tag"></i> Select Role:
+            </label>
+            <select id="userRole">
+                <option>Admin</option>
+                <option>Organizer</option>
+                <option>Coordinator</option>
+                <option>Player</option>
+            </select>
+
+            <label for="username">
+                <i class="fas fa-user"></i> Enter Name:
+            </label>
+            <input type="text" id="username" placeholder="Your name...">
+            <button onclick="joinChat()">
+                <i class="fas fa-sign-in-alt"></i> Join Chat
+            </button>
+
+            <h3><i class="fas fa-users"></i> Online Users</h3>
+            <select id="userList">
+                <option value="All">Global Chat</option>
+                <% users.forEach(user => { %>
+                    <option value="<%= user.username %>"><%= user.username %></option>
+                <% }) %>
+            </select>
+
+            <div class="chat-box" id="chatBox">
+                <% messages.forEach(msg => { %>
+                    <div class="message <%= msg.sender === currentUser ? 'sent' : 'received' %>">
+                        <p><strong><%= msg.sender === currentUser ? 'You' : msg.sender %>:</strong> <%= msg.text %></p>
+                    </div>
+                <% }) %>
+            </div>
+
+            <div class="chat-input">
+                <input type="text" id="chatMessage" placeholder="Type your message..." required>
+                <button onclick="sendMessage()">
+                    <i class="fas fa-paper-plane"></i> Send
+                </button>
+            </div>
+        </div>
+
+        <div class="back-container">
+            <a href="/player/player_dashboard" class="back">
+                <i class="fas fa-arrow-left"></i> Back to Dashboard
+            </a>
+        </div>
+    </div>
+
+    <script>
+        // Your existing JavaScript code remains the same
+    </script>
+</body>
+</html>

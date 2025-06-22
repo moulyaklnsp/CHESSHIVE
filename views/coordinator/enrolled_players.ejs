@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enrolled Players - ChessHive</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --sea-green: #2E8B57;
+            --cream: #FFFDD0;
+            --sky-blue: #87CEEB;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Playfair Display', serif;
+            background-color: var(--cream);
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        h2 {
+            font-family: 'Cinzel', serif;
+            font-size: 2.5rem;
+            color: var(--sea-green);
+            margin-bottom: 2rem;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        h2::before {
+            content: '♟️';
+            font-size: 2.5rem;
+        }
+        .individualPlayers-container, .teamPlayers-container{
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 2rem;
+        }
+
+        th {
+            background-color: var(--sea-green);
+            color: white;
+            padding: 1rem;
+            text-align: left;
+            font-family: 'Cinzel', serif;
+        }
+
+        td {
+            padding: 1rem;
+            border-bottom: 1px solid rgba(46, 139, 87, 0.2);
+        }
+
+        tr:hover {
+            background-color: rgba(135, 206, 235, 0.1);
+        }
+        .players-container {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .players-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .player-card {
+            background: var(--cream);
+            border-radius: 10px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .player-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--sea-green);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .player-name {
+            font-family: 'Cinzel', serif;
+            font-size: 1.2rem;
+            color: var(--sea-green);
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .rating {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #666;
+        }
+
+        .rating-value {
+            font-weight: bold;
+            color: var(--sea-green);
+        }
+
+        .navigation {
+            text-align: right;
+            margin-top: 2rem;
+        }
+
+        .nav-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: var(--sea-green);
+            color: white;
+            text-decoration: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            font-family: 'Cinzel', serif;
+            font-weight: bold;
+        }
+
+        .nav-link:hover {
+            background: #236B43;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .stats-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: var(--sky-blue);
+            padding: 1.5rem;
+            border-radius: 10px;
+            text-align: center;
+            color: var(--sea-green);
+        }
+
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            font-family: 'Cinzel', serif;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 1rem;
+            }
+
+            h2 {
+                font-size: 2rem;
+            }
+
+            .players-container {
+                padding: 1rem;
+            }
+
+            .players-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stats-summary {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <% if (typeof tournamentName !== 'undefined') { %>
+            <div class="searchBarContainer" ></div>
+            <h2>Enrolled Players for <%= tournamentName %></h2>
+
+            <% if (tournamentType === 'Individual') { %>
+                <h3>Individual Players</h3>
+                <% if (individualPlayers && individualPlayers.length > 0) { %>
+                    <div class="individualPlayers-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Username</th>
+                                    <th>College</th>
+                                    <th>Gender</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% individualPlayers.forEach(player => { %>
+                                    <tr>
+                                        <td><%= player.username %></td>
+                                        <td><%= player.college %></td>
+                                        <td><%= player.gender %></td>
+                                    </tr>
+                                <% }); %>
+                            </tbody>
+                        </table>
+                    </div>
+                <% } else { %>
+                    <p>No individual players enrolled in this tournament yet.</p>
+                <% } %>
+            <% } %>
+
+            <% if (tournamentType === 'Team') { %>
+                <h3>Team Enrollments</h3>
+                <% if (teamEnrollments && teamEnrollments.length > 0) { %>
+                    <div class="teamPlayers-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Captain</th>
+                                    <th>Player 1</th>
+                                    <th>Player 2</th>
+                                    <th>Player 3</th>
+                                    <th>Approval Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% teamEnrollments.forEach(team => { %>
+                                    <tr>
+                                        <td><%= team.captain_name %></td>
+                                        <td>
+                                            <%= team.player1_name %>
+                                            <span class="<%= team.player1_approved ? 'approved' : 'pending' %>">
+                                                (<%= team.player1_approved ? 'Approved' : 'Pending' %>)
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <%= team.player2_name %>
+                                            <span class="<%= team.player2_approved ? 'approved' : 'pending' %>">
+                                                (<%= team.player2_approved ? 'Approved' : 'Pending' %>)
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <%= team.player3_name %>
+                                            <span class="<%= team.player3_approved ? 'approved' : 'pending' %>">
+                                                (<%= team.player3_approved ? 'Approved' : 'Pending' %>)
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <% if (team.player1_approved && team.player2_approved && team.player3_approved) { %>
+                                                <span class="approved">Fully Approved</span>
+                                            <% } else { %>
+                                                <span class="pending">Pending</span>
+                                            <% } %>
+                                        </td>
+                                    </tr>
+                                <% }); %>
+                            </tbody>
+                        </table>
+                    </div>
+                <% } else { %>
+                    <p>No teams enrolled in this tournament yet.</p>
+                <% } %>
+            <% } %>
+        <% } else { %>
+            <p>No players available.</p>
+        <% } %>
+
+        <div class="navigation">
+            <a href="/coordinator/tournament_management" class="nav-link">
+                <i class="fas fa-users"></i> Back to tournaments
+            </a>
+        </div>
+    </div>
+    <script src="/js/searchbar.js"></script>  
+</body>
+</html>

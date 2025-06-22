@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tournament Management - ChessHive</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <style>
+    :root {
+      --sea-green: #2E8B57;
+      --cream: #FFFDD0;
+      --sky-blue: #87CEEB;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Playfair Display', serif;
+      background-color: var(--cream);
+      min-height: 100vh;
+      padding: 2rem;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    h2, h3 {
+      font-family: 'Cinzel', serif;
+      color: var(--sea-green);
+      text-align: center;
+      margin-bottom: 1.5rem;
+    }
+
+    h2 {
+      font-size: 2.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+    }
+
+    h2::before {
+      content: '🏆';
+      font-size: 2.5rem;
+    }
+
+    .message {
+      padding: 1rem;
+      border-radius: 8px;
+      margin-bottom: 1.5rem;
+      text-align: center;
+    }
+
+    .success {
+      background-color: rgba(46, 139, 87, 0.1);
+      color: var(--sea-green);
+    }
+
+    .error {
+      background-color: #ffebee;
+      color: #c62828;
+    }
+
+    .controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .search-box {
+      flex: 1;
+      max-width: 300px;
+      position: relative;
+    }
+
+    .search-box input {
+      width: 100%;
+      padding: 0.8rem 1rem 0.8rem 2.5rem;
+      border: 2px solid var(--sea-green);
+      border-radius: 8px;
+      font-size: 1rem;
+      font-family: 'Playfair Display', serif;
+      transition: all 0.3s ease;
+      background-color: var(--cream);
+      color: var(--sea-green);
+    }
+
+    .search-box input::placeholder {
+      color: rgba(46, 139, 87, 0.6);
+      font-style: italic;
+    }
+
+    .search-box i {
+      position: absolute;
+      left: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--sea-green);
+      font-size: 1.2rem;
+    }
+
+    .search-box input:focus {
+      outline: none;
+      border-color: var(--sky-blue);
+      box-shadow: 0 0 0 3px rgba(135, 206, 235, 0.2);
+    }
+
+    .attribute-select {
+      padding: 0.8rem;
+      border: 2px solid var(--sea-green);
+      border-radius: 8px;
+      font-size: 1rem;
+      font-family: 'Playfair Display', serif;
+      background-color: var(--cream);
+      color: var(--sea-green);
+      transition: all 0.3s ease;
+    }
+
+    .attribute-select:focus {
+      outline: none;
+      border-color: var(--sky-blue);
+      box-shadow: 0 0 0 3px rgba(135, 206, 235, 0.2);
+    }
+
+    .table-div {
+      background: white;
+      border-radius: 15px;
+      padding: 2rem;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      margin-bottom: 2rem;
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 1rem;
+    }
+
+    th {
+      background-color: var(--sea-green);
+      color: var(--cream);
+      padding: 1rem;
+      text-align: left;
+      font-family: 'Cinzel', serif;
+    }
+
+    td {
+      padding: 1rem;
+      border-bottom: 1px solid rgba(46, 139, 87, 0.2);
+    }
+
+    tr:hover {
+      background-color: rgba(135, 206, 235, 0.1);
+    }
+
+    .approved-by {
+      font-style: italic;
+      color: var(--sea-green);
+      font-size: 0.9rem;
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .approve-btn, .reject-btn {
+      padding: 0.6rem 1rem;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-family: 'Cinzel', serif;
+      font-weight: bold;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .approve-btn {
+      background-color: var(--sea-green);
+      color: var(--cream);
+    }
+
+    .reject-btn {
+      background-color: #dc3545;
+      color: white;
+    }
+
+    .approve-btn:hover, .reject-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+
+   thresh
+    .status-badge {
+      padding: 0.5rem 1rem;
+      border-radius: 20px;
+      font-size: 0.9rem;
+      font-weight: bold;
+      text-align: center;
+      display: inline-block;
+    }
+
+    .status-active {
+      background-color: rgba(46, 139, 87, 0.1);
+      color: var(--sea-green);
+    }
+
+    .status-pending {
+      background-color: rgba(255, 193, 7, 0.1);
+      color: #ffc107;
+    }
+
+    .back-container {
+      text-align: right;
+    }
+
+    .back {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background-color: var(--sea-green);
+      color: var(--cream);
+      text-decoration: none;
+      padding: 0.8rem 1.5rem;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+      font-family: 'Cinzel', serif;
+      font-weight: bold;
+    }
+
+    .back:hover {
+      background-color: #236B43;
+      transform: translateY(-2px);
+    }
+
+    .more-container {
+      text-align: center;
+      margin: 1rem 0;
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+    }
+
+    .more, .hide {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background-color: var(--sky-blue);
+      color: var(--sea-green);
+      text-decoration: none;
+      padding: 0.8rem 1.5rem;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+      font-family: 'Cinzel', serif;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .more:hover, .hide:hover {
+      background-color: #5f9ece;
+      transform: translateY(-2px);
+    }
+
+    .searchBarContainer {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px;
+      background: #f5f5f5;
+      border-radius: 10px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+      max-width: 500px;
+      margin: 20px auto;
+    }
+
+    .searchBarContainer select {
+      padding: 8px 12px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      background-color: #fff;
+      font-size: 14px;
+      transition: border-color 0.3s ease;
+    }
+
+    .searchBarContainer select:focus {
+      outline: none;
+      border-color: #007bff;
+    }
+
+    .searchBarContainer input {
+      flex: 1;
+      padding: 8px 12px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: 14px;
+      transition: border-color 0.3s ease;
+    }
+
+    .searchBarContainer input:focus {
+      outline: none;
+      border-color: #007bff;
+    }
+
+    @media (max-width: 768px) {
+      body {
+        padding: 1rem;
+      }
+
+      .table-div {
+        padding: 1rem;
+      }
+
+      td, th {
+        padding: 0.8rem;
+      }
+
+      .action-buttons {
+        flex-direction: column;
+      }
+
+      .controls {
+        flex-direction: column;
+      }
+
+      .search-box {
+        max-width: 100%;
+      }
+
+      .back-container {
+        text-align: center;
+      }
+
+      .more-container {
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Tournament Management</h2>
+
+    <% if (successMessage) { %>
+      <div class="message success">
+        <i class="fas fa-check-circle"></i> <%= successMessage %>
+      </div>
+    <% } %>
+    <% if (errorMessage) { %>
+      <div class="message error">
+        <i class="fas fa-exclamation-circle"></i> <%= errorMessage %>
+      </div>
+    <% } %>
+
+    <div class="table-div">
+      <h3>Tournament Approval & Management</h3>
+      <div class="searchBarContainer"></div>
+      <table>
+        <thead>
+          <tr>
+            <th><i class="fas fa-trophy"></i> Name</th>
+            <th><i class="fas fa-calendar"></i> Date</th>
+            <th><i class="fas fa-map-marker-alt"></i> Location</th>
+            <th><i class="fas fa-coins"></i> Entry Fee</th>
+            <th><i class="fas fa-users"></i> Type</th>
+            <th><i class="fas fa-user"></i> Added By</th>
+            <th><i class="fas fa-info-circle"></i> Status</th>
+            <th><i class="fas fa-cogs"></i> Actions</th>
+          </tr>
+        </thead>
+        <tbody id="tournamentTable">
+          <% if (Array.isArray(tournaments) && tournaments.length > 0) { %>
+            <% tournaments.forEach((tournament, index) => { %>
+              <tr class="tournament-row" <%= index >= 5 ? 'style="display: none;"' : '' %>>
+                <td><%= tournament.name %></td>
+                <td><%= tournament.date.toLocaleDateString() %></td>
+                <td><%= tournament.location %></td>
+                <td>₹<%= tournament.entry_fee %></td>
+                <td><%= tournament.type %></td>
+                <td><%= tournament.added_by %></td>
+                <td>
+                  <% if (tournament.status === 'Approved') { %>
+                    <span class="status-badge status-active">
+                      <i class="fas fa-check-circle"></i> Approved
+                    </span>
+                    <div class="approved-by">by <%= tournament.approved_by %></div>
+                  <% } else { %>
+                    <span class="status-badge status-pending">
+                      <i class="fas fa-clock"></i> <%= tournament.status || 'Pending' %>
+                    </span>
+                  <% } %>
+                </td>
+                <td>
+                  <% if (!tournament.status || tournament.status === 'Pending') { %>
+                    <div class="action-buttons">
+                      <form action="/organizer/approve-tournament" method="POST" style="display:inline;">
+                        <input type="hidden" name="tournamentId" value="<%= tournament._id.toString() %>">
+                        <button type="submit" class="approve-btn">
+                          <i class="fas fa-check"></i> Approve
+                        </button>
+                      </form>
+                      <form action="/organizer/reject-tournament" method="POST" style="display:inline;">
+                        <input type="hidden" name="tournamentId" value="<%= tournament._id.toString() %>">
+                        <button type="submit" class="reject-btn">
+                          <i class="fas fa-times"></i> Reject
+                        </button>
+                      </form>
+                    </div>
+                  <% } else { %>
+                    <span><%= tournament.status %></span>
+                  <% } %>
+                </td>
+              </tr>
+            <% }); %>
+          <% } else { %>
+            <tr>
+              <td colspan="8" style="text-align: center; padding: 2rem;">
+                <i class="fas fa-info-circle"></i> No tournaments available for review.
+              </td>
+            </tr>
+          <% } %>
+        </tbody>
+      </table>
+
+      <% if (Array.isArray(tournaments) && tournaments.length > 0) { %>
+        <div class="more-container">
+          <% if (tournaments.length > 5) { %>
+            <a href="#" class="more" id="moreLink">
+              <i class="fas fa-chevron-down"></i> More
+            </a>
+          <% } %>
+          <a href="#" class="hide" id="hideLink" style="display: none;">
+            <i class="fas fa-chevron-up"></i> Hide
+          </a>
+        </div>
+      <% } %>
+
+      <div class="back-container">
+        <a href="/organizer/organizer_dashboard" class="back">
+          <i class="fas fa-arrow-left"></i> Back to Dashboard
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <script src="/js/searchbar.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const moreLink = document.getElementById('moreLink');
+      const hideLink = document.getElementById('hideLink');
+      const tournamentRows = document.querySelectorAll('.tournament-row');
+      let visibleCount = 5; // Initial number of visible rows
+
+      if (moreLink) {
+        moreLink.addEventListener('click', function(event) {
+          event.preventDefault();
+          // Show the next 5 rows
+          for (let i = visibleCount; i < Math.min(visibleCount + 5, tournamentRows.length); i++) {
+            tournamentRows[i].style.display = '';
+          }
+          visibleCount += 5;
+
+          // Hide "More" link and show "Hide" link if no more rows to show
+          if (visibleCount >= tournamentRows.length) {
+            moreLink.style.display = 'none';
+          }
+          hideLink.style.display = 'inline-flex';
+        });
+      }
+
+      if (hideLink) {
+        hideLink.addEventListener('click', function(event) {
+          event.preventDefault();
+          // Hide all rows beyond the first 5
+          for (let i = 5; i < tournamentRows.length; i++) {
+            tournamentRows[i].style.display = 'none';
+          }
+          visibleCount = 5; // Reset to initial 5 rows
+
+          // Show "More" link and hide "Hide" link
+          moreLink.style.display = tournamentRows.length > 5 ? 'inline-flex' : 'none';
+          hideLink.style.display = 'none';
+        });
+      }
+    });
+  </script>
+</body>
+</html>

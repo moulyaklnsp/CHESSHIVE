@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tournament Oversight - ChessHive</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --sea-green: #2E8B57;
+            --cream: #FFFDD0;
+            --sky-blue: #87CEEB;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Playfair Display', serif;
+            background-color: var(--cream);
+            color: var(--sea-green);
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h2 {
+            font-family: 'Cinzel', serif;
+            font-size: 2.5rem;
+            color: var(--sea-green);
+            margin-bottom: 2rem;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        h2::before {
+            content: '♔';
+            font-size: 2.5rem;
+        }
+
+        h4 {
+            color: var(--sea-green);
+            font-size: 1.2rem;
+            margin-bottom: 1.5rem;
+            font-family: 'Cinzel', serif;
+        }
+
+        .message {
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .success {
+            background-color: rgba(46, 139, 87, 0.1);
+            color: var(--sea-green);
+        }
+
+        .error {
+            background-color: rgba(220, 53, 69, 0.1);
+            color: #dc3545;
+        }
+
+        .table-div {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 2rem;
+        }
+
+        th {
+            background-color: var(--sea-green);
+            color: var(--cream);
+            padding: 1.2rem;
+            text-align: left;
+            font-family: 'Cinzel', serif;
+            font-size: 1.1rem;
+        }
+
+        td {
+            padding: 1rem;
+            border-bottom: 1px solid rgba(46, 139, 87, 0.2);
+        }
+
+        tr:hover {
+            background-color: rgba(135, 206, 235, 0.1);
+        }
+
+        .status-badge {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            text-align: center;
+            display: inline-block;
+        }
+
+        .status-active {
+            background-color: rgba(46, 139, 87, 0.1);
+            color: var(--sea-green);
+        }
+
+        .status-pending {
+            background-color: rgba(255, 193, 7, 0.1);
+            color: #ffc107;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .search-box {
+            flex: 1;
+            max-width: 300px;
+            position: relative;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 0.8rem 1rem 0.8rem 2.5rem;
+            border: 2px solid var(--sea-green);
+            border-radius: 8px;
+            font-size: 1rem;
+            font-family: 'Playfair Display', serif;
+            transition: all 0.3s ease;
+            background-color: white;
+            color: var(--sea-green);
+        }
+
+        .search-box input::placeholder {
+            color: rgba(46, 139, 87, 0.6);
+            font-style: italic;
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--sea-green);
+            font-size: 1.2rem;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: var(--sky-blue);
+            box-shadow: 0 0 0 3px rgba(135, 206, 235, 0.2);
+        }
+
+        .attribute-select {
+            padding: 0.8rem;
+            border: 2px solid var(--sea-green);
+            border-radius: 8px;
+            font-size: 1rem;
+            font-family: 'Playfair Display', serif;
+            background-color: white;
+            color: var(--sea-green);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .attribute-select:focus {
+            outline: none;
+            border-color: var(--sky-blue);
+            box-shadow: 0 0 0 3px rgba(135, 206, 235, 0.2);
+        }
+
+        .back-container {
+            margin-top: 2rem;
+            text-align: right;
+        }
+
+        .back {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background-color: var(--sea-green);
+            color: var(--cream);
+            text-decoration: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            font-family: 'Cinzel', serif;
+            font-weight: bold;
+        }
+
+        .back:hover {
+            background-color: #236B43;
+            transform: translateY(-2px);
+        }
+
+        .more-container {
+            text-align: center;
+            margin: 1rem 0;
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        .more, .hide {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background-color: var(--sky-blue);
+            color: var(--sea-green);
+            text-decoration: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            font-family: 'Cinzel', serif;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .more:hover, .hide:hover {
+            background-color: #5f9ece;
+            transform: translateY(-2px);
+        }
+
+        .row-counter {
+            text-align: center;
+            margin-bottom: 1rem;
+            font-family: 'Cinzel', serif;
+            font-size: 1.2rem;
+            color: var(--sea-green);
+            background-color: rgba(46, 139, 87, 0.1);
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            display: inline-block;
+            width: auto;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .empty-message {
+            text-align: center;
+            padding: 2rem;
+            color: var(--sea-green);
+            font-style: italic;
+        }
+
+        .searchBarContainer {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            background: #f5f5f5;
+            border-radius: 10px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            max-width: 500px;
+            margin: 20px auto;
+        }
+
+        .searchBarContainer select {
+            padding: 8px 12px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            background-color: #fff;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+
+        .searchBarContainer select:focus {
+            outline: none;
+            border-color: #007bff;
+        }
+
+        .searchBarContainer input {
+            flex: 1;
+            padding: 8px 12px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+
+        .searchBarContainer input:focus {
+            outline: none;
+            border-color: #007bff;
+        }
+
+        @media (max-width: 768px) {
+            .controls {
+                flex-direction: column;
+            }
+
+            .search-box {
+                max-width: 100%;
+            }
+
+            td, th {
+                padding: 0.8rem;
+            }
+
+            .back-container {
+                text-align: center;
+            }
+
+            .more-container {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+
+            .row-counter {
+                font-size: 1rem;
+                padding: 0.4rem 0.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Tournament Oversight</h2>
+
+        <% if (successMessage) { %>
+            <div class="message success">
+                <i class="fas fa-check-circle"></i> <%= successMessage %>
+            </div>
+        <% } %>
+        <% if (errorMessage) { %>
+            <div class="message error">
+                <i class="fas fa-exclamation-circle"></i> <%= errorMessage %>
+            </div>
+        <% } %>
+
+        <div class="table-div">
+            <h4><i class="fas fa-chess-board"></i> Tournament Overview</h4>
+            
+            <div id="adminTournamentTable">
+                <% if (typeof tournaments !== 'undefined' && Array.isArray(tournaments) && tournaments.length > 0) { %>
+                    <div class="row-counter" id="tournamentsCounter"><%= Math.min(tournaments.length, 5) %> / <%= tournaments.length %></div>
+                    <div class="searchBarContainer"></div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th><i class="fas fa-trophy"></i> Name</th>
+                                <th><i class="far fa-calendar"></i> Date</th>
+                                <th><i class="fas fa-map-marker-alt"></i> Location</th>
+                                <th><i class="fas fa-rupee-sign"></i> Entry Fee</th>
+                                <th><i class="fas fa-chess"></i> Type</th>
+                                <th><i class="fas fa-info-circle"></i> Status</th>
+                                <th><i class="fas fa-users"></i> Players</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tournamentsTable">
+                            <% tournaments.forEach((tournament, index) => { %>
+                                <tr class="tournament-row" <%= index >= 5 ? 'style="display: none;"' : '' %>>
+                                    <td><%= tournament.name %></td>
+                                    <td><%= tournament.date %></td>
+                                    <td><%= tournament.location %></td>
+                                    <td>₹<%= tournament.entry_fee %></td>
+                                    <td><%= tournament.type %></td>
+                                    <td>
+                                        <span class="status-badge <%= tournament.status.toLowerCase() === 'running' ? 'status-active' : 'status-pending' %>">
+                                            <%= tournament.status %>
+                                        </span>
+                                    </td>
+                                    <td><%= tournament.player_count %></td>
+                                </tr>
+                            <% }); %>
+                        </tbody>
+                    </table>
+                    <div class="more-container">
+                        <% if (tournaments.length > 5) { %>
+                            <a href="#" class="more" id="tournamentsMoreLink">
+                                <i class="fas fa-chevron-down"></i> More
+                            </a>
+                        <% } %>
+                        <a href="#" class="hide" id="tournamentsHideLink" style="display: none;">
+                            <i class="fas fa-chevron-up"></i> Hide
+                        </a>
+                    </div>
+                <% } else { %>
+                    <div class="row-counter" id="tournamentsCounter">0 / 0</div>
+                    <div class="empty-message">
+                        <i class="fas fa-info-circle"></i> No approved tournaments available.
+                    </div>
+                <% } %>
+            </div>
+
+            <div class="back-container">
+                <a href="/admin/admin_dashboard" class="back">
+                    <i class="fas fa-arrow-left"></i> Back to Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/searchbar.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const moreLink = document.getElementById('tournamentsMoreLink');
+            const hideLink = document.getElementById('tournamentsHideLink');
+            const rows = document.querySelectorAll('.tournament-row');
+            const rowCounter = document.getElementById('tournamentsCounter');
+            let visibleRows = 5; // Initial number of visible rows
+            const rowsPerPage = 5;
+            const totalRows = rows.length;
+
+            // Initialize visibility
+            rows.forEach((row, index) => {
+                row.style.display = index < visibleRows ? '' : 'none';
+            });
+
+            // Update row counter and link visibility
+            const updateDisplay = () => {
+                if (rowCounter) {
+                    rowCounter.textContent = `${Math.min(visibleRows, totalRows)} / ${totalRows}`;
+                }
+                if (moreLink) {
+                    moreLink.style.display = visibleRows < totalRows ? 'inline-flex' : 'none';
+                }
+                if (hideLink) {
+                    hideLink.style.display = visibleRows > 5 ? 'inline-flex' : 'none';
+                }
+            };
+            updateDisplay();
+
+            // More link functionality
+            if (moreLink) {
+                moreLink.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    // Show next 5 rows
+                    for (let i = visibleRows; i < Math.min(visibleRows + rowsPerPage, totalRows); i++) {
+                        rows[i].style.display = '';
+                    }
+                    visibleRows += rowsPerPage;
+                    updateDisplay();
+                });
+            }
+
+            // Hide link functionality
+            if (hideLink) {
+                hideLink.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    // Revert to first 5 rows
+                    rows.forEach((row, index) => {
+                        row.style.display = index < 5 ? '' : 'none';
+                    });
+                    visibleRows = 5;
+                    updateDisplay();
+                });
+            }
+        });
+    </script>
+</body>
+</html>

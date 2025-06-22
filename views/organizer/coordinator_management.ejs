@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Coordinator Management - ChessHive</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <style>
+    :root {
+      --sea-green: #2E8B57;
+      --cream: #FFFDD0;
+      --sky-blue: #87CEEB;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Playfair Display', serif;
+      background-color: var(--cream);
+      color: var(--sea-green);
+      min-height: 100vh;
+      padding: 2rem;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    h2 {
+      font-family: 'Cinzel', serif;
+      font-size: 2.5rem;
+      color: var(--sea-green);
+      margin-bottom: 2rem;
+      text-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+    }
+
+    h2::before {
+      content: '👥';
+      font-size: 2.5rem;
+    }
+
+    .controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .search-box {
+      flex: 1;
+      max-width: 400px;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      position: relative;
+    }
+
+    .search-box select {
+      padding: 0.8rem;
+      border: 2px solid var(--sea-green);
+      border-radius: 8px;
+      font-size: 1rem;
+      font-family: 'Playfair Display', serif;
+      background-color: var(--cream);
+      color: var(--sea-green);
+      transition: all 0.3s ease;
+      cursor: pointer;
+      width: 150px;
+    }
+
+    .search-box select:focus {
+      outline: none;
+      border-color: var(--sky-blue);
+      box-shadow: 0 0 0 3px rgba(135, 206, 235, 0.2);
+    }
+
+    .search-box input {
+      flex: 1;
+      padding: 0.8rem 1rem 0.8rem 2.5rem;
+      border: 2px solid var(--sea-green);
+      border-radius: 8px;
+      font-size: 1rem;
+      font-family: 'Playfair Display', serif;
+      transition: all 0.3s ease;
+      background-color: var(--cream);
+      color: var(--sea-green);
+    }
+
+    .search-box input::placeholder {
+      color: rgba(46, 139, 87, 0.6);
+      font-style: italic;
+    }
+
+    .search-box i {
+      position: absolute;
+      left: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--sea-green);
+      font-size: 1.2rem;
+    }
+
+    .search-box input:focus {
+      outline: none;
+      border-color: var(--sky-blue);
+      box-shadow: 0 0 0 3px rgba(135, 206, 235, 0.2);
+    }
+
+    .table-div {
+      background: white;
+      border-radius: 15px;
+      padding: 2rem;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 2rem;
+    }
+
+    th {
+      background-color: var(--sea-green);
+      color: var(--cream);
+      padding: 1.2rem;
+      text-align: left;
+      font-family: 'Cinzel', serif;
+    }
+
+    td {
+      padding: 1rem;
+      border-bottom: 1px solid rgba(46, 139, 87, 0.2);
+    }
+
+    tr:hover {
+      background-color: rgba(135, 206, 235, 0.1);
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    button {
+      background-color: #ff6b6b;
+      color: white;
+      border: none;
+      padding: 0.6rem 1rem;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-family: 'Cinzel', serif;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+
+    .add-btn {
+      background-color: var(--sea-green);
+    }
+
+    .export-btn {
+      background-color: var(--sky-blue);
+      color: var(--sea-green);
+    }
+
+    .back-container {
+      margin-top: 2rem;
+      text-align: right;
+    }
+
+    .back {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background-color: var(--sea-green);
+      color: var(--cream);
+      text-decoration: none;
+      padding: 0.8rem 1.5rem;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+      font-family: 'Cinzel', serif;
+      font-weight: bold;
+    }
+
+    .back:hover {
+      background-color: #236B43;
+      transform: translateY(-2px);
+    }
+
+    .empty-message {
+      text-align: center;
+      padding: 2rem;
+      color: var(--sea-green);
+      font-style: italic;
+    }
+
+    .more-container {
+      text-align: center;
+      margin: 1rem 0;
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+    }
+
+    .more, .hide {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background-color: var(--sky-blue);
+      color: var(--sea-green);
+      text-decoration: none;
+      padding: 0.8rem 1.5rem;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+      font-family: 'Cinzel', serif;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .more:hover, .hide:hover {
+      background-color: #5f9ece;
+      transform: translateY(-2px);
+    }
+
+    .searchBarContainer {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  background: #f5f5f5;
+  border-radius: 10px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  max-width: 500px;
+  margin: 20px auto;
+}
+
+/* Dropdown styling */
+.searchBarContainer select {
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  background-color: #fff;
+  font-size: 14px;
+  transition: border-color 0.3s ease;
+}
+
+.searchBarContainer select:focus {
+  outline: none;
+  border-color: #007bff;
+}
+
+/* Input styling */
+.searchBarContainer input {
+  flex: 1;
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 14px;
+  transition: border-color 0.3s ease;
+}
+
+.searchBarContainer input:focus {
+  outline: none;
+  border-color: #007bff;
+}
+
+    @media (max-width: 768px) {
+      .controls {
+        flex-direction: column;
+      }
+
+      .search-box {
+        max-width: 100%;
+        flex-direction: column;
+      }
+
+      .search-box select {
+        width: 100%;
+        margin-bottom: 0.5rem;
+      }
+
+      .search-box input {
+        width: 100%;
+      }
+
+      td, th {
+        padding: 0.8rem;
+      }
+
+      .action-buttons {
+        flex-direction: column;
+      }
+
+      .back-container {
+        text-align: center;
+      }
+
+      .more-container {
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Coordinator Management</h2>
+
+   
+    <div class="table-div">
+ <div class="searchBarContainer"></div>
+      <table>
+        <thead>
+          <tr>
+            <th><i class="fas fa-user"></i> Name</th>
+            <th><i class="fas fa-envelope"></i> Email</th>
+            <th><i class="fas fa-university"></i> Assigned College</th>
+            <th><i class="fas fa-cogs"></i> Actions</th>
+          </tr>
+        </thead>
+        <tbody id="coordinatorTable">
+          <% if (typeof coordinators !== "undefined" && coordinators.length > 0) { %>
+            <% coordinators.forEach((coordinator, index) => { %>
+              <tr class="coordinator-row" <%= index >= 5 ? 'style="display: none;"' : '' %>>
+                <td><%= coordinator.name %></td>
+                <td><%= coordinator.email %></td>
+                <td><%= coordinator.college %></td>
+                <td>
+                  <div class="action-buttons">
+                    <button CUPdated artifact with attribute selection and targeted search functionality onclick="removeCoordinator('<%= coordinator.email %>', this)">
+                      <i class="fas fa-user-minus"></i> Remove
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            <% }); %>
+          <% } else { %>
+            <tr>
+              <td colspan="4" class="empty-message">
+                <i class="fas fa-info-circle"></i> No coordinators available.
+              </td>
+            </tr>
+          <% } %>
+        </tbody>
+      </table>
+
+      <% if (typeof coordinators !== "undefined" && coordinators.length > 0) { %>
+        <div class="more-container">
+          <% if (coordinators.length > 5) { %>
+            <a href="#" class="more" id="moreLink">
+              <i class="fas fa-chevron-down"></i> More
+            </a>
+          <% } %>
+          <a href="#" class="hide" id="hideLink" style="display: none;">
+            <i class="fas fa-chevron-up"></i> Hide
+          </a>
+        </div>
+      <% } %>
+
+      <!-- Back Button -->
+      <div class="back-container">
+        <a href="/organizer/organizer_dashboard" class="back">
+          <i class="fas fa-arrow-left"></i> Back to Dashboard
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- JavaScript for Search, More, and Hide Functionality -->
+   <script src="/js/searchbar.js"></script> 
+  <script src="/js/coordinator_management.js"></script>
+</body>
+</html>
